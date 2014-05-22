@@ -58,7 +58,7 @@
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51Gap::setAdvertisingData(GapAdvertisingData & advData, GapAdvertisingData & scanResponse)
+ble_error_t nRF51Gap::setAdvertisingData(const GapAdvertisingData & advData, const GapAdvertisingData & scanResponse)
 {
     /* Make sure we don't exceed the advertising payload length */
     if (advData.getPayloadLen() > GAP_ADVERTISING_DATA_MAX_PAYLOAD)
@@ -119,7 +119,7 @@ ble_error_t nRF51Gap::setAdvertisingData(GapAdvertisingData & advData, GapAdvert
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51Gap::startAdvertising(GapAdvertisingParams & params)
+ble_error_t nRF51Gap::startAdvertising(const GapAdvertisingParams & params)
 {
       /* Make sure we support the advertising type */
     if (params.getAdvertisingType() == GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED)
@@ -270,7 +270,7 @@ uint16_t nRF51Gap::getConnectionHandle(void)
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51Gap::setAddress(addr_type_t type, uint8_t address[6])
+ble_error_t nRF51Gap::setAddress(addr_type_t type, const uint8_t address[6])
 {
   if ( type > ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE) return BLE_ERROR_PARAM_OUT_OF_RANGE;
  
