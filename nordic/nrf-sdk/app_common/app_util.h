@@ -48,8 +48,6 @@ enum
 #define EXTERNAL_INT_VECTOR_OFFSET 16
 /**@endcond */
 
-#define PACKED(TYPE) __packed TYPE
-
 /**@brief Macro for doing static (i.e. compile time) assertion.
  *
  * @note If the assertion fails when compiling using Keil, the compiler will report error message
