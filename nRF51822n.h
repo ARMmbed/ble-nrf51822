@@ -34,7 +34,7 @@
 
 */
 /**************************************************************************/
-class nRF51822n : public BLEDevice
+class nRF51822n : public BLEDeviceInstanceBase
 {
     public:
         nRF51822n(void);

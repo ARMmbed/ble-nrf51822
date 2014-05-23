@@ -19,6 +19,20 @@
 
 #include "btle/btle.h"
 
+/**
+ * The singleton which represents the nRF51822 transport for the BLEDevice.
+ */
+static nRF51822n deviceInstance;
+
+/**
+ * BLE-API requires an implementation of the following function in order to
+ * obtain its transport handle.
+ */
+BLEDeviceInstanceBase *
+createBLEDeviceInstance(void) {
+    return (&deviceInstance);
+}
+
 /**************************************************************************/
 /*!
     @brief  Constructor
