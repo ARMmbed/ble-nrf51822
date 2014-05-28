@@ -22,30 +22,6 @@
 
 #include "nRF51Gap.h"
 
-/**
- * The nRF transport has its own 3-byte representation of a UUID. If the user-
- * specified UUID is 128-bits wide, then the UUID base needs to be added to the
- * soft-device and converted to a 3-byte handle before being used further. This
- * function is responsible for this translation of user-specified UUIDs into
- * nRF's representation.
- *
- * @param[in]  uuid
- *                 user-specified UUID
- * @return nRF
- *              3-byte UUID (containing a type and 16-bit UUID) representation
- *              to be used with SVC calls.
- */
-static ble_uuid_t
-custom_convert_to_transport_uuid(const uint16_t uuid)
-{
-    ble_uuid_t transportUUID = { /* presently we only deal with 16-bit uuids. */
-        .type = BLE_UUID_TYPE_BLE,
-        .uuid = uuid
-    };
-
-    return transportUUID;
-}
-
 /**************************************************************************/
 /*!
     @brief  Adds a new service to the GATT table on the peripheral
@@ -93,7 +69,6 @@ ble_error_t nRF51GattServer::addService(GattService & service)
 
         uuid = custom_convert_to_transport_uuid(p_char->uuid);
 
-        uuid.uuid = p_char->uuid;
         ASSERT ( ERROR_NONE ==
                  custom_add_in_characteristic(service.handle,
                                               &uuid,

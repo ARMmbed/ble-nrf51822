@@ -23,10 +23,12 @@ extern "C" {
 
 #include "common/common.h"
 #include "ble.h"
+#include "UUID.h"
 
 uint8_t custom_add_uuid_base(uint8_t const *const p_uuid_base);
 error_t custom_decode_uuid(uint8_t const *const p_uuid_base,
                            ble_uuid_t          *p_uuid);
+ble_uuid_t custom_convert_to_transport_uuid(const UUID &uuid);
 
 error_t custom_add_in_characteristic(uint16_t                  service_handle,
                                      ble_uuid_t               *p_uuid,

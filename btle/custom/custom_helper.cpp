@@ -16,6 +16,35 @@
 
  #include "custom_helper.h"
 
+/**
+ * The nRF transport has its own 3-byte representation of a UUID. If the user-
+ * specified UUID is 128-bits wide, then the UUID base needs to be added to the
+ * soft-device and converted to a 3-byte handle before being used further. This
+ * function is responsible for this translation of user-specified UUIDs into
+ * nRF's representation.
+ *
+ * @param[in]  uuid
+ *                 user-specified UUID
+ * @return nRF
+ *              3-byte UUID (containing a type and 16-bit UUID) representation
+ *              to be used with SVC calls.
+ */
+ble_uuid_t custom_convert_to_transport_uuid(const UUID &uuid)
+{
+    ble_uuid_t transportUUID = {
+        .uuid = uuid.value,
+        .type = BLE_UUID_TYPE_UNKNOWN /* to be set below */
+    };
+
+    if (uuid.type == UUID::UUID_TYPE_SHORT) {
+        transportUUID.type = BLE_UUID_TYPE_BLE;
+    } else {
+        transportUUID.type = custom_add_uuid_base(uuid.base);
+    }
+
+    return transportUUID;
+}
+
 /**************************************************************************/
 /*!
     @brief      Adds the base UUID to the custom service. All UUIDs used
