@@ -17,6 +17,26 @@
  #include "custom_helper.h"
 
 /**
+ * lookup the cache of previously converted 128-bit UUIDs to find a type value.
+ * @param  uuid          long UUID
+ * @param  recoveredType the type field of the 3-byte nRF's uuid.
+ * @return               true if a match is found.
+ */
+static bool
+lookupConvertedUUIDTable(const uint8_t  uuid[UUID::LENGTH_OF_LONG_UUID],
+                           uint8_t       *recoveredType)
+{
+    return false;
+}
+
+static void
+addToConvertedUUIDTable(const uint8_t uuid[UUID::LENGTH_OF_LONG_UUID],
+                        uint8_t       recoveredType)
+{
+    /* empty for now */
+}
+
+/**
  * The nRF transport has its own 3-byte representation of a UUID. If the user-
  * specified UUID is 128-bits wide, then the UUID base needs to be added to the
  * soft-device and converted to a 3-byte handle before being used further. This
@@ -39,7 +59,10 @@ ble_uuid_t custom_convert_to_transport_uuid(const UUID &uuid)
     if (uuid.type == UUID::UUID_TYPE_SHORT) {
         transportUUID.type = BLE_UUID_TYPE_BLE;
     } else {
-        transportUUID.type = custom_add_uuid_base(uuid.base);
+        if (!lookupConvertedUUIDTable(uuid.base, &transportUUID.type)) {
+            transportUUID.type = custom_add_uuid_base(uuid.base);
+            addToConvertedUUIDTable(uuid.base, transportUUID.type);
+        }
     }
 
     return transportUUID;
