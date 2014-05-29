@@ -45,21 +45,11 @@ ble_error_t nRF51GattServer::addService(GattService & service)
     /* ToDo: Basic validation */
 
     /* Add the service to the nRF51 */
-    ble_uuid_t uuid;
-
-    if (service.primaryServiceID.type == UUID::UUID_TYPE_SHORT) {
-        /* 16-bit BLE UUID */
-        uuid.type = BLE_UUID_TYPE_BLE;
-    } else {
-        /* 128-bit Custom UUID */
-        uuid.type = custom_add_uuid_base( service.primaryServiceID.base );
-    }
-
-    uuid.uuid = service.primaryServiceID.value;
-
+    ble_uuid_t nordicUUID;
+    nordicUUID = custom_convert_to_transport_uuid(service.primaryServiceID);
     ASSERT( ERROR_NONE ==
             sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
-                                     &uuid,
+                                     &nordicUUID,
                                      &service.handle),
             BLE_ERROR_PARAM_OUT_OF_RANGE );
 
@@ -67,11 +57,11 @@ ble_error_t nRF51GattServer::addService(GattService & service)
     for (uint8_t i = 0; i < service.characteristicCount; i++) {
         GattCharacteristic *p_char = service.characteristics[i];
 
-        uuid = custom_convert_to_transport_uuid(p_char->uuid);
+        nordicUUID = custom_convert_to_transport_uuid(p_char->uuid);
 
         ASSERT ( ERROR_NONE ==
                  custom_add_in_characteristic(service.handle,
-                                              &uuid,
+                                              &nordicUUID,
                                               p_char->properties,
                                               NULL,
                                               p_char->lenMin,
