@@ -17,6 +17,21 @@
  #include "custom_helper.h"
 
 /**
+ * Types and data structures involved in maintaining a local cache of 128-bit
+ * UUIDs which have been added to the nRF using SVC calls previously.
+ */
+typedef struct {
+    uint8_t uuid[UUID::LENGTH_OF_LONG_UUID];
+    uint8_t type;
+} converted_uuid_table_entry_t;
+static const unsigned UUID_TABLE_MAX_ENTRIES = 8; /* This is the maximum number
+                                    * of 128-bit UUIDs with distinct bases that
+                                    * we expect to be in use; increase this
+                                    * limit if needed. */
+static unsigned uuidTableEntries = 0; /* current usage of the table */
+converted_uuid_table_entry_t convertedUUIDTable[UUID_TABLE_MAX_ENTRIES];
+
+/**
  * lookup the cache of previously converted 128-bit UUIDs to find a type value.
  * @param  uuid          long UUID
  * @param  recoveredType the type field of the 3-byte nRF's uuid.
@@ -24,16 +39,35 @@
  */
 static bool
 lookupConvertedUUIDTable(const uint8_t  uuid[UUID::LENGTH_OF_LONG_UUID],
-                           uint8_t       *recoveredType)
+                         uint8_t       *recoveredType)
 {
+    unsigned i;
+    for (i = 0; i < uuidTableEntries; i++) {
+        if (memcmp(convertedUUIDTable[i].uuid,
+                   uuid,
+                   UUID::LENGTH_OF_LONG_UUID) == 0) {
+            *recoveredType = convertedUUIDTable[i].type;
+            return true;
+        }
+    }
+
     return false;
 }
 
 static void
 addToConvertedUUIDTable(const uint8_t uuid[UUID::LENGTH_OF_LONG_UUID],
-                        uint8_t       recoveredType)
+                        uint8_t       type)
 {
-    /* empty for now */
+    if (uuidTableEntries == UUID_TABLE_MAX_ENTRIES) {
+        return; /* recovery needed; or at least the user should be
+                 * warned about this fact.*/
+    }
+
+    memcpy(convertedUUIDTable[uuidTableEntries].uuid,
+           uuid,
+           UUID::LENGTH_OF_LONG_UUID);
+    convertedUUIDTable[uuidTableEntries].type = type;
+    uuidTableEntries++;
 }
 
 /**
@@ -51,21 +85,21 @@ addToConvertedUUIDTable(const uint8_t uuid[UUID::LENGTH_OF_LONG_UUID],
  */
 ble_uuid_t custom_convert_to_transport_uuid(const UUID &uuid)
 {
-    ble_uuid_t transportUUID = {
+    ble_uuid_t nordicUUID = {
         .uuid = uuid.value,
         .type = BLE_UUID_TYPE_UNKNOWN /* to be set below */
     };
 
     if (uuid.type == UUID::UUID_TYPE_SHORT) {
-        transportUUID.type = BLE_UUID_TYPE_BLE;
+        nordicUUID.type = BLE_UUID_TYPE_BLE;
     } else {
-        if (!lookupConvertedUUIDTable(uuid.base, &transportUUID.type)) {
-            transportUUID.type = custom_add_uuid_base(uuid.base);
-            addToConvertedUUIDTable(uuid.base, transportUUID.type);
+        if (!lookupConvertedUUIDTable(uuid.base, &nordicUUID.type)) {
+            nordicUUID.type = custom_add_uuid_base(uuid.base);
+            addToConvertedUUIDTable(uuid.base, nordicUUID.type);
         }
     }
 
-    return transportUUID;
+    return nordicUUID;
 }
 
 /**************************************************************************/
