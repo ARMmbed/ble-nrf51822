@@ -57,21 +57,21 @@ ble_error_t nRF51GattServer::addService(GattService & service)
     for (uint8_t i = 0; i < service.characteristicCount; i++) {
         GattCharacteristic *p_char = service.characteristics[i];
 
-        nordicUUID = custom_convert_to_nordic_uuid(p_char->uuid);
+        nordicUUID = custom_convert_to_nordic_uuid(p_char->getUUID());
 
         ASSERT ( ERROR_NONE ==
                  custom_add_in_characteristic(service.handle,
                                               &nordicUUID,
-                                              p_char->properties,
+                                              p_char->getProperties(),
                                               NULL,
-                                              p_char->lenMin,
-                                              p_char->lenMax,
+                                              p_char->getMinLength(),
+                                              p_char->getMaxLength(),
                                               &nrfCharacteristicHandles[
                                                   characteristicCount]),
                  BLE_ERROR_PARAM_OUT_OF_RANGE );
 
         /* Update the characteristic handle */
-        p_char->handle                           = characteristicCount;
+        p_char->setHandle(characteristicCount);
         p_characteristics[characteristicCount++] = p_char;
     }
 
@@ -161,7 +161,7 @@ ble_error_t nRF51GattServer::updateValue(uint16_t charHandle,
                     BLE_ERROR_PARAM_OUT_OF_RANGE );
     }
 
-    if ((p_characteristics[charHandle]->properties &
+    if ((p_characteristics[charHandle]->getProperties() &
          (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE |
           GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)) &&
         (gapConnectionHandle != BLE_CONN_HANDLE_INVALID)) {
@@ -170,7 +170,7 @@ ble_error_t nRF51GattServer::updateValue(uint16_t charHandle,
 
         hvx_params.handle = nrfCharacteristicHandles[charHandle].value_handle;
         hvx_params.type   =
-            (p_characteristics[charHandle]->properties &
+            (p_characteristics[charHandle]->getProperties() &
              GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)  ?
             BLE_GATT_HVX_NOTIFICATION : BLE_GATT_HVX_INDICATION;
         hvx_params.offset = 0;
@@ -225,7 +225,7 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
         /* 1.) Handle CCCD changes */
         handle_value = p_ble_evt->evt.gatts_evt.params.write.handle;
         for (uint8_t i = 0; i<characteristicCount; i++) {
-            if ((p_characteristics[i]->properties &
+            if ((p_characteristics[i]->getProperties() &
                  (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE |
                   GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)) &&
                 (nrfCharacteristicHandles[i].cccd_handle == handle_value)) {
@@ -235,10 +235,10 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                                                     * Little Endian but M0 may
                                                     * be mis-aligned */
 
-                if (((p_characteristics[i]->properties &
+                if (((p_characteristics[i]->getProperties() &
                       GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE) &&
                      (cccd_value & BLE_GATT_HVX_INDICATION)) ||
-                    ((p_characteristics[i]->properties &
+                    ((p_characteristics[i]->getProperties() &
                       GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) &&
                      (cccd_value & BLE_GATT_HVX_NOTIFICATION))) {
                     event = GattServerEvents::GATT_EVENT_UPDATES_ENABLED;
