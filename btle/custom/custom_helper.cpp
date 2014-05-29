@@ -83,7 +83,7 @@ addToConvertedUUIDTable(const uint8_t uuid[UUID::LENGTH_OF_LONG_UUID],
  *              3-byte UUID (containing a type and 16-bit UUID) representation
  *              to be used with SVC calls.
  */
-ble_uuid_t custom_convert_to_transport_uuid(const UUID &uuid)
+ble_uuid_t custom_convert_to_nordic_uuid(const UUID &uuid)
 {
     ble_uuid_t nordicUUID = {
         .uuid = uuid.value,

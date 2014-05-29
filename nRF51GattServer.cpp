@@ -46,7 +46,7 @@ ble_error_t nRF51GattServer::addService(GattService & service)
 
     /* Add the service to the nRF51 */
     ble_uuid_t nordicUUID;
-    nordicUUID = custom_convert_to_transport_uuid(service.primaryServiceID);
+    nordicUUID = custom_convert_to_nordic_uuid(service.primaryServiceID);
     ASSERT( ERROR_NONE ==
             sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
                                      &nordicUUID,
@@ -57,7 +57,7 @@ ble_error_t nRF51GattServer::addService(GattService & service)
     for (uint8_t i = 0; i < service.characteristicCount; i++) {
         GattCharacteristic *p_char = service.characteristics[i];
 
-        nordicUUID = custom_convert_to_transport_uuid(p_char->uuid);
+        nordicUUID = custom_convert_to_nordic_uuid(p_char->uuid);
 
         ASSERT ( ERROR_NONE ==
                  custom_add_in_characteristic(service.handle,
