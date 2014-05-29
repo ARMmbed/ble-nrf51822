@@ -86,16 +86,16 @@ addToConvertedUUIDTable(const uint8_t uuid[UUID::LENGTH_OF_LONG_UUID],
 ble_uuid_t custom_convert_to_nordic_uuid(const UUID &uuid)
 {
     ble_uuid_t nordicUUID = {
-        .uuid = uuid.value,
+        .uuid = uuid.get16BitUUID(),
         .type = BLE_UUID_TYPE_UNKNOWN /* to be set below */
     };
 
-    if (uuid.type == UUID::UUID_TYPE_SHORT) {
+    if (uuid.shortOrLong() == UUID::UUID_TYPE_SHORT) {
         nordicUUID.type = BLE_UUID_TYPE_BLE;
     } else {
-        if (!lookupConvertedUUIDTable(uuid.base, &nordicUUID.type)) {
-            nordicUUID.type = custom_add_uuid_base(uuid.base);
-            addToConvertedUUIDTable(uuid.base, nordicUUID.type);
+        if (!lookupConvertedUUIDTable(uuid.getBaseUUID(), &nordicUUID.type)) {
+            nordicUUID.type = custom_add_uuid_base(uuid.getBaseUUID());
+            addToConvertedUUIDTable(uuid.getBaseUUID(), nordicUUID.type);
         }
     }
 
