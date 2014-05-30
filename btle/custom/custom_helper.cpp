@@ -16,9 +16,11 @@
 
  #include "custom_helper.h"
 
-/**
- * Types and data structures involved in maintaining a local cache of 128-bit
- * UUIDs which have been added to the nRF using SVC calls previously.
+/*
+ * The current version of the soft-device doesn't handle duplicate 128-bit UUIDs
+ * very  well. It is therefore necessary to filter away duplicates before
+ * passing long UUIDs to sd_ble_uuid_vs_add(). The following types and data
+ * structures involved in maintaining a local cache of 128-bit UUIDs.
  */
 typedef struct {
     uint8_t uuid[UUID::LENGTH_OF_LONG_UUID];
