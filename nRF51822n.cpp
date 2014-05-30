@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-  
+
 #include "mbed.h"
 #include "nRF51822n.h"
 
@@ -54,12 +54,12 @@ nRF51822n::~nRF51822n(void)
 /**************************************************************************/
 /*!
     @brief  Initialises anything required to start using BLE
-            
+
     @returns    ble_error_t
-    
+
     @retval     BLE_ERROR_NONE
                 Everything executed properly
-                
+
     @section EXAMPLE
 
     @code
@@ -72,6 +72,8 @@ ble_error_t nRF51822n::init(void)
   /* ToDo: Clear memory contents, reset the SD, etc. */
   btle_init();
 
+  reset();
+
   return BLE_ERROR_NONE;
 }
 
@@ -79,12 +81,12 @@ ble_error_t nRF51822n::init(void)
 /*!
     @brief  Resets the BLE HW, removing any existing services and
             characteristics
-            
+
     @returns    ble_error_t
-    
+
     @retval     BLE_ERROR_NONE
                 Everything executed properly
-                
+
     @section EXAMPLE
 
     @code
@@ -95,9 +97,9 @@ ble_error_t nRF51822n::init(void)
 ble_error_t nRF51822n::reset(void)
 {
     wait(0.5);
-    
+
     /* Wait for the radio to come back up */
     wait(1);
-    
+
     return BLE_ERROR_NONE;
 }
