@@ -21,4 +21,4 @@
 
 error_t btle_gap_init(void);
 
-#endif
+#endif // ifndef _BTLE_GAP_H_

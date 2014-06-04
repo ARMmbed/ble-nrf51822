@@ -18,7 +18,7 @@
 #define _BTLE_H_
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #include "common/common.h"
@@ -29,7 +29,7 @@
 error_t btle_init(void);
 
 #ifdef __cplusplus
- }
+}
 #endif
 
-#endif
+#endif // ifndef _BTLE_H_

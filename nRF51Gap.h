@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-  
+
 #ifndef __NRF51822_GAP_H__
 #define __NRF51822_GAP_H__
 
@@ -32,30 +32,33 @@
 /**************************************************************************/
 class nRF51Gap : public Gap
 {
-    public:
-        static nRF51Gap& getInstance()
-        {
-            static nRF51Gap m_instance;
-            return m_instance;
-        }
+public:
+    static nRF51Gap& getInstance()
+    {
+        static nRF51Gap m_instance;
+        return m_instance;
+    }
 
-        /* Functions that must be implemented from Gap */
-        virtual ble_error_t setAddress(addr_type_t type,
-                                       const uint8_t address[6]);
-        virtual ble_error_t setAdvertisingData(const GapAdvertisingData &,
-                                               const GapAdvertisingData &);
-        virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
-        virtual ble_error_t stopAdvertising(void);
-        virtual ble_error_t disconnect(void);
-        
-        void     setConnectionHandle(uint16_t con_handle);
-        uint16_t getConnectionHandle(void);
-         
-    private:
-        uint16_t m_connectionHandle;
-        nRF51Gap() { m_connectionHandle = BLE_CONN_HANDLE_INVALID; };
-        nRF51Gap(nRF51Gap const&);
-        void operator=(nRF51Gap const&);
+    /* Functions that must be implemented from Gap */
+    virtual ble_error_t setAddress(addr_type_t   type,
+                                   const uint8_t address[6]);
+    virtual ble_error_t setAdvertisingData(const GapAdvertisingData &,
+                                           const GapAdvertisingData &);
+    virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
+    virtual ble_error_t stopAdvertising(void);
+    virtual ble_error_t disconnect(void);
+
+    void     setConnectionHandle(uint16_t con_handle);
+    uint16_t getConnectionHandle(void);
+
+private:
+    uint16_t m_connectionHandle;
+    nRF51Gap() {
+        m_connectionHandle = BLE_CONN_HANDLE_INVALID;
+    }
+
+    nRF51Gap(nRF51Gap const&);
+    void operator=(nRF51Gap const&);
 };
 
-#endif
+#endif // ifndef __NRF51822_GAP_H__

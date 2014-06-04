@@ -37,12 +37,14 @@
 #include "nRF51GattServer.h"
 
 static void service_error_callback(uint32_t nrf_error);
-void        assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name);
-void        app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name);
+void        assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
+void        app_error_handler(uint32_t       error_code,
+                              uint32_t       line_num,
+                              const uint8_t *p_file_name);
 
 static error_t bond_manager_init(void);
 
-static void btle_handler(ble_evt_t * p_ble_evt);
+static void btle_handler(ble_evt_t *p_ble_evt);
 
 /**************************************************************************/
 /*!
@@ -51,7 +53,7 @@ static void btle_handler(ble_evt_t * p_ble_evt);
 /**************************************************************************/
 static void sys_evt_dispatch(uint32_t sys_evt)
 {
-  pstorage_sys_event_handler(sys_evt);
+    pstorage_sys_event_handler(sys_evt);
 }
 
 /**************************************************************************/
@@ -63,16 +65,16 @@ static void sys_evt_dispatch(uint32_t sys_evt)
 /**************************************************************************/
 error_t btle_init(void)
 {
-  APP_TIMER_INIT(0, 8, 5, false);
-  SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, false);
+    APP_TIMER_INIT(0, 8, 5, false);
+    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, false);
 
-  ASSERT_STATUS( softdevice_ble_evt_handler_set(btle_handler) );
-  ASSERT_STATUS( softdevice_sys_evt_handler_set(sys_evt_dispatch) );
+    ASSERT_STATUS( softdevice_ble_evt_handler_set(btle_handler));
+    ASSERT_STATUS( softdevice_sys_evt_handler_set(sys_evt_dispatch));
 
-  bond_manager_init();
-  btle_gap_init();
+    bond_manager_init();
+    btle_gap_init();
 
-  return ERROR_NONE;
+    return ERROR_NONE;
 }
 
 /**************************************************************************/
@@ -80,65 +82,72 @@ error_t btle_init(void)
     @brief
 
     @param[in]  p_ble_evt
-    
+
     @returns
 */
 /**************************************************************************/
-static void btle_handler(ble_evt_t * p_ble_evt)
+static void btle_handler(ble_evt_t *p_ble_evt)
 {
-  /* Library service handlers */
-  ble_bondmngr_on_ble_evt(p_ble_evt);
-  ble_conn_params_on_ble_evt(p_ble_evt);
+    /* Library service handlers */
+    ble_bondmngr_on_ble_evt(p_ble_evt);
+    ble_conn_params_on_ble_evt(p_ble_evt);
 
-  /* Custom event handler */
-  switch (p_ble_evt->header.evt_id)
-  {
+    /* Custom event handler */
+    switch (p_ble_evt->header.evt_id) {
     case BLE_GAP_EVT_CONNECTED:
-      nRF51Gap::getInstance().setConnectionHandle( p_ble_evt->evt.gap_evt.conn_handle );
-      nRF51Gap::getInstance().handleEvent(GapEvents::GAP_EVENT_CONNECTED);
-      break;
+        nRF51Gap::getInstance().setConnectionHandle(
+            p_ble_evt->evt.gap_evt.conn_handle );
+        nRF51Gap::getInstance().handleEvent(GapEvents::GAP_EVENT_CONNECTED);
+        break;
 
     case BLE_GAP_EVT_DISCONNECTED:
-      // Since we are not in a connection and have not started advertising, store bonds
-      nRF51Gap::getInstance().setConnectionHandle (BLE_CONN_HANDLE_INVALID);
-      ASSERT_STATUS_RET_VOID ( ble_bondmngr_bonded_centrals_store() );
-      nRF51Gap::getInstance().handleEvent(GapEvents::GAP_EVENT_DISCONNECTED);
-      break;
+        // Since we are not in a connection and have not started advertising,
+        // store bonds
+        nRF51Gap::getInstance().setConnectionHandle (BLE_CONN_HANDLE_INVALID);
+        ASSERT_STATUS_RET_VOID ( ble_bondmngr_bonded_centrals_store());
+        nRF51Gap::getInstance().handleEvent(GapEvents::GAP_EVENT_DISCONNECTED);
+        break;
 
     case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
-      {
-        ble_gap_sec_params_t sec_params = { 0 };
+    {
+        ble_gap_sec_params_t sec_params = {0};
 
-        sec_params.timeout      = 30                                ; /**< Timeout for Pairing Request or Security Request (in seconds). */
-        sec_params.bond         = 1                                 ; /**< Perform bonding. */
-        sec_params.mitm         = CFG_BLE_SEC_PARAM_MITM            ;
-        sec_params.io_caps      = CFG_BLE_SEC_PARAM_IO_CAPABILITIES ;
-        sec_params.oob          = CFG_BLE_SEC_PARAM_OOB             ;
-        sec_params.min_key_size = CFG_BLE_SEC_PARAM_MIN_KEY_SIZE    ;
-        sec_params.max_key_size = CFG_BLE_SEC_PARAM_MAX_KEY_SIZE    ;
+        sec_params.timeout      = 30; /*< Timeout for Pairing Request or
+                                       * Security Request (in seconds). */
+        sec_params.bond         = 1;  /**< Perform bonding. */
+        sec_params.mitm         = CFG_BLE_SEC_PARAM_MITM;
+        sec_params.io_caps      = CFG_BLE_SEC_PARAM_IO_CAPABILITIES;
+        sec_params.oob          = CFG_BLE_SEC_PARAM_OOB;
+        sec_params.min_key_size = CFG_BLE_SEC_PARAM_MIN_KEY_SIZE;
+        sec_params.max_key_size = CFG_BLE_SEC_PARAM_MAX_KEY_SIZE;
 
-        ASSERT_STATUS_RET_VOID ( sd_ble_gap_sec_params_reply(nRF51Gap::getInstance().getConnectionHandle(), BLE_GAP_SEC_STATUS_SUCCESS, &sec_params) );
-      }
-      break;
+        ASSERT_STATUS_RET_VOID(
+            sd_ble_gap_sec_params_reply(nRF51Gap::getInstance().
+                                        getConnectionHandle(),
+                                        BLE_GAP_SEC_STATUS_SUCCESS,
+                                        &sec_params));
+    }
+    break;
 
     case BLE_GAP_EVT_TIMEOUT:
-      if (p_ble_evt->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISEMENT)
-      {
-        nRF51Gap::getInstance().handleEvent(GapEvents::GAP_EVENT_TIMEOUT);
-      }
-      break;
+        if (p_ble_evt->evt.gap_evt.params.timeout.src ==
+            BLE_GAP_TIMEOUT_SRC_ADVERTISEMENT) {
+            nRF51Gap::getInstance().handleEvent(GapEvents::GAP_EVENT_TIMEOUT);
+        }
+        break;
 
     case BLE_GATTC_EVT_TIMEOUT:
     case BLE_GATTS_EVT_TIMEOUT:
-      // Disconnect on GATT Server and Client timeout events.
-      // ASSERT_STATUS_RET_VOID (sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION));
-      break;
+        // Disconnect on GATT Server and Client timeout events.
+        // ASSERT_STATUS_RET_VOID (sd_ble_gap_disconnect(m_conn_handle,
+        // BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION));
+        break;
 
-    default: 
-      break;
-  }
+    default:
+        break;
+    }
 
-  nRF51GattServer::getInstance().hwCallback(p_ble_evt);
+    nRF51GattServer::getInstance().hwCallback(p_ble_evt);
 }
 
 /**************************************************************************/
@@ -154,24 +163,24 @@ static void btle_handler(ble_evt_t * p_ble_evt)
 /**************************************************************************/
 static error_t bond_manager_init(void)
 {
-  ble_bondmngr_init_t bond_para = { 0 };
+    ble_bondmngr_init_t bond_para = {0};
 
-  ASSERT_STATUS ( pstorage_init() );
+    ASSERT_STATUS ( pstorage_init());
 
-  bond_para.flash_page_num_bond     = CFG_BLE_BOND_FLASH_PAGE_BOND                     ;
-  bond_para.flash_page_num_sys_attr = CFG_BLE_BOND_FLASH_PAGE_SYS_ATTR                 ;
+    bond_para.flash_page_num_bond     = CFG_BLE_BOND_FLASH_PAGE_BOND;
+    bond_para.flash_page_num_sys_attr = CFG_BLE_BOND_FLASH_PAGE_SYS_ATTR;
   //bond_para.bonds_delete            = boardButtonCheck(CFG_BLE_BOND_DELETE_BUTTON_NUM) ;
-  bond_para.evt_handler             = NULL                                             ;
-  bond_para.error_handler           = service_error_callback                           ;
+    bond_para.evt_handler   = NULL;
+    bond_para.error_handler = service_error_callback;
 
-  ASSERT_STATUS( ble_bondmngr_init( &bond_para ) );
+    ASSERT_STATUS( ble_bondmngr_init( &bond_para ));
 
   /* Init radio active/inactive notification to flash (to only perform flashing when the radio is inactive) */
   //  ASSERT_STATUS( ble_radio_notification_init(NRF_APP_PRIORITY_HIGH,
   //                                             NRF_RADIO_NOTIFICATION_DISTANCE_4560US,
   //                                             ble_flash_on_radio_active_evt) );
 
-  return ERROR_NONE;
+    return ERROR_NONE;
 }
 
 /**************************************************************************/
@@ -183,7 +192,7 @@ static error_t bond_manager_init(void)
 /**************************************************************************/
 static void service_error_callback(uint32_t nrf_error)
 {
-  ASSERT_STATUS_RET_VOID( nrf_error );
+    ASSERT_STATUS_RET_VOID( nrf_error );
 }
 
 /**************************************************************************/
@@ -196,9 +205,9 @@ static void service_error_callback(uint32_t nrf_error)
     @returns
 */
 /**************************************************************************/
-void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
+void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name)
 {
-  ASSERT(false, (void) 0);
+    ASSERT(false, (void) 0);
 }
 
 /**************************************************************************/
@@ -213,8 +222,10 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
     @returns
 */
 /**************************************************************************/
-void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name)
+void app_error_handler(uint32_t       error_code,
+                       uint32_t       line_num,
+                       const uint8_t *p_file_name)
 {
-  ASSERT_STATUS_RET_VOID( error_code );
-  NVIC_SystemReset();
+    ASSERT_STATUS_RET_VOID( error_code );
+    NVIC_SystemReset();
 }

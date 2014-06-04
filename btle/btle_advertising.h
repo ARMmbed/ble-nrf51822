@@ -21,4 +21,4 @@
 
 error_t btle_advertising_start(void);
 
-#endif
+#endif // ifndef _BTLE_ADVERTISING_H_
