@@ -24,7 +24,7 @@
  */
 typedef struct {
     LongUUID_t uuid;
-    uint8_t type;
+    uint8_t    type;
 } converted_uuid_table_entry_t;
 static const unsigned UUID_TABLE_MAX_ENTRIES = 8; /* This is the maximum number
                                     * of 128-bit UUIDs with distinct bases that
@@ -189,12 +189,12 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
     @retval     ERROR_NONE        Everything executed normally
 */
 /**************************************************************************/
-error_t custom_add_in_characteristic(uint16_t                  service_handle,
-                                     ble_uuid_t               *p_uuid,
-                                     uint8_t                   properties,
-                                     uint8_t                  *p_data,
-                                     uint16_t                  min_length,
-                                     uint16_t                  max_length,
+error_t custom_add_in_characteristic(uint16_t    service_handle,
+                                     ble_uuid_t *p_uuid,
+                                     uint8_t     properties,
+                                     uint8_t    *p_data,
+                                     uint16_t    min_length,
+                                     uint16_t    max_length,
                                      ble_gatts_char_handles_t *p_char_handle)
 {
     /* Characteristic metadata */
@@ -238,7 +238,6 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
     attr_char_value.init_len  = min_length;
     attr_char_value.max_len   = max_length;
     attr_char_value.p_value   = p_data;
-
 
     ASSERT_STATUS ( sd_ble_gatts_characteristic_add(service_handle,
                                                     &char_md,
