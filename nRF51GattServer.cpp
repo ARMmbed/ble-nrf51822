@@ -46,21 +46,21 @@ ble_error_t nRF51GattServer::addService(GattService & service)
 
     /* Add the service to the nRF51 */
     ble_uuid_t nordicUUID;
-    nordicUUID = custom_convert_to_nordic_uuid(service.primaryServiceID);
+    nordicUUID = custom_convert_to_nordic_uuid(service.getUUID());
     ASSERT( ERROR_NONE ==
             sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
                                      &nordicUUID,
-                                     &service.handle),
+                                     service.getHandlePtr()),
             BLE_ERROR_PARAM_OUT_OF_RANGE );
 
     /* Add characteristics to the service */
-    for (uint8_t i = 0; i < service.characteristicCount; i++) {
-        GattCharacteristic *p_char = service.characteristics[i];
+    for (uint8_t i = 0; i < service.getCharacteristicCount(); i++) {
+        GattCharacteristic *p_char = service.getCharacteristic(i);
 
         nordicUUID = custom_convert_to_nordic_uuid(p_char->getUUID());
 
         ASSERT ( ERROR_NONE ==
-                 custom_add_in_characteristic(service.handle,
+                 custom_add_in_characteristic(service.getHandle(),
                                               &nordicUUID,
                                               p_char->getProperties(),
                                               NULL,
