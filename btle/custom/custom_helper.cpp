@@ -40,8 +40,7 @@ converted_uuid_table_entry_t convertedUUIDTable[UUID_TABLE_MAX_ENTRIES];
  * @return               true if a match is found.
  */
 static bool
-lookupConvertedUUIDTable(const LongUUID_t  uuid,
-                         uint8_t          *recoveredType)
+lookupConvertedUUIDTable(const LongUUID_t uuid, uint8_t *recoveredType)
 {
     unsigned i;
     for (i = 0; i < uuidTableEntries; i++) {
