@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- #include "custom_helper.h"
+#include "custom_helper.h"
 
 /*
  * The current version of the soft-device doesn't handle duplicate 128-bit UUIDs

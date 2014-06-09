@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-  
+
 #ifndef __NRF51822_H__
 #define __NRF51822_H__
 
@@ -36,14 +36,18 @@
 /**************************************************************************/
 class nRF51822n : public BLEDeviceInstanceBase
 {
-    public:
-        nRF51822n(void);
-        virtual ~nRF51822n(void);
+public:
+    nRF51822n(void);
+    virtual ~nRF51822n(void);
 
-    	virtual Gap&        getGap()        { return nRF51Gap::getInstance(); };
-        virtual GattServer& getGattServer() { return nRF51GattServer::getInstance(); };
-        virtual ble_error_t init(void);
-        virtual ble_error_t reset(void);
+    virtual Gap        &getGap()        {
+        return nRF51Gap::getInstance();
+    };
+    virtual GattServer &getGattServer() {
+        return nRF51GattServer::getInstance();
+    };
+    virtual ble_error_t init(void);
+    virtual ble_error_t reset(void);
 };
 
 #endif

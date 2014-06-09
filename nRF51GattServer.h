@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-  
+
 #ifndef __NRF51822_GATT_SERVER_H__
 #define __NRF51822_GATT_SERVER_H__
 
@@ -32,31 +32,33 @@
 */
 /**************************************************************************/
 class nRF51GattServer : public GattServer
-{        
-    public:
-        static nRF51GattServer& getInstance()
-        {
-            static nRF51GattServer m_instance;
-            return m_instance;
-        }
+{
+public:
+    static nRF51GattServer &getInstance() {
+        static nRF51GattServer m_instance;
+        return m_instance;
+    }
 
-        /* Functions that must be implemented from GattServer */
-        virtual ble_error_t addService(GattService &);
-        virtual ble_error_t readValue(uint16_t, uint8_t[], uint16_t);
-        virtual ble_error_t updateValue(uint16_t, uint8_t[], uint16_t, bool localOnly = false);
-        
-        /* nRF51 Functions */
-        void eventCallback(void);
-        void hwCallback(ble_evt_t * p_ble_evt);
-        
-    private:
-        GattCharacteristic* p_characteristics[BLE_TOTAL_CHARACTERISTICS];
-        ble_gatts_char_handles_t nrfCharacteristicHandles[BLE_TOTAL_CHARACTERISTICS];
+    /* Functions that must be implemented from GattServer */
+    virtual ble_error_t addService(GattService &);
+    virtual ble_error_t readValue(uint16_t, uint8_t[], uint16_t);
+    virtual ble_error_t updateValue(uint16_t, uint8_t[], uint16_t, bool localOnly = false);
 
-        nRF51GattServer() { serviceCount = 0; characteristicCount = 0; };
+    /* nRF51 Functions */
+    void eventCallback(void);
+    void hwCallback(ble_evt_t *p_ble_evt);
 
-        nRF51GattServer(nRF51GattServer const&);
-        void operator=(nRF51GattServer const&);
+private:
+    GattCharacteristic *p_characteristics[BLE_TOTAL_CHARACTERISTICS];
+    ble_gatts_char_handles_t nrfCharacteristicHandles[BLE_TOTAL_CHARACTERISTICS];
+
+    nRF51GattServer() {
+        serviceCount = 0;
+        characteristicCount = 0;
+    };
+
+    nRF51GattServer(nRF51GattServer const &);
+    void operator=(nRF51GattServer const &);
 };
 
 #endif

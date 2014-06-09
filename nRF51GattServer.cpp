@@ -38,7 +38,7 @@
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51GattServer::addService(GattService & service)
+ble_error_t nRF51GattServer::addService(GattService &service)
 {
     /* ToDo: Make sure we don't overflow the array, etc. */
     /* ToDo: Make sure this service UUID doesn't already exist (?) */
@@ -66,8 +66,7 @@ ble_error_t nRF51GattServer::addService(GattService & service)
                                               NULL,
                                               p_char->getMinLength(),
                                               p_char->getMaxLength(),
-                                              &nrfCharacteristicHandles[
-                                                  characteristicCount]),
+                                              &nrfCharacteristicHandles[characteristicCount]),
                  BLE_ERROR_PARAM_OUT_OF_RANGE );
 
         /* Update the characteristic handle */
@@ -110,9 +109,8 @@ ble_error_t nRF51GattServer::readValue(uint16_t charHandle,
                                        uint16_t len)
 {
     ASSERT( ERROR_NONE ==
-            sd_ble_gatts_value_get(nrfCharacteristicHandles[charHandle].
-                                   value_handle, 0,
-                                   &len, buffer), BLE_ERROR_PARAM_OUT_OF_RANGE);
+            sd_ble_gatts_value_get(nrfCharacteristicHandles[charHandle].value_handle, 0, &len, buffer),
+            BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     return BLE_ERROR_NONE;
 }
@@ -149,11 +147,7 @@ ble_error_t nRF51GattServer::updateValue(uint16_t charHandle, uint8_t buffer[], 
     if (localOnly) {
         /* Only update locally regardless of notify/indicate */
         ASSERT_INT( ERROR_NONE,
-                    sd_ble_gatts_value_set(nrfCharacteristicHandles[charHandle].
-                                           value_handle,
-                                           0,
-                                           &len,
-                                           buffer),
+                    sd_ble_gatts_value_set(nrfCharacteristicHandles[charHandle].value_handle, 0, &len, buffer),
                     BLE_ERROR_PARAM_OUT_OF_RANGE );
     }
 
@@ -173,30 +167,20 @@ ble_error_t nRF51GattServer::updateValue(uint16_t charHandle, uint8_t buffer[], 
         hvx_params.p_data = buffer;
         hvx_params.p_len  = &len;
 
-        error_t error = (error_t) sd_ble_gatts_hvx(gapConnectionHandle,
-                                                   &hvx_params);
+        error_t error = (error_t) sd_ble_gatts_hvx(gapConnectionHandle, &hvx_params);
 
         /* ERROR_INVALID_STATE, ERROR_BUSY, ERROR_GATTS_SYS_ATTR_MISSING and
          *ERROR_NO_TX_BUFFERS the ATT table has been updated. */
         if ((error != ERROR_NONE) && (error != ERROR_INVALID_STATE) &&
-            (error != ERROR_BLE_NO_TX_BUFFERS) && (error != ERROR_BUSY) &&
-            (error != ERROR_BLEGATTS_SYS_ATTR_MISSING)) {
+                (error != ERROR_BLE_NO_TX_BUFFERS) && (error != ERROR_BUSY) &&
+                (error != ERROR_BLEGATTS_SYS_ATTR_MISSING)) {
             ASSERT_INT( ERROR_NONE,
-                        sd_ble_gatts_value_set(nrfCharacteristicHandles[
-                                                   charHandle].
-                                               value_handle,
-                                               0,
-                                               &len,
-                                               buffer),
+                        sd_ble_gatts_value_set(nrfCharacteristicHandles[charHandle].value_handle, 0, &len, buffer),
                         BLE_ERROR_PARAM_OUT_OF_RANGE );
         }
     } else {
         ASSERT_INT( ERROR_NONE,
-                    sd_ble_gatts_value_set(nrfCharacteristicHandles[charHandle].
-                                           value_handle,
-                                           0,
-                                           &len,
-                                           buffer),
+                    sd_ble_gatts_value_set(nrfCharacteristicHandles[charHandle].value_handle, 0, &len, buffer),
                     BLE_ERROR_PARAM_OUT_OF_RANGE );
     }
 
@@ -214,52 +198,49 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
     GattServerEvents::gattEvent_t event;
 
     switch (p_ble_evt->header.evt_id) {
-    case BLE_GATTS_EVT_WRITE:
-        /* There are 2 use case here: Values being updated & CCCD
-         *(indicate/notify) enabled */
+        case BLE_GATTS_EVT_WRITE:
+            /* There are 2 use case here: Values being updated & CCCD (indicate/notify) enabled */
 
-        /* 1.) Handle CCCD changes */
-        handle_value = p_ble_evt->evt.gatts_evt.params.write.handle;
-        for (uint8_t i = 0; i<characteristicCount; i++) {
-            if ((p_characteristics[i]->getProperties() &
-                 (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE |
-                  GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)) &&
-                (nrfCharacteristicHandles[i].cccd_handle == handle_value)) {
-                uint16_t cccd_value =
-                    (p_ble_evt->evt.gatts_evt.params.write.data[1] <<
-                    8) | p_ble_evt->evt.gatts_evt.params.write.data[0]; /*
-                                                    * Little Endian but M0 may
-                                                    * be mis-aligned */
+            /* 1.) Handle CCCD changes */
+            handle_value = p_ble_evt->evt.gatts_evt.params.write.handle;
+            for (uint8_t i = 0; i<characteristicCount; i++) {
+                if ((p_characteristics[i]->getProperties() &
+                        (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE |
+                         GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)) &&
+                        (nrfCharacteristicHandles[i].cccd_handle == handle_value)) {
+                    uint16_t cccd_value =
+                        (p_ble_evt->evt.gatts_evt.params.write.data[1] << 8) |
+                        p_ble_evt->evt.gatts_evt.params.write.data[0]; /* Little Endian but M0 may be mis-aligned */
 
-                if (((p_characteristics[i]->getProperties() &
-                      GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE) &&
-                     (cccd_value & BLE_GATT_HVX_INDICATION)) ||
-                    ((p_characteristics[i]->getProperties() &
-                      GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) &&
-                     (cccd_value & BLE_GATT_HVX_NOTIFICATION))) {
-                    event = GattServerEvents::GATT_EVENT_UPDATES_ENABLED;
-                } else {
-                    event = GattServerEvents::GATT_EVENT_UPDATES_DISABLED;
+                    if (((p_characteristics[i]->getProperties() &
+                            GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE) &&
+                            (cccd_value & BLE_GATT_HVX_INDICATION)) ||
+                            ((p_characteristics[i]->getProperties() &
+                              GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) &&
+                             (cccd_value & BLE_GATT_HVX_NOTIFICATION))) {
+                        event = GattServerEvents::GATT_EVENT_UPDATES_ENABLED;
+                    } else {
+                        event = GattServerEvents::GATT_EVENT_UPDATES_DISABLED;
+                    }
+
+                    handleEvent(event, i);
+                    return;
                 }
-
-                handleEvent(event, i);
-                return;
             }
-        }
 
-        /* 2.) Changes to the characteristic value will be handled with other
-         *events below */
-        event = GattServerEvents::GATT_EVENT_DATA_WRITTEN;
-        break;
+            /* 2.) Changes to the characteristic value will be handled with other
+             * events below */
+            event = GattServerEvents::GATT_EVENT_DATA_WRITTEN;
+            break;
 
-    case BLE_GATTS_EVT_HVC:
-        /* Indication confirmation received */
-        event        = GattServerEvents::GATT_EVENT_CONFIRMATION_RECEIVED;
-        handle_value = p_ble_evt->evt.gatts_evt.params.hvc.handle;
-        break;
+        case BLE_GATTS_EVT_HVC:
+            /* Indication confirmation received */
+            event        = GattServerEvents::GATT_EVENT_CONFIRMATION_RECEIVED;
+            handle_value = p_ble_evt->evt.gatts_evt.params.hvc.handle;
+            break;
 
-    default:
-        return;
+        default:
+            return;
     }
 
     /* Find index (charHandle) in the pool */

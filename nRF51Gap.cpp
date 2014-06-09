@@ -58,8 +58,7 @@
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51Gap::setAdvertisingData(const GapAdvertisingData &advData,
-                                         const GapAdvertisingData &scanResponse)
+ble_error_t nRF51Gap::setAdvertisingData(const GapAdvertisingData &advData, const GapAdvertisingData &scanResponse)
 {
     /* Make sure we don't exceed the advertising payload length */
     if (advData.getPayloadLen() > GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
@@ -127,15 +126,13 @@ ble_error_t nRF51Gap::setAdvertisingData(const GapAdvertisingData &advData,
 ble_error_t nRF51Gap::startAdvertising(const GapAdvertisingParams &params)
 {
     /* Make sure we support the advertising type */
-    if (params.getAdvertisingType() ==
-        GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) {
+    if (params.getAdvertisingType() == GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) {
         /* ToDo: This requires a propery security implementation, etc. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     /* Check interval range */
-    if (params.getAdvertisingType() ==
-        GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED) {
+    if (params.getAdvertisingType() == GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED) {
         /* Min delay is slightly longer for unconnectable devices */
         if ((params.getInterval() < GAP_ADV_PARAMS_INTERVAL_MIN_NONCON) ||
             (params.getInterval() > GAP_ADV_PARAMS_INTERVAL_MAX)) {
@@ -149,17 +146,14 @@ ble_error_t nRF51Gap::startAdvertising(const GapAdvertisingParams &params)
     }
 
     /* Check timeout is zero for Connectable Directed */
-    if ((params.getAdvertisingType() ==
-         GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) &&
-        (params.getTimeout() != 0)) {
+    if ((params.getAdvertisingType() == GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) && (params.getTimeout() != 0)) {
         /* Timeout must be 0 with this type, although we'll never get here */
         /* since this isn't implemented yet anyway */
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
     /* Check timeout for other advertising types */
-    if ((params.getAdvertisingType() !=
-         GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) &&
+    if ((params.getAdvertisingType() != GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) &&
         (params.getTimeout() > GAP_ADV_PARAMS_TIMEOUT_MAX)) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
@@ -168,13 +162,10 @@ ble_error_t nRF51Gap::startAdvertising(const GapAdvertisingParams &params)
     ble_gap_adv_params_t adv_para = {0};
 
     adv_para.type        = params.getAdvertisingType();
-    adv_para.p_peer_addr = NULL;                         // Undirected
-                                                         // advertisement
+    adv_para.p_peer_addr = NULL;                         // Undirected advertisement
     adv_para.fp          = BLE_GAP_ADV_FP_ANY;
     adv_para.p_whitelist = NULL;
-    adv_para.interval    = params.getInterval();         // advertising
-                                                         // interval (in units
-                                                         // of 0.625 ms)
+    adv_para.interval    = params.getInterval();         // advertising interval (in units of 0.625 ms)
     adv_para.timeout     = params.getTimeout();
 
     ASSERT(ERROR_NONE == sd_ble_gap_adv_start(&adv_para),

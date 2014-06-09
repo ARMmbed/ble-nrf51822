@@ -29,7 +29,8 @@ static nRF51822n deviceInstance;
  * obtain its transport handle.
  */
 BLEDeviceInstanceBase *
-createBLEDeviceInstance(void) {
+createBLEDeviceInstance(void)
+{
     return (&deviceInstance);
 }
 
@@ -69,12 +70,12 @@ nRF51822n::~nRF51822n(void)
 /**************************************************************************/
 ble_error_t nRF51822n::init(void)
 {
-  /* ToDo: Clear memory contents, reset the SD, etc. */
-  btle_init();
+    /* ToDo: Clear memory contents, reset the SD, etc. */
+    btle_init();
 
-  reset();
+    reset();
 
-  return BLE_ERROR_NONE;
+    return BLE_ERROR_NONE;
 }
 
 /**************************************************************************/

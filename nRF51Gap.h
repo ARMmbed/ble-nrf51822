@@ -33,8 +33,7 @@
 class nRF51Gap : public Gap
 {
 public:
-    static nRF51Gap& getInstance()
-    {
+    static nRF51Gap &getInstance() {
         static nRF51Gap m_instance;
         return m_instance;
     }
@@ -57,8 +56,8 @@ private:
         m_connectionHandle = BLE_CONN_HANDLE_INVALID;
     }
 
-    nRF51Gap(nRF51Gap const&);
-    void operator=(nRF51Gap const&);
+    nRF51Gap(nRF51Gap const &);
+    void operator=(nRF51Gap const &);
 };
 
 #endif // ifndef __NRF51822_GAP_H__
