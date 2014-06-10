@@ -23,16 +23,16 @@
 /**
  * The singleton which represents the nRF51822 transport for the BLEDevice.
  */
-static nRF51822n peripheralInstance;
+static nRF51822n deviceInstance;
 
 /**
  * BLE-API requires an implementation of the following function in order to
  * obtain its transport handle.
  */
-BLEPeripheralInstanceBase *
-createBLEPeripheralInstance(void)
+BLEDeviceInstanceBase *
+createBLEDeviceInstance(void)
 {
-    return (&peripheralInstance);
+    return (&deviceInstance);
 }
 
 /**************************************************************************/
