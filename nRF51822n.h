@@ -24,17 +24,11 @@
 
 #include "mbed.h"
 #include "blecommon.h"
-#include "hw/BLEDevice.h"
+#include "BLEPeripheral.h"
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
 
-/**************************************************************************/
-/*!
-    \brief
-
-*/
-/**************************************************************************/
-class nRF51822n : public BLEDeviceInstanceBase
+class nRF51822n : public BLEPeripheralInstanceBase
 {
 public:
     nRF51822n(void);
