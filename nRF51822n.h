@@ -48,6 +48,7 @@ public:
     };
     virtual ble_error_t init(void);
     virtual ble_error_t reset(void);
+    virtual void        waitForEvent(void);
 };
 
 #endif

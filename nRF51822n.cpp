@@ -16,6 +16,7 @@
 
 #include "mbed.h"
 #include "nRF51822n.h"
+#include "nrf_soc.h"
 
 #include "btle/btle.h"
 
@@ -103,4 +104,10 @@ ble_error_t nRF51822n::reset(void)
     wait(1);
 
     return BLE_ERROR_NONE;
+}
+
+void
+nRF51822n::waitForEvent(void)
+{
+    sd_app_evt_wait();
 }
