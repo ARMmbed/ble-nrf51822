@@ -63,7 +63,7 @@
                               Level 0: No debug information generated
 
     -----------------------------------------------------------------------*/
-    #define CFG_DEBUG                                  (2)
+    #define CFG_DEBUG                                  (1)
 
     #if (CFG_DEBUG > 3) || (CFG_DEBUG < 0)
       #error "CFG_DEBUG must be a value between 0 (no debug) and 3"
