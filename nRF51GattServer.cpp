@@ -77,7 +77,9 @@ ble_error_t nRF51GattServer::addService(GattService &service)
         p_characteristics[characteristicCount++] = p_char;
 
         p_char->setHandle(charHandle);
-        updateValue(charHandle, p_char->getValuePtr(), p_char->getInitialLength(), false /* localOnly */);
+        if ((p_char->getValuePtr() != NULL) && (p_char->getInitialLength() > 0)) {
+            updateValue(charHandle, p_char->getValuePtr(), p_char->getInitialLength(), false /* localOnly */);
+        }
     }
 
     serviceCount++;
