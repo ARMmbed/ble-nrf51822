@@ -70,8 +70,11 @@ ble_error_t nRF51GattServer::addService(GattService &service)
                  BLE_ERROR_PARAM_OUT_OF_RANGE );
 
         /* Update the characteristic handle */
-        p_char->setHandle(characteristicCount);
+        uint16_t charHandle = characteristicCount;
         p_characteristics[characteristicCount++] = p_char;
+
+        p_char->setHandle(charHandle);
+        updateValue(charHandle, p_char->getValuePtr(), p_char->getInitialLength(), false /* localOnly */);
     }
 
     serviceCount++;
