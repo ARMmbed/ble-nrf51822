@@ -47,11 +47,14 @@ ble_error_t nRF51GattServer::addService(GattService &service)
     /* Add the service to the nRF51 */
     ble_uuid_t nordicUUID;
     nordicUUID = custom_convert_to_nordic_uuid(service.getUUID());
+
+    uint16_t serviceHandle;
     ASSERT( ERROR_NONE ==
             sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
                                      &nordicUUID,
-                                     service.getHandlePtr()),
+                                     &serviceHandle),
             BLE_ERROR_PARAM_OUT_OF_RANGE );
+    service.setHandle(serviceHandle);
 
     /* Add characteristics to the service */
     for (uint8_t i = 0; i < service.getCharacteristicCount(); i++) {
