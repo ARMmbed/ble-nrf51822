@@ -64,7 +64,7 @@ ble_error_t nRF51GattServer::addService(GattService &service)
                                               &nordicUUID,
                                               p_char->getProperties(),
                                               NULL,
-                                              p_char->getMinLength(),
+                                              p_char->getInitialLength(),
                                               p_char->getMaxLength(),
                                               &nrfCharacteristicHandles[characteristicCount]),
                  BLE_ERROR_PARAM_OUT_OF_RANGE );
