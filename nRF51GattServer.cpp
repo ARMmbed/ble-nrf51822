@@ -112,12 +112,10 @@ ble_error_t nRF51GattServer::addService(GattService &service)
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51GattServer::readValue(uint16_t charHandle,
-                                       uint8_t  buffer[],
-                                       uint16_t len)
+ble_error_t nRF51GattServer::readValue(uint16_t charHandle, uint8_t buffer[], uint16_t *const lengthP)
 {
     ASSERT( ERROR_NONE ==
-            sd_ble_gatts_value_get(nrfCharacteristicHandles[charHandle].value_handle, 0, &len, buffer),
+            sd_ble_gatts_value_get(nrfCharacteristicHandles[charHandle].value_handle, 0, lengthP, buffer),
             BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     return BLE_ERROR_NONE;
