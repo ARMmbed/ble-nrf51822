@@ -10,6 +10,8 @@
  *
  */
 
+#if NEED_BOND_MANAGER /* disabled by default */
+
 #include "ble_bondmngr.h"
 #include <stdlib.h>
 #include <stdint.h>
@@ -1592,3 +1594,5 @@ uint32_t ble_bondmngr_is_link_encrypted (bool * status)
 
     return NRF_SUCCESS;
 }
+
+#endif /* #if NEED_BOND_MANAGER */

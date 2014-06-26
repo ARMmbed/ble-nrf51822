@@ -36,13 +36,17 @@
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
 
+#if NEED_BOND_MANAGER /* disabled by default */
 static void service_error_callback(uint32_t nrf_error);
+#endif
 void        assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
 void        app_error_handler(uint32_t       error_code,
                               uint32_t       line_num,
                               const uint8_t *p_file_name);
 
+#if NEED_BOND_MANAGER /* disabled by default */
 static error_t bond_manager_init(void);
+#endif
 
 static void btle_handler(ble_evt_t *p_ble_evt);
 
@@ -71,7 +75,9 @@ error_t btle_init(void)
     ASSERT_STATUS( softdevice_ble_evt_handler_set(btle_handler));
     ASSERT_STATUS( softdevice_sys_evt_handler_set(sys_evt_dispatch));
 
+#if NEED_BOND_MANAGER /* disabled by default */
     bond_manager_init();
+#endif
     btle_gap_init();
 
     return ERROR_NONE;
@@ -89,7 +95,9 @@ error_t btle_init(void)
 static void btle_handler(ble_evt_t *p_ble_evt)
 {
     /* Library service handlers */
+#if NEED_BOND_MANAGER /* disabled by default */
     ble_bondmngr_on_ble_evt(p_ble_evt);
+#endif
     ble_conn_params_on_ble_evt(p_ble_evt);
 
     /* Custom event handler */
@@ -104,7 +112,9 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             // Since we are not in a connection and have not started advertising,
             // store bonds
             nRF51Gap::getInstance().setConnectionHandle (BLE_CONN_HANDLE_INVALID);
+#if NEED_BOND_MANAGER /* disabled by default */
             ASSERT_STATUS_RET_VOID ( ble_bondmngr_bonded_centrals_store());
+#endif
             nRF51Gap::getInstance().handleEvent(GapEvents::GAP_EVENT_DISCONNECTED);
             break;
 
@@ -149,6 +159,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
     nRF51GattServer::getInstance().hwCallback(p_ble_evt);
 }
 
+#if NEED_BOND_MANAGER /* disabled by default */
 /**************************************************************************/
 /*!
     @brief      Initialises the bond manager
@@ -181,7 +192,9 @@ static error_t bond_manager_init(void)
 
     return ERROR_NONE;
 }
+#endif // #if NEED_BOND_MANAGER
 
+#if NEED_BOND_MANAGER /* disabled by default */
 /**************************************************************************/
 /*!
     @brief
@@ -193,6 +206,7 @@ static void service_error_callback(uint32_t nrf_error)
 {
     ASSERT_STATUS_RET_VOID( nrf_error );
 }
+#endif // #if NEED_BOND_MANAGER
 
 /**************************************************************************/
 /*!
