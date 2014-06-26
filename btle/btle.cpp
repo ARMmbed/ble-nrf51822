@@ -57,7 +57,9 @@ static void btle_handler(ble_evt_t *p_ble_evt);
 /**************************************************************************/
 static void sys_evt_dispatch(uint32_t sys_evt)
 {
+#if NEED_PSTORAGE /* disabled by default */
     pstorage_sys_event_handler(sys_evt);
+#endif
 }
 
 /**************************************************************************/

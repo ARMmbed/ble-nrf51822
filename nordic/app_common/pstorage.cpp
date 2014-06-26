@@ -10,6 +10,8 @@
  *
  */
 
+#if NEED_PSTORAGE /* disabled by default */
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
@@ -757,3 +759,4 @@ uint32_t pstorage_raw_clear(pstorage_handle_t * p_dest, uint32_t size)
 }
 
 #endif // PSTORAGE_RAW_MODE_ENABLE
+#endif /* #if NEED_PSTORAGE */
