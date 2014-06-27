@@ -234,8 +234,7 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                 }
             }
 
-            /* 2.) Changes to the characteristic value will be handled with other
-             * events below */
+            /* 2.) Changes to the characteristic value will be handled with other events below */
             event = GattServerEvents::GATT_EVENT_DATA_WRITTEN;
             break;
 

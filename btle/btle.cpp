@@ -50,11 +50,6 @@ static error_t bond_manager_init(void);
 
 static void btle_handler(ble_evt_t *p_ble_evt);
 
-/**************************************************************************/
-/*!
-
-*/
-/**************************************************************************/
 static void sys_evt_dispatch(uint32_t sys_evt)
 {
 #if NEED_PSTORAGE /* disabled by default */
@@ -62,13 +57,6 @@ static void sys_evt_dispatch(uint32_t sys_evt)
 #endif
 }
 
-/**************************************************************************/
-/*!
-    @brief      Initialises BTLE and the underlying HW/SoftDevice
-
-    @returns
-*/
-/**************************************************************************/
 error_t btle_init(void)
 {
     APP_TIMER_INIT(0, 8, 5, false);
@@ -85,15 +73,6 @@ error_t btle_init(void)
     return ERROR_NONE;
 }
 
-/**************************************************************************/
-/*!
-    @brief
-
-    @param[in]  p_ble_evt
-
-    @returns
-*/
-/**************************************************************************/
 static void btle_handler(ble_evt_t *p_ble_evt)
 {
     /* Library service handlers */
