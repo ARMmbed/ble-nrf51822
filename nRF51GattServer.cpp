@@ -210,20 +210,14 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
             /* 1.) Handle CCCD changes */
             handle_value = p_ble_evt->evt.gatts_evt.params.write.handle;
             for (uint8_t i = 0; i<characteristicCount; i++) {
-                if ((p_characteristics[i]->getProperties() &
-                        (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE |
-                         GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)) &&
-                        (nrfCharacteristicHandles[i].cccd_handle == handle_value)) {
+                if ((p_characteristics[i]->getProperties() & (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)) &&
+                    (nrfCharacteristicHandles[i].cccd_handle == handle_value)) {
                     uint16_t cccd_value =
                         (p_ble_evt->evt.gatts_evt.params.write.data[1] << 8) |
                         p_ble_evt->evt.gatts_evt.params.write.data[0]; /* Little Endian but M0 may be mis-aligned */
 
-                    if (((p_characteristics[i]->getProperties() &
-                            GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE) &&
-                            (cccd_value & BLE_GATT_HVX_INDICATION)) ||
-                            ((p_characteristics[i]->getProperties() &
-                              GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) &&
-                             (cccd_value & BLE_GATT_HVX_NOTIFICATION))) {
+                    if (((p_characteristics[i]->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE) && (cccd_value & BLE_GATT_HVX_INDICATION)) ||
+                        ((p_characteristics[i]->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) && (cccd_value & BLE_GATT_HVX_NOTIFICATION))) {
                         event = GattServerEvents::GATT_EVENT_UPDATES_ENABLED;
                     } else {
                         event = GattServerEvents::GATT_EVENT_UPDATES_DISABLED;
