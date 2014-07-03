@@ -232,6 +232,10 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
             event = GattServerEvents::GATT_EVENT_DATA_WRITTEN;
             break;
 
+        case BLE_EVT_TX_COMPLETE:
+            handleEvent(GattServerEvents::GATT_EVENT_DATA_SENT);
+            return;
+
         case BLE_GATTS_EVT_HVC:
             /* Indication confirmation received */
             event        = GattServerEvents::GATT_EVENT_CONFIRMATION_RECEIVED;
