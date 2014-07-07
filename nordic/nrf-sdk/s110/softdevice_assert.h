@@ -14,7 +14,6 @@
 #define SOFTDEVICE_ASSERT_H_
 
 #include <stdint.h>
-#include "nordic_global.h"
 
 /** @brief This function handles assertions.
  *

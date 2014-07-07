@@ -25,7 +25,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "nordic_global.h"
 
 /**@brief Triangular waveform sensor simulator configuration. */
 typedef struct

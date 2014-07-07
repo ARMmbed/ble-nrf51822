@@ -1,8 +1,6 @@
 #ifndef NRF_SVC__
 #define NRF_SVC__
 
-#include "nordic_global.h"
-
 #ifdef SVCALL_AS_NORMAL_FUNCTION
 #define SVCALL(number, return_type, signature) return_type signature
 #else

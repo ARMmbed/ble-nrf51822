@@ -27,7 +27,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "ble_flash.h"
-#include "nordic_global.h"
 
 #define ERROR_MESSAGE_LENGTH  128                                /**< Length of error message to stored. */
 #define STACK_DUMP_LENGTH     256                                /**< Length of stack to be stored at max: 64 entries of 4 bytes each. */

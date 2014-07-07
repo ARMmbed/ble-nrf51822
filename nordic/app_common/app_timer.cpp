@@ -19,6 +19,7 @@
 //#include "nrf_delay.h"
 #include "mbed.h"
 #include "app_util.h"
+#include "app_util_platform.h"
 
 
 #define RTC1_IRQ_PRI            APP_IRQ_PRIORITY_LOW                        /**< Priority of the RTC1 interrupt (used for checking for timeouts and executing timeout handlers). */
@@ -217,7 +218,7 @@ static __INLINE void rtc1_compare0_set(uint32_t value)
 static void timer_list_insert(app_timer_id_t timer_id)
 {
     timer_node_t * p_timer = &mp_nodes[timer_id];
-    
+
     if (m_timer_id_head == TIMER_NULL)
     {
         m_timer_id_head = timer_id;
@@ -227,7 +228,7 @@ static void timer_list_insert(app_timer_id_t timer_id)
         if (p_timer->ticks_to_expire <= mp_nodes[m_timer_id_head].ticks_to_expire)
         {
             mp_nodes[m_timer_id_head].ticks_to_expire -= p_timer->ticks_to_expire;
-            
+
             p_timer->next   = m_timer_id_head;
             m_timer_id_head = timer_id;
         }
@@ -240,7 +241,7 @@ static void timer_list_insert(app_timer_id_t timer_id)
             ticks_to_expire = p_timer->ticks_to_expire;
             previous        = m_timer_id_head;
             current         = m_timer_id_head;
-            
+
             while ((current != TIMER_NULL) && (ticks_to_expire > mp_nodes[current].ticks_to_expire))
             {
                 ticks_to_expire -= mp_nodes[current].ticks_to_expire;
@@ -274,7 +275,7 @@ static void timer_list_remove(app_timer_id_t timer_id)
     // Find the timer's position in timer list
     previous = m_timer_id_head;
     current  = previous;
-    
+
     while (current != TIMER_NULL)
     {
         if (current == timer_id)
@@ -351,44 +352,44 @@ static void timeout_handler_exec(timer_node_t * p_timer)
  */
 static void timer_timeouts_check(void)
 {
-    // Handle expired of timer 
+    // Handle expired of timer
     if (m_timer_id_head != TIMER_NULL)
     {
         app_timer_id_t  timer_id;
         uint32_t        ticks_elapsed;
         uint32_t        ticks_expired;
 
-        // Initialize actual elapsed ticks being consumed to 0 
+        // Initialize actual elapsed ticks being consumed to 0
         ticks_expired = 0;
 
         // ticks_elapsed is collected here, job will use it
         ticks_elapsed = ticks_diff_get(rtc1_counter_get(), m_ticks_latest);
 
-        // Auto variable containing the head of timers expiring 
+        // Auto variable containing the head of timers expiring
         timer_id = m_timer_id_head;
 
-        // Expire all timers within ticks_elapsed and collect ticks_expired 
+        // Expire all timers within ticks_elapsed and collect ticks_expired
         while (timer_id != TIMER_NULL)
         {
             timer_node_t * p_timer;
 
-            // Auto variable for current timer node 
+            // Auto variable for current timer node
             p_timer = &mp_nodes[timer_id];
 
-            // Do nothing if timer did not expire 
+            // Do nothing if timer did not expire
             if (ticks_elapsed < p_timer->ticks_to_expire)
             {
                 break;
             }
 
-            // Decrement ticks_elapsed and collect expired ticks 
+            // Decrement ticks_elapsed and collect expired ticks
             ticks_elapsed -= p_timer->ticks_to_expire;
             ticks_expired += p_timer->ticks_to_expire;
 
-            // Move to next timer 
+            // Move to next timer
             timer_id = p_timer->next;
 
-            // Execute Task 
+            // Execute Task
             timeout_handler_exec(p_timer);
         }
 
@@ -424,10 +425,10 @@ static void timer_timeouts_check(void)
  */
 static bool elapsed_ticks_acquire(uint32_t * p_ticks_elapsed)
 {
-    // Pick the elapsed value from queue 
+    // Pick the elapsed value from queue
     if (m_ticks_elapsed_q_read_ind != m_ticks_elapsed_q_write_ind)
     {
-        // Dequeue elapsed value 
+        // Dequeue elapsed value
         m_ticks_elapsed_q_read_ind++;
         if (m_ticks_elapsed_q_read_ind == CONTEXT_QUEUE_SIZE_MAX)
         {
@@ -443,7 +444,7 @@ static bool elapsed_ticks_acquire(uint32_t * p_ticks_elapsed)
     }
     else
     {
-        // No elapsed value in queue 
+        // No elapsed value in queue
         *p_ticks_elapsed = 0;
         return false;
     }
@@ -467,13 +468,13 @@ static bool list_deletions_handler(void)
     {
         timer_user_t * p_user         = &mp_users[user_id];
         uint8_t        user_ops_first = p_user->first;
-        
+
         while (user_ops_first != p_user->last)
         {
             timer_node_t *    p_timer;
             timer_user_op_t * p_user_op = &p_user->p_user_op_queue[user_ops_first];
 
-            // Traverse to next operation in queue 
+            // Traverse to next operation in queue
             user_ops_first++;
             if (user_ops_first == p_user->user_op_queue_size)
             {
@@ -491,7 +492,7 @@ static bool list_deletions_handler(void)
                         p_timer->is_running = false;
                     }
                     break;
-                    
+
                 case TIMER_USER_OP_TYPE_STOP_ALL:
                     // Delete list of running timers, and mark all timers as not running
                     while (m_timer_id_head != TIMER_NULL)
@@ -502,7 +503,7 @@ static bool list_deletions_handler(void)
                         m_timer_id_head    = p_head->next;
                     }
                     break;
-                    
+
                 default:
                     // No implementation needed.
                     break;
@@ -532,17 +533,17 @@ static void expired_timers_handler(uint32_t         ticks_elapsed,
         timer_node_t * p_timer;
         app_timer_id_t id_expired;
 
-        // Auto variable for current timer node 
+        // Auto variable for current timer node
         p_timer = &mp_nodes[m_timer_id_head];
 
-        // Do nothing if timer did not expire 
+        // Do nothing if timer did not expire
         if (ticks_elapsed < p_timer->ticks_to_expire)
         {
             p_timer->ticks_to_expire -= ticks_elapsed;
             break;
         }
 
-        // Decrement ticks_elapsed and collect expired ticks 
+        // Decrement ticks_elapsed and collect expired ticks
         ticks_elapsed -= p_timer->ticks_to_expire;
         ticks_expired += p_timer->ticks_to_expire;
 
@@ -550,11 +551,11 @@ static void expired_timers_handler(uint32_t         ticks_elapsed,
         p_timer->ticks_to_expire = 0;
         p_timer->is_running      = false;
 
-        // Remove the expired timer from head 
+        // Remove the expired timer from head
         id_expired      = m_timer_id_head;
         m_timer_id_head = p_timer->next;
 
-        // Timer will be restarted if periodic 
+        // Timer will be restarted if periodic
         if (p_timer->ticks_periodic_interval != 0)
         {
             p_timer->ticks_at_start       = (ticks_previous + ticks_expired) & MAX_RTC_COUNTER_VAL;
@@ -585,7 +586,7 @@ static bool list_insertions_handler(app_timer_id_t restart_list_head)
     {
         timer_user_t * p_user = &mp_users[user_id];
 
-        // Handle insertions of timers 
+        // Handle insertions of timers
         while ((restart_list_head != TIMER_NULL) || (p_user->first != p_user->last))
         {
             app_timer_id_t id_start;
@@ -621,14 +622,14 @@ static bool list_insertions_handler(app_timer_id_t restart_list_head)
                 p_timer->p_context               = p_user_op->params.start.p_context;
             }
 
-            // Prepare the node to be inserted 
+            // Prepare the node to be inserted
             if (
                  ((p_timer->ticks_at_start - m_ticks_latest) & MAX_RTC_COUNTER_VAL)
                  <
                  (MAX_RTC_COUNTER_VAL / 2)
                 )
             {
-                p_timer->ticks_to_expire = ticks_diff_get(p_timer->ticks_at_start, m_ticks_latest) + 
+                p_timer->ticks_to_expire = ticks_diff_get(p_timer->ticks_at_start, m_ticks_latest) +
                                            p_timer->ticks_first_interval;
             }
             else
@@ -651,11 +652,11 @@ static bool list_insertions_handler(app_timer_id_t restart_list_head)
             p_timer->is_running           = true;
             p_timer->next                 = TIMER_NULL;
 
-            // Insert into list 
+            // Insert into list
             timer_list_insert(id_start);
         }
     }
-    
+
     return (m_timer_id_head != timer_id_old_head);
 }
 
@@ -664,7 +665,7 @@ static bool list_insertions_handler(app_timer_id_t restart_list_head)
  */
 static void compare_reg_update(app_timer_id_t timer_id_head_old)
 {
-    // Setup the timeout for timers on the head of the list 
+    // Setup the timeout for timers on the head of the list
     if (m_timer_id_head != TIMER_NULL)
     {
         uint32_t ticks_to_expire = mp_nodes[m_timer_id_head].ticks_to_expire;
@@ -680,7 +681,7 @@ static void compare_reg_update(app_timer_id_t timer_id_head_old)
 
         cc += (ticks_elapsed < ticks_to_expire) ? ticks_to_expire : ticks_elapsed;
         cc &= MAX_RTC_COUNTER_VAL;
-        
+
         rtc1_compare0_set(cc);
 
         uint32_t post_counter_val = rtc1_counter_get();
@@ -717,24 +718,24 @@ static void timer_list_handler(void)
     bool           ticks_have_elapsed;
     bool           compare_update;
     app_timer_id_t timer_id_head_old;
-    
+
     // Back up the previous known tick and previous list head
     ticks_previous    = m_ticks_latest;
     timer_id_head_old = m_timer_id_head;
-    
+
     // Get number of elapsed ticks
     ticks_have_elapsed = elapsed_ticks_acquire(&ticks_elapsed);
 
     // Handle list deletions
     compare_update = list_deletions_handler();
-    
+
     // Handle expired timers
     if (ticks_have_elapsed)
     {
         expired_timers_handler(ticks_elapsed, ticks_previous, &restart_list_head);
         compare_update = true;
     }
-    
+
     // Handle list insertions
     if (list_insertions_handler(restart_list_head))
     {
@@ -768,10 +769,10 @@ static void user_op_enque(timer_user_t * p_user, app_timer_id_t last_index)
  * @return     Pointer to allocated queue entry, or NULL if queue is full.
  */
 static timer_user_op_t * user_op_alloc(timer_user_t * p_user, app_timer_id_t * p_last_index)
-{        
+{
     app_timer_id_t    last;
     timer_user_op_t * p_user_op;
-    
+
     last = p_user->last + 1;
     if (last == p_user->user_op_queue_size)
     {
@@ -783,10 +784,10 @@ static timer_user_op_t * user_op_alloc(timer_user_t * p_user, app_timer_id_t * p
         // Queue is full.
         return NULL;
     }
-    
-    *p_last_index = last;    
+
+    *p_last_index = last;
     p_user_op     = &p_user->p_user_op_queue[p_user->last];
-        
+
     return p_user_op;
 }
 
@@ -808,21 +809,21 @@ static uint32_t timer_start_op_schedule(timer_user_id_t user_id,
                                         void *          p_context)
 {
     app_timer_id_t last_index;
-    
+
     timer_user_op_t * p_user_op = user_op_alloc(&mp_users[user_id], &last_index);
     if (p_user_op == NULL)
     {
         return NRF_ERROR_NO_MEM;
     }
-    
+
     p_user_op->op_type                              = TIMER_USER_OP_TYPE_START;
     p_user_op->timer_id                             = timer_id;
     p_user_op->params.start.ticks_at_start          = rtc1_counter_get();
     p_user_op->params.start.ticks_first_interval    = timeout_initial;
     p_user_op->params.start.ticks_periodic_interval = timeout_periodic;
     p_user_op->params.start.p_context               = p_context;
-    
-    user_op_enque(&mp_users[user_id], last_index);    
+
+    user_op_enque(&mp_users[user_id], last_index);
 
     timer_list_handler_sched();
 
@@ -841,17 +842,17 @@ static uint32_t timer_start_op_schedule(timer_user_id_t user_id,
 static uint32_t timer_stop_op_schedule(timer_user_id_t user_id, app_timer_id_t timer_id)
 {
     app_timer_id_t last_index;
-    
+
     timer_user_op_t * p_user_op = user_op_alloc(&mp_users[user_id], &last_index);
     if (p_user_op == NULL)
     {
         return NRF_ERROR_NO_MEM;
     }
-    
+
     p_user_op->op_type  = TIMER_USER_OP_TYPE_STOP;
     p_user_op->timer_id = timer_id;
-    
-    user_op_enque(&mp_users[user_id], last_index);        
+
+    user_op_enque(&mp_users[user_id], last_index);
 
     timer_list_handler_sched();
 
@@ -866,17 +867,17 @@ static uint32_t timer_stop_op_schedule(timer_user_id_t user_id, app_timer_id_t t
 static uint32_t timer_stop_all_op_schedule(timer_user_id_t user_id)
 {
     app_timer_id_t last_index;
-    
+
     timer_user_op_t * p_user_op = user_op_alloc(&mp_users[user_id], &last_index);
     if (p_user_op == NULL)
     {
         return NRF_ERROR_NO_MEM;
     }
-    
+
     p_user_op->op_type  = TIMER_USER_OP_TYPE_STOP_ALL;
     p_user_op->timer_id = TIMER_NULL;
-    
-    user_op_enque(&mp_users[user_id], last_index);        
+
+    user_op_enque(&mp_users[user_id], last_index);
 
     timer_list_handler_sched();
 
@@ -929,29 +930,29 @@ uint32_t app_timer_init(uint32_t                      prescaler,
     {
         return NRF_ERROR_INVALID_PARAM;
     }
-    
+
     // Stop RTC to prevent any running timers from expiring (in case of reinitialization)
     rtc1_stop();
-    
+
     m_evt_schedule_func = evt_schedule_func;
 
     // Initialize timer node array
     m_node_array_size = max_timers;
     mp_nodes          = (timer_node_t *) p_buffer;
-    
+
     for (i = 0; i < max_timers; i++)
     {
         mp_nodes[i].state      = STATE_FREE;
         mp_nodes[i].is_running = false;
     }
-    
+
     // Skip timer node array
     p_buffer = &((uint8_t *)p_buffer)[max_timers * sizeof(timer_node_t)];
-    
+
     // Initialize users array
     m_user_array_size = APP_TIMER_INT_LEVELS;
     mp_users          = (timer_user_t *) p_buffer;
-    
+
     // Skip user array
     p_buffer = &((uint8_t *)p_buffer)[APP_TIMER_INT_LEVELS * sizeof(timer_user_t)];
 
@@ -959,12 +960,12 @@ uint32_t app_timer_init(uint32_t                      prescaler,
     for (i = 0; i < APP_TIMER_INT_LEVELS; i++)
     {
         timer_user_t * p_user = &mp_users[i];
-        
+
         p_user->first              = 0;
         p_user->last               = 0;
         p_user->user_op_queue_size = op_queues_size;
         p_user->p_user_op_queue    = (timer_user_op_t *) p_buffer;
-    
+
         // Skip operation queue
         p_buffer = &((uint8_t *)p_buffer)[op_queues_size * sizeof(timer_user_op_t)];
     }
@@ -980,7 +981,7 @@ uint32_t app_timer_init(uint32_t                      prescaler,
     rtc1_init(prescaler);
 
     m_ticks_latest = rtc1_counter_get();
-    
+
     return NRF_SUCCESS;
 }
 
@@ -1003,8 +1004,8 @@ uint32_t app_timer_create(app_timer_id_t *            p_timer_id,
     if (p_timer_id == NULL)
     {
         return NRF_ERROR_INVALID_PARAM;
-    }    
-    
+    }
+
     // Find free timer
     for (i = 0; i < m_node_array_size; i++)
     {
@@ -1013,12 +1014,12 @@ uint32_t app_timer_create(app_timer_id_t *            p_timer_id,
             mp_nodes[i].state             = STATE_ALLOCATED;
             mp_nodes[i].mode              = mode;
             mp_nodes[i].p_timeout_handler = timeout_handler;
-            
+
             *p_timer_id = i;
             return NRF_SUCCESS;
         }
     }
-    
+
     return NRF_ERROR_NO_MEM;
 }
 
@@ -1032,22 +1033,22 @@ static timer_user_id_t user_id_get(void)
     timer_user_id_t ret;
 
     STATIC_ASSERT(APP_TIMER_INT_LEVELS == 3);
-    
+
     switch (current_int_priority_get())
     {
         case APP_IRQ_PRIORITY_HIGH:
             ret = APP_HIGH_USER_ID;
             break;
-            
+
         case APP_IRQ_PRIORITY_LOW:
             ret = APP_LOW_USER_ID;
             break;
-            
+
         default:
             ret = THREAD_MODE_USER_ID;
             break;
     }
-    
+
     return ret;
 }
 
@@ -1055,7 +1056,7 @@ static timer_user_id_t user_id_get(void)
 uint32_t app_timer_start(app_timer_id_t timer_id, uint32_t timeout_ticks, void * p_context)
 {
     uint32_t timeout_periodic;
-    
+
     // Check state and parameters
     if (mp_nodes == NULL)
     {
@@ -1069,7 +1070,7 @@ uint32_t app_timer_start(app_timer_id_t timer_id, uint32_t timeout_ticks, void *
     {
         return NRF_ERROR_INVALID_STATE;
     }
-    
+
     // Schedule timer start operation
     timeout_periodic = (mp_nodes[timer_id].mode == APP_TIMER_MODE_REPEATED) ? timeout_ticks : 0;
 
@@ -1096,7 +1097,7 @@ uint32_t app_timer_stop(app_timer_id_t timer_id)
     {
         return NRF_ERROR_INVALID_STATE;
     }
-    
+
     // Schedule timer stop operation
     return timer_stop_op_schedule(user_id_get(), timer_id);
 }

@@ -24,7 +24,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "nordic_global.h"
 #include "nrf_error.h"
 
 /**@brief A FIFO instance structure. Keeps track of which bytes to read and write next.

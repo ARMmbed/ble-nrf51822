@@ -46,7 +46,6 @@
 #define HCI_MEM_POOL_H__
 
 #include <stdint.h>
-#include "nordic_global.h"
 #include "nrf_error.h"
 
 /**@brief Function for opening the module.

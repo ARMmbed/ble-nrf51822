@@ -1,7 +1,6 @@
 #ifndef NRF_GPIO_H__
 #define NRF_GPIO_H__
 
-#include "nordic_global.h"
 #include "nrf51.h"
 #include "nrf51_bitfields.h"
 
@@ -91,7 +90,7 @@ static __INLINE void nrf_gpio_range_cfg_output(uint32_t pin_range_start, uint32_
         NRF_GPIO->PIN_CNF[pin_range_start] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
                                         | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                         | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
-                                        | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                                        | (GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos)
                                         | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
     }
 }
@@ -136,7 +135,7 @@ static __INLINE void nrf_gpio_cfg_output(uint32_t pin_number)
     NRF_GPIO->PIN_CNF[pin_number] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
                                             | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                             | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
-                                            | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                                            | (GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos)
                                             | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
 }
 
@@ -245,7 +244,19 @@ static __INLINE void nrf_gpio_pin_clear(uint32_t pin_number)
  */
 static __INLINE void nrf_gpio_pin_toggle(uint32_t pin_number)
 {
-    NRF_GPIO->OUT ^= (1UL << pin_number);
+    const uint32_t pin_bit   = 1UL << pin_number;
+    const uint32_t pin_state = ((NRF_GPIO->OUT >> pin_number) & 1UL);
+    
+    if (pin_state == 0)
+    {
+        // Current state low, set high.
+        NRF_GPIO->OUTSET = pin_bit;        
+    }
+    else
+    {
+        // Current state high, set low.    
+        NRF_GPIO->OUTCLR = pin_bit;       
+    }
 }
 
 /**

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include "common/common.h"
+#include "nordic_common.h"
 
 #include "app_timer.h"
 #include "btle.h"
@@ -21,14 +22,15 @@
 #include "ble_stack_handler_types.h"
 #include "ble_radio_notification.h"
 #include "ble_flash.h"
+#if NEED_BOND_MANAGER
 #include "ble_bondmngr.h"
+#endif
 #include "ble_conn_params.h"
 
 #include "btle_gap.h"
 #include "btle_advertising.h"
 #include "custom/custom_helper.h"
 
-#include "nordic_common.h"
 #include "softdevice_handler.h"
 #include "pstorage.h"
 

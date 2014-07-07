@@ -22,7 +22,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "nordic_global.h"
 #include "ble.h"
 #include "ble_types.h"
 #include "ble.h"

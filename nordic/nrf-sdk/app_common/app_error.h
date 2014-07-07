@@ -24,7 +24,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "nordic_global.h"
 #include "nrf_error.h"
 
 /**@brief Function for error handling, which is called when an error has occurred. 

@@ -15,7 +15,6 @@
 #define NRF_ASSERT_H_
 
 #include <stdint.h>
-#include "nordic_global.h"
 
 #if defined(DEBUG_NRF) || defined(DEBUG_NRF_USER)
 

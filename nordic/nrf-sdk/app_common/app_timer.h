@@ -44,7 +44,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "nordic_global.h"
 #include "app_error.h"
 #include "app_util.h"
 #include "app_scheduler.h"
@@ -122,6 +121,13 @@ typedef enum
  * @details It will handle dimensioning and allocation of the memory buffer required by the timer,
  *          making sure that the buffer is correctly aligned. It will also connect the timer module
  *          to the scheduler (if specified).
+ *
+ * @note    This module assumes that the LFCLK is already running. If it isn't, the module will 
+ *          be non-functional, since the RTC will not run. If you don't use a softdevice, you'll 
+ *          have to start the LFCLK manually. See the rtc_example's \ref lfclk_config() function 
+ *          for an example of how to do this. If you use a softdevice, the LFCLK is started on 
+ *          softdevice init. 
+ *
  *
  * @param[in]  PRESCALER        Value of the RTC1 PRESCALER register. This will decide the
  *                              timer tick rate. Set to 0 for no prescaling.

@@ -14,7 +14,6 @@
 #ifndef BLE_GATT_H__
 #define BLE_GATT_H__
 
-#include "nordic_global.h"
 #include "ble_types.h"
 #include "ble_ranges.h"
 
@@ -138,6 +137,9 @@
 
 /** @} */
 
+/** @addtogroup BLE_GATT_STRUCTURES Structures
+ * @{ */
+
 /**@brief GATT Characteristic Properties. */
 typedef struct
 {
@@ -160,6 +162,8 @@ typedef struct
 } ble_gatt_char_ext_props_t;
 
 #endif // BLE_GATT_H__
+
+/** @} */
 
 /**
   @}

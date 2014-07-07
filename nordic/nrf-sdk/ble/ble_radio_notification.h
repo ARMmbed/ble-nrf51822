@@ -22,7 +22,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "nordic_global.h"
 #include "nrf_soc.h"
 
 /**@brief Application radio notification event handler type. */

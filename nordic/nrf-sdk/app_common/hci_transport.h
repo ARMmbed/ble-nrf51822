@@ -76,7 +76,6 @@
 #define HCI_TRANSPORT_H__
 
 #include <stdint.h>
-#include "nordic_global.h"
 #include "nrf_error.h"
 
 /**@brief Generic event callback function events. */

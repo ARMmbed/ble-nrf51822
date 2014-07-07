@@ -40,29 +40,40 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "nordic_global.h"
 #include "nrf.h"
 #include "app_error.h"
 #include "app_scheduler.h"
 #include "nrf_gpio.h"
 
-#define APP_BUTTON_SCHED_EVT_SIZE  sizeof(app_button_event_t)   /**< Size of button events being passed through the scheduler (is to be used for computing the maximum size of scheduler events). */
+#define APP_BUTTON_SCHED_EVT_SIZE sizeof(app_button_event_t)   /**< Size of button events being passed through the scheduler (is to be used for computing the maximum size of scheduler events). */
+#define APP_BUTTON_PUSH        1                               /**< Indicates that a button is pushed. */
+#define APP_BUTTON_RELEASE     0                               /**< Indicates that a button is released. */
+#define APP_BUTTON_ACTIVE_HIGH 1                               /**< Indicates that a button is active high. */
+#define APP_BUTTON_ACTIVE_LOW  0                               /**< Indicates that a button is active low. */
 
 /**@brief Button event handler type. */
-typedef void (*app_button_handler_t)(uint8_t pin_no);
+typedef void (*app_button_handler_t)(uint8_t pin_no, uint8_t button_action);
 
 /**@brief Type of function for passing events from the Button Handler module to the scheduler. */
 typedef uint32_t (*app_button_evt_schedule_func_t) (app_button_handler_t button_handler,
-                                                    uint8_t              pin_no);
+                                                    uint8_t              pin_no,
+                                                    uint8_t              button_action);
 
 /**@brief Button configuration structure. */
 typedef struct
 {
-    uint8_t              pin_no;                                /**< Pin to be used as a button. */
-    bool                 active_high;                           /**< TRUE if pin is active high, FALSE otherwise. */
-    nrf_gpio_pin_pull_t  pull_cfg;                              /**< Pull-up or -down configuration. */
-    app_button_handler_t button_handler;                        /**< Handler to be called when button is pushed. */
+    uint8_t              pin_no;           /**< Pin to be used as a button. */
+    uint8_t              active_state;     /**< APP_BUTTON_ACTIVE_HIGH or APP_BUTTON_ACTIVE_LOW. */
+    nrf_gpio_pin_pull_t  pull_cfg;         /**< Pull-up or -down configuration. */
+    app_button_handler_t button_handler;   /**< Handler to be called when button is pushed. */
 } app_button_cfg_t;
+
+/**@brief  Pin transition direction struct. */
+typedef struct
+{
+    uint32_t high_to_low;   /**Pin went from high to low */
+    uint32_t low_to_high;   /**Pin went from low to high */
+} pin_transition_t;
 
 /**@brief Macro for initializing the Button Handler module.
  *
@@ -147,6 +158,7 @@ typedef struct
 {
     app_button_handler_t button_handler;
     uint8_t              pin_no;
+    uint8_t              button_action;
 } app_button_event_t;
 
 static __INLINE void app_button_evt_get(void * p_event_data, uint16_t event_size)
@@ -154,16 +166,18 @@ static __INLINE void app_button_evt_get(void * p_event_data, uint16_t event_size
     app_button_event_t * p_buttons_event = (app_button_event_t *)p_event_data;
     
     APP_ERROR_CHECK_BOOL(event_size == sizeof(app_button_event_t));
-    p_buttons_event->button_handler(p_buttons_event->pin_no);
+    p_buttons_event->button_handler(p_buttons_event->pin_no, p_buttons_event->button_action);
 }
 
 static __INLINE uint32_t app_button_evt_schedule(app_button_handler_t button_handler,
-                                                 uint8_t              pin_no)
+                                                 uint8_t              pin_no,
+                                                 uint8_t              button_action)
 {
     app_button_event_t buttons_event;
     
     buttons_event.button_handler = button_handler;
     buttons_event.pin_no         = pin_no;
+    buttons_event.button_action  = button_action;
     
     return app_sched_event_put(&buttons_event, sizeof(buttons_event), app_button_evt_get);
 }

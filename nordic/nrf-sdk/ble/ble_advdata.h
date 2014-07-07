@@ -25,7 +25,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "nordic_global.h"
 #include "ble.h"
 #include "app_util.h"
 

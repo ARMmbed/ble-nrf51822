@@ -14,15 +14,13 @@
  *
  * @defgroup ble_stack_handler_types Types definitions for BLE support in SoftDevice handler.
  * @{
- * @ingroup  app_common
+ * @ingroup  softdevice_handler
  * @brief    This file contains the declarations of types required for BLE stack support. These
  *           types will be defined when the preprocessor define BLE_STACK_SUPPORT_REQD is defined.
  */
 
 #ifndef BLE_STACK_HANDLER_TYPES_H__
 #define BLE_STACK_HANDLER_TYPES_H__
-
-#include "nordic_global.h"
 
 #ifdef BLE_STACK_SUPPORT_REQD
 

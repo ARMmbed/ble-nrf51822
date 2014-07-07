@@ -20,7 +20,6 @@
 #define NRF_NVMC_H__
 
 #include <stdint.h>
-#include "nordic_global.h"
 
 
 /**

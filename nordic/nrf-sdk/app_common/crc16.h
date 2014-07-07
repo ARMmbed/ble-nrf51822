@@ -23,7 +23,6 @@
 #define CRC16_H__
 
 #include <stdint.h>
-#include "nordic_global.h"
 
 /**@brief Function for calculating CRC-16 in blocks.
  *

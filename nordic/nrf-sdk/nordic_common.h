@@ -23,6 +23,7 @@
 #define SWAP(x) ((((x)&0xFF)<<8)|(((x)>>8)&0xFF))
 
 /** The upper 8 bits of a 16 bit value */
+//lint -emacro(572,MSB) // Suppress warning 572 "Excessive shift value"
 #define MSB(a) (((a) & 0xFF00) >> 8)
 /** The lower 8 bits (of a 16 bit value) */
 #define LSB(a) ((a) & 0xFF)

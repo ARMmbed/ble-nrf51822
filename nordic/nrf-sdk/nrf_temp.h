@@ -13,7 +13,6 @@
 #ifndef NRF_TEMP_H__
 #define NRF_TEMP_H__
 
-#include "nordic_global.h"
 #include "nrf51.h"
 
 /**

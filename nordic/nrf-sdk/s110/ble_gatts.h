@@ -14,7 +14,6 @@
 #ifndef BLE_GATTS_H__
 #define BLE_GATTS_H__
 
-#include "nordic_global.h"
 #include "ble_types.h"
 #include "ble_ranges.h"
 #include "ble_l2cap.h"
@@ -22,6 +21,8 @@
 #include "ble_gatt.h"
 #include "nrf_svc.h"
 
+/** @addtogroup BLE_GATTS_ENUMERATIONS Enumerations
+ * @{ */
 
 /**
  * @brief GATTS API SVC numbers.
@@ -41,6 +42,7 @@ enum BLE_GATTS_SVCS
   SD_BLE_GATTS_SYS_ATTR_GET,                     /**< Get updated persistent system attributes after terminating a connection. */
 };
 
+/** @} */
 
 /** @addtogroup BLE_GATTS_DEFINES Defines
  * @{ */
@@ -109,6 +111,17 @@ enum BLE_GATTS_SVCS
 
 
 /** @} */
+
+/** @addtogroup BLE_GATTS_STRUCTURES Structures
+ * @{ */
+
+/**
+ * @brief BLE GATTS init options
+ */
+typedef struct
+{
+  uint8_t   service_changed:1;             /**< Include the Service Changed characteristic in the local attributes. */
+} ble_gatts_enable_params_t;
 
 /**@brief Attribute metadata. */
 typedef struct
@@ -298,6 +311,10 @@ typedef struct
   } params;
 } ble_gatts_evt_t;
 
+/** @} */
+
+/** @addtogroup BLE_GATTS_FUNCTIONS Functions
+ * @{ */
 
 /**@brief Add a service declaration to the local server ATT table.
  *
@@ -386,7 +403,7 @@ SVCALL(SD_BLE_GATTS_DESCRIPTOR_ADD, uint32_t, sd_ble_gatts_descriptor_add(uint16
  * @param[in] handle    Attribute handle.
  * @param[in] offset    Offset in bytes to write from.
  * @param[in,out] p_len Length in bytes to be written, length in bytes written after successful return.
- * @param[in] p_value   Pointer to a buffer (at least len bytes long) containing the desired attribute value.
+ * @param[in] p_value   Pointer to a buffer (at least len bytes long) containing the desired attribute value. If value is stored in user memory, only the attribute length is updated when p_value == NULL.
  *
  * @return @ref NRF_SUCCESS Successfully set the value of the attribute.
  * @return @ref NRF_ERROR_INVALID_ADDR Invalid pointer supplied.
@@ -540,6 +557,7 @@ SVCALL(SD_BLE_GATTS_SYS_ATTR_SET, uint32_t, sd_ble_gatts_sys_attr_set(uint16_t c
  */ 
 SVCALL(SD_BLE_GATTS_SYS_ATTR_GET, uint32_t, sd_ble_gatts_sys_attr_get(uint16_t conn_handle, uint8_t * const p_sys_attr_data, uint16_t* const p_len)); 
 
+/** @} */
 
 #endif // BLE_GATTS_H__
 

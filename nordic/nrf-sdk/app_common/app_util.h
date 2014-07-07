@@ -23,17 +23,8 @@
 #define APP_UTIL_H__
 
 #include <stdint.h>
-#include "nordic_global.h"
+#include <stdbool.h>
 #include "compiler_abstraction.h"
-#include "nrf51.h"
-#include "app_error.h"
-
-/**@brief The interrupt priorities available to the application while the softdevice is active. */
-typedef enum
-{
-    APP_IRQ_PRIORITY_HIGH = 1,
-    APP_IRQ_PRIORITY_LOW  = 3
-} app_irq_priority_t;
 
 enum
 {
@@ -41,12 +32,6 @@ enum
     UNIT_1_25_MS  = 1250,                               /**< Number of microseconds in 1.25 milliseconds. */
     UNIT_10_MS    = 10000                               /**< Number of microseconds in 10 milliseconds. */
 };
-
-#define NRF_APP_PRIORITY_THREAD    4                    /**< "Interrupt level" when running in Thread Mode. */
-
-/**@cond NO_DOXYGEN */
-#define EXTERNAL_INT_VECTOR_OFFSET 16
-/**@endcond */
 
 /**@brief Macro for doing static (i.e. compile time) assertion.
  *
@@ -63,7 +48,12 @@ enum
  * @param[in]   EXPR   Constant expression to be verified.
  */
 
+#if defined(__GNUC__)
+#define STATIC_ASSERT(EXPR) typedef char __attribute__((unused)) static_assert_failed[(EXPR) ? 1 : -1]
+#else
 #define STATIC_ASSERT(EXPR) typedef char static_assert_failed[(EXPR) ? 1 : -1]
+#endif
+
 
 /**@brief type for holding an encoded (i.e. little endian) 16 bit unsigned integer. */
 typedef uint8_t uint16_le_t[2];
@@ -77,48 +67,6 @@ typedef struct
     uint16_t  size;                 /**< Number of array entries. */
     uint8_t * p_data;               /**< Pointer to array entries. */
 } uint8_array_t;
-
-/**@brief Macro for entering a critical region.
- *
- * @note Due to implementation details, there must exist one and only one call to
- *       CRITICAL_REGION_EXIT() for each call to CRITICAL_REGION_ENTER(), and they must be located
- *       in the same scope.
- */
-#define CRITICAL_REGION_ENTER()                                                             \
-    {                                                                                       \
-        uint8_t IS_NESTED_CRITICAL_REGION = 0;                                              \
-        uint32_t CURRENT_INT_PRI = current_int_priority_get();                              \
-        if (CURRENT_INT_PRI != APP_IRQ_PRIORITY_HIGH)                                       \
-        {                                                                                   \
-            uint32_t ERR_CODE = sd_nvic_critical_region_enter(&IS_NESTED_CRITICAL_REGION);  \
-            if (ERR_CODE == NRF_ERROR_SOFTDEVICE_NOT_ENABLED)                               \
-            {                                                                               \
-                __disable_irq();                                                            \
-            }                                                                               \
-            else                                                                            \
-            {                                                                               \
-                APP_ERROR_CHECK(ERR_CODE);                                                  \
-            }                                                                               \
-        }        
-    
-/**@brief Macro for leaving a critical region.
- *
- * @note Due to implementation details, there must exist one and only one call to
- *       CRITICAL_REGION_EXIT() for each call to CRITICAL_REGION_ENTER(), and they must be located
- *       in the same scope.
- */
-#define CRITICAL_REGION_EXIT()                                                              \
-        if (CURRENT_INT_PRI != APP_IRQ_PRIORITY_HIGH)                                       \
-        {                                                                                   \
-            uint32_t ERR_CODE;                                                              \
-            __enable_irq();                                                                 \
-            ERR_CODE = sd_nvic_critical_region_exit(IS_NESTED_CRITICAL_REGION);             \
-            if (ERR_CODE != NRF_ERROR_SOFTDEVICE_NOT_ENABLED)                               \
-            {                                                                               \
-                APP_ERROR_CHECK(ERR_CODE);                                                  \
-            }                                                                               \
-        }                                                                                   \
-    }
     
 /**@brief Perform rounded integer division (as opposed to truncating the result).
  *
@@ -215,29 +163,7 @@ static __INLINE uint32_t uint32_decode(const uint8_t * p_encoded_data)
              (((uint32_t)((uint8_t *)p_encoded_data)[2]) << 16) |
              (((uint32_t)((uint8_t *)p_encoded_data)[3]) << 24 ));
 }
-
     
-/**@brief Function for finding the current interrupt level.
- *
- * @return   Current interrupt level.
- * @retval   APP_IRQ_PRIORITY_HIGH    We are running in Application High interrupt level.
- * @retval   APP_IRQ_PRIORITY_LOW     We are running in Application Low interrupt level.
- * @retval   APP_IRQ_PRIORITY_THREAD  We are running in Thread Mode.
- */
-static __INLINE uint8_t current_int_priority_get(void)
-{
-    uint32_t isr_vector_num = (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk);
-    if (isr_vector_num > 0)
-    {
-        int32_t irq_type = ((int32_t)isr_vector_num - EXTERNAL_INT_VECTOR_OFFSET);
-        return (NVIC_GetPriority((IRQn_Type)irq_type) & 0xFF);
-    }
-    else
-    {
-        return NRF_APP_PRIORITY_THREAD;
-    }
-}
-
 /** @brief Function for converting the input voltage (in milli volts) into percentage of 3.0 Volts.
  *
  *  @details The calculation is based on a linearized version of the battery's discharge
@@ -298,7 +224,7 @@ static __INLINE uint8_t battery_level_in_percent(const uint16_t mvolts)
  */
 static __INLINE bool is_word_aligned(void * p)
 {
-    return (((uint32_t)p & 0x00000003) == 0);
+    return (((uintptr_t)p & 0x03) == 0);
 }
 
 #endif // APP_UTIL_H__

@@ -32,7 +32,6 @@
 #define HCI_SLIP_H__
 
 #include <stdint.h>
-#include "nordic_global.h"
 
 /**@brief Event types from the SLIP Layer. */
 typedef enum

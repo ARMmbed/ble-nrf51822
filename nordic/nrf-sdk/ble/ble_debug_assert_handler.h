@@ -27,7 +27,6 @@
 #define BLE_DEBUG_ASSERT_HANDLER_H__
 
 #include <stdint.h>
-#include "nordic_global.h"
  
 /**@brief Function for handling the Debug assert, which can be called from an error handler. 
  *        To be used only for debugging purposes.

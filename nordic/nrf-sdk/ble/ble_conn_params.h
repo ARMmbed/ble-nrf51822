@@ -22,7 +22,6 @@
 #define BLE_CONN_PARAMS_H__
 
 #include <stdint.h>
-#include "nordic_global.h"
 #include "ble.h"
 #include "ble_srv_common.h"
 
@@ -52,7 +51,7 @@ typedef struct
     uint8_t                       max_conn_params_update_count;     /**< Number of attempts before giving up the negotiation. */
     uint16_t                      start_on_notify_cccd_handle;      /**< If procedure is to be started when notification is started, set this to the handle of the corresponding CCCD. Set to BLE_GATT_HANDLE_INVALID if procedure is to be started on connect event. */
     bool                          disconnect_on_fail;               /**< Set to TRUE if a failed connection parameters update shall cause an automatic disconnection, set to FALSE otherwise. */
-    ble_conn_params_evt_handler_t evt_handler;                      /**< Event handler to be called for handling events in the Battery Service. */
+    ble_conn_params_evt_handler_t evt_handler;                      /**< Event handler to be called for handling events in the Connection Parameters. */
     ble_srv_error_handler_t       error_handler;                    /**< Function to be called in case of an error. */
 } ble_conn_params_init_t;
 

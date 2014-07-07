@@ -23,7 +23,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "nordic_global.h"
 
 
 /**@brief Configuration parameters. */

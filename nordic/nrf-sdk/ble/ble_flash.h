@@ -33,7 +33,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <nrf51.h>
-#include "nordic_global.h"
 
 #define BLE_FLASH_PAGE_SIZE     ((uint16_t)NRF_FICR->CODEPAGESIZE)  /**< Size of one flash page. */
 #define BLE_FLASH_MAGIC_NUMBER  0x45DE0000                          /**< Magic value to identify if flash contains valid data. */

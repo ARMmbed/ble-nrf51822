@@ -10,7 +10,7 @@
 */
 
 /* Attention! 
-*  To maintain compliance with Nordic Semiconductor ASAï¿½s Bluetooth profile 
+*  To maintain compliance with Nordic Semiconductor ASA’s Bluetooth profile 
 *  qualification listings, this section of source code must not be modified.
 */
 
@@ -30,7 +30,6 @@
 #define BLE_DATE_TIME_H__
 
 #include <stdint.h>
-#include "nordic_global.h"
 
 /**@brief Date and Time structure. */
 typedef struct

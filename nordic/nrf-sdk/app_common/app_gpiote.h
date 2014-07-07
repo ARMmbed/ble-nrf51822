@@ -33,6 +33,8 @@
  *
  * @note    Even if the application is using the @ref app_scheduler, the GPIOTE event handlers will
  *          be called directly from the GPIOTE interrupt handler.
+ *
+ * @warning If multiple users registers for the same pins the behavior for those pins are undefined.
  */
 
 #ifndef APP_GPIOTE_H__
@@ -40,7 +42,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "nordic_global.h"
 #include "nrf.h"
 #include "app_error.h"
 #include "app_util.h"
@@ -61,6 +62,9 @@ typedef uint8_t app_gpiote_user_id_t;
 /**@brief GPIOTE event handler type. */
 typedef void (*app_gpiote_event_handler_t)(uint32_t event_pins_low_to_high,
                                            uint32_t event_pins_high_to_low);
+
+/**@brief GPIOTE input event handler type. */
+typedef void (*app_gpiote_input_event_handler_t)(void);
 
 /**@brief Macro for initializing the GPIOTE module.
  *
@@ -155,6 +159,60 @@ uint32_t app_gpiote_user_disable(app_gpiote_user_id_t user_id);
  *                                        module.
  */
 uint32_t app_gpiote_pins_state_get(app_gpiote_user_id_t user_id, uint32_t * p_pins);
+
+/**@brief Function for registering event handlers for GPIOTE IN events.
+ *
+ * @param[in] channel         GPIOTE channel [0..3].
+ * @param[in] pin             Pins associated with GPIOTE channel. Changes on following pins will generate events.
+ * @param[in] polarity        Specify operation on input that shall trigger IN event.
+ * @param[in] event_handler   Event handler invoked on the IN event in the GPIOTE interrupt.
+ *
+ * @return   NRF_SUCCESS                 On success.
+ * @retval   NRF_ERROR_INVALID_PARAM     Invalid channel or pin number.
+ * @retval   NRF_ERROR_NOT_SUPPORTED     Driver doesn't support IN events.
+ */
+uint32_t app_gpiote_input_event_handler_register(const uint8_t channel,
+                                                 const uint32_t pin,
+                                                 const uint32_t polarity,
+                                                 app_gpiote_input_event_handler_t event_handler);
+
+/**@brief Function for unregistering event handlers for GPIOTE IN events.
+ *
+ * @return   NRF_SUCCESS                 On success.
+ * @retval   NRF_ERROR_NOT_SUPPORTED     Driver doesn't support IN events.
+ */
+uint32_t app_gpiote_input_event_handler_unregister(const uint8_t channel);
+
+/**@brief Function for registering event handler invoked at the end of a GPIOTE interrupt.
+ *
+ * @param[in] event_handler    Event handler invoked at the end of the GPIOTE interrupt.
+ *
+ * @return   NRF_SUCCESS                 On success.
+ * @retval   NRF_ERROR_NOT_SUPPORTED     Driver doesn't support IN events.
+ */
+uint32_t app_gpiote_end_irq_event_handler_register(app_gpiote_input_event_handler_t event_handler);
+
+/**@brief Function for unregistering event handler invoked at the end of a GPIOTE interrupt.
+ *
+ * @return   NRF_SUCCESS                 On success.
+ * @retval   NRF_ERROR_NOT_SUPPORTED     Driver doesn't support IN events.
+ */
+uint32_t app_gpiote_end_irq_event_handler_unregister(void);
+
+/**@brief Function for enabling interrupts in the GPIOTE driver.
+ *
+ * @return   NRF_SUCCESS                 On success.
+ * @retval   NRF_ERROR_NOT_SUPPORTED     Driver doesn't support.
+ */
+uint32_t app_gpiote_enable_interrupts(void);
+
+/**@brief Function for disabling interrupts in the GPIOTE driver.
+ *
+ * @return   NRF_SUCCESS                 On success.
+ * @retval   NRF_ERROR_NOT_SUPPORTED     Driver doesn't support.
+ */
+uint32_t app_gpiote_disable_interrupts(void);
+
 
 #endif // APP_GPIOTE_H__
 

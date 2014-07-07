@@ -1,7 +1,6 @@
 #ifndef __BLE_CENTRAL_BONDMNGR_H_
 #define __BLE_CENTRAL_BONDMNGR_H_
 
-#include "nordic_global.h"
 #include "ble.h"
 #include "ble_gap.h"
 

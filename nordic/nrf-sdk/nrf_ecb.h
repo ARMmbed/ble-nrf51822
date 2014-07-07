@@ -30,7 +30,6 @@
  */
 
 #include <stdint.h>
-#include "nordic_global.h"
 
 /**
  * Initialize and power on the ECB peripheral.
