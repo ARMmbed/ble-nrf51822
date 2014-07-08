@@ -243,6 +243,10 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
             handle_value = p_ble_evt->evt.gatts_evt.params.hvc.handle;
             break;
 
+        case BLE_GATTS_EVT_SYS_ATTR_MISSING:
+            sd_ble_gatts_sys_attr_set(p_ble_evt->evt.gatts_evt.conn_handle, NULL, 0);
+            return;
+
         default:
             return;
     }
