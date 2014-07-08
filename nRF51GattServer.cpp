@@ -155,6 +155,7 @@ ble_error_t nRF51GattServer::updateValue(uint16_t charHandle, uint8_t buffer[], 
         ASSERT_INT( ERROR_NONE,
                     sd_ble_gatts_value_set(nrfCharacteristicHandles[charHandle].value_handle, 0, &len, buffer),
                     BLE_ERROR_PARAM_OUT_OF_RANGE );
+		return BLE_ERROR_NONE;
     }
 
     if ((p_characteristics[charHandle]->getProperties() &
