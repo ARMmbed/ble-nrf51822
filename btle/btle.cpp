@@ -85,20 +85,24 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 
     /* Custom event handler */
     switch (p_ble_evt->header.evt_id) {
-        case BLE_GAP_EVT_CONNECTED:
-            nRF51Gap::getInstance().setConnectionHandle(p_ble_evt->evt.gap_evt.conn_handle);
-            nRF51Gap::getInstance().handleEvent(GapEvents::GAP_EVENT_CONNECTED);
+        case BLE_GAP_EVT_CONNECTED: {
+            Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
+            nRF51Gap::getInstance().setConnectionHandle(handle);
+            nRF51Gap::getInstance().processHandleSpecificEvent(GapEvents::GAP_EVENT_CONNECTED, handle);
             break;
+        }
 
-        case BLE_GAP_EVT_DISCONNECTED:
+        case BLE_GAP_EVT_DISCONNECTED: {
+            Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
             // Since we are not in a connection and have not started advertising,
             // store bonds
             nRF51Gap::getInstance().setConnectionHandle (BLE_CONN_HANDLE_INVALID);
 #if NEED_BOND_MANAGER /* disabled by default */
             ASSERT_STATUS_RET_VOID ( ble_bondmngr_bonded_centrals_store());
 #endif
-            nRF51Gap::getInstance().handleEvent(GapEvents::GAP_EVENT_DISCONNECTED);
+            nRF51Gap::getInstance().processHandleSpecificEvent(GapEvents::GAP_EVENT_DISCONNECTED, handle);
             break;
+        }
 
         case BLE_GAP_EVT_SEC_PARAMS_REQUEST: {
             ble_gap_sec_params_t sec_params = {0};
@@ -122,7 +126,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 
         case BLE_GAP_EVT_TIMEOUT:
             if (p_ble_evt->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISEMENT) {
-                nRF51Gap::getInstance().handleEvent(GapEvents::GAP_EVENT_TIMEOUT);
+                nRF51Gap::getInstance().processEvent(GapEvents::GAP_EVENT_TIMEOUT);
             }
             break;
 
