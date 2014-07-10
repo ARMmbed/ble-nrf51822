@@ -225,9 +225,7 @@ ble_error_t nRF51Gap::disconnect(void)
 
     /* Disconnect if we are connected to a central device */
     ASSERT_INT(ERROR_NONE,
-               sd_ble_gap_disconnect(m_connectionHandle,
-                                     BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION),
-               BLE_ERROR_PARAM_OUT_OF_RANGE);
+        sd_ble_gap_disconnect(m_connectionHandle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION), BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     return BLE_ERROR_NONE;
 }
