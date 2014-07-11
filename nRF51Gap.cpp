@@ -230,6 +230,37 @@ ble_error_t nRF51Gap::disconnect(void)
     return BLE_ERROR_NONE;
 }
 
+ble_error_t nRF51Gap::getPreferredConnectionParams(ConnectionParams_t *params)
+{
+    ASSERT_INT(NRF_SUCCESS,
+        sd_ble_gap_ppcp_get(reinterpret_cast<ble_gap_conn_params_t *>(params)),
+        BLE_ERROR_PARAM_OUT_OF_RANGE);
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t nRF51Gap::setPreferredConnectionParams(const ConnectionParams_t *params)
+{
+    ASSERT_INT(NRF_SUCCESS,
+        sd_ble_gap_ppcp_set(reinterpret_cast<const ble_gap_conn_params_t *>(params)),
+        BLE_ERROR_PARAM_OUT_OF_RANGE);
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t nRF51Gap::updateConnectionParams(Handle_t handle, const ConnectionParams_t *newParams)
+{
+    uint32_t rc;
+
+    rc = sd_ble_gap_conn_param_update(handle,
+                                      reinterpret_cast<ble_gap_conn_params_t *>(const_cast<ConnectionParams_t*>(newParams)));
+    if (rc == NRF_SUCCESS) {
+        return BLE_ERROR_NONE;
+    } else {
+        return BLE_ERROR_PARAM_OUT_OF_RANGE;
+    }
+}
+
 /**************************************************************************/
 /*!
     @brief  Sets the 16-bit connection handle

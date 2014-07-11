@@ -50,6 +50,10 @@ public:
     void     setConnectionHandle(uint16_t con_handle);
     uint16_t getConnectionHandle(void);
 
+    virtual ble_error_t getPreferredConnectionParams(ConnectionParams_t *params);
+    virtual ble_error_t setPreferredConnectionParams(const ConnectionParams_t *params);
+    virtual ble_error_t updateConnectionParams(Handle_t handle, const ConnectionParams_t *params);
+
 private:
     uint16_t m_connectionHandle;
     nRF51Gap() {
