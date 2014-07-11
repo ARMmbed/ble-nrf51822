@@ -33,16 +33,10 @@ static bool is_conn_params_ok(ble_gap_conn_params_t * p_conn_params)
     // Check if interval is within the acceptable range.
     // NOTE: Using max_conn_interval in the received event data because this contains
     //       the client's connection interval.
-    if (
-        (p_conn_params->max_conn_interval >= m_preferred_conn_params.min_conn_interval)
-        && 
-        (p_conn_params->max_conn_interval <= m_preferred_conn_params.max_conn_interval)
-    )
-    {
+    if ((p_conn_params->max_conn_interval >= m_preferred_conn_params.min_conn_interval) &&
+        (p_conn_params->max_conn_interval <= m_preferred_conn_params.max_conn_interval)) {
         return true;
-    }
-    else
-    {
+    } else {
         return false;
     }
 }
@@ -59,7 +53,7 @@ static void update_timeout_handler(void * p_context)
         if (m_update_count <= m_conn_params_config.max_conn_params_update_count)
         {
             uint32_t err_code;
-            
+
             // Parameters are not ok, send connection parameters update request.
             err_code = sd_ble_gap_conn_param_update(m_conn_handle, &m_preferred_conn_params);
             if ((err_code != NRF_SUCCESS) && (m_conn_params_config.error_handler != NULL))
@@ -70,24 +64,24 @@ static void update_timeout_handler(void * p_context)
         else
         {
             m_update_count = 0;
-            
+
             // Negotiation failed, disconnect automatically if this has been configured
             if (m_conn_params_config.disconnect_on_fail)
             {
                 uint32_t err_code;
-                
+
                 err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_CONN_INTERVAL_UNACCEPTABLE);
                 if ((err_code != NRF_SUCCESS) && (m_conn_params_config.error_handler != NULL))
                 {
                     m_conn_params_config.error_handler(err_code);
                 }
             }
-            
+
             // Notify the application that the procedure has failed
             if (m_conn_params_config.evt_handler != NULL)
             {
                 ble_conn_params_evt_t evt;
-                
+
                 evt.evt_type = BLE_CONN_PARAMS_EVT_FAILED;
                 m_conn_params_config.evt_handler(&evt);
             }
@@ -99,13 +93,13 @@ static void update_timeout_handler(void * p_context)
 uint32_t ble_conn_params_init(const ble_conn_params_init_t * p_init)
 {
     uint32_t err_code;
-    
+
     m_conn_params_config = *p_init;
     m_change_param = false;
     if (p_init->p_conn_params != NULL)
     {
         m_preferred_conn_params = *p_init->p_conn_params;
-        
+
         // Set the connection params in stack
         err_code = sd_ble_gap_ppcp_set(&m_preferred_conn_params);
         if (err_code != NRF_SUCCESS)
@@ -125,7 +119,7 @@ uint32_t ble_conn_params_init(const ble_conn_params_init_t * p_init)
 
     m_conn_handle  = BLE_CONN_HANDLE_INVALID;
     m_update_count = 0;
-    
+
     return app_timer_create(&m_conn_params_timer_id,
                             APP_TIMER_MODE_SINGLE_SHOT,
                             update_timeout_handler);
@@ -145,14 +139,14 @@ static void conn_params_negotiation(void)
     {
         uint32_t err_code;
         uint32_t timeout_ticks;
-        
+
         if (m_change_param)
         {
             // Notify the application that the procedure has failed
             if (m_conn_params_config.evt_handler != NULL)
             {
                 ble_conn_params_evt_t evt;
-                
+
                 evt.evt_type = BLE_CONN_PARAMS_EVT_FAILED;
                 m_conn_params_config.evt_handler(&evt);
             }
@@ -182,7 +176,7 @@ static void conn_params_negotiation(void)
         if (m_conn_params_config.evt_handler != NULL)
         {
             ble_conn_params_evt_t evt;
-            
+
             evt.evt_type = BLE_CONN_PARAMS_EVT_SUCCEEDED;
             m_conn_params_config.evt_handler(&evt);
         }
@@ -197,7 +191,7 @@ static void on_connect(ble_evt_t * p_ble_evt)
     m_conn_handle         = p_ble_evt->evt.gap_evt.conn_handle;
     m_current_conn_params = p_ble_evt->evt.gap_evt.params.connected.conn_params;
     m_update_count        = 0;  // Connection parameter negotiation should re-start every connection
-    
+
     // Check if we shall handle negotiation on connect
     if (m_conn_params_config.start_on_notify_cccd_handle == BLE_GATT_HANDLE_INVALID)
     {
@@ -214,7 +208,7 @@ static void on_disconnect(ble_evt_t * p_ble_evt)
 
     // Stop timer if running
     m_update_count = 0; // Connection parameters updates should happen during every connection
-    
+
     err_code = app_timer_stop(m_conn_params_timer_id);
     if ((err_code != NRF_SUCCESS) && (m_conn_params_config.error_handler != NULL))
     {
@@ -271,19 +265,19 @@ void ble_conn_params_on_ble_evt(ble_evt_t * p_ble_evt)
         case BLE_GAP_EVT_CONNECTED:
             on_connect(p_ble_evt);
             break;
-            
+
         case BLE_GAP_EVT_DISCONNECTED:
             on_disconnect(p_ble_evt);
             break;
-            
+
         case BLE_GATTS_EVT_WRITE:
             on_write(p_ble_evt);
             break;
-            
+
         case BLE_GAP_EVT_CONN_PARAM_UPDATE:
             on_conn_params_update(p_ble_evt);
             break;
-            
+
         default:
             // No implementation needed.
            break;
@@ -311,7 +305,7 @@ uint32_t ble_conn_params_change_conn_params(ble_gap_conn_params_t *new_params)
             if (m_conn_params_config.evt_handler != NULL)
             {
                 ble_conn_params_evt_t evt;
-                
+
                 evt.evt_type = BLE_CONN_PARAMS_EVT_SUCCEEDED;
                 m_conn_params_config.evt_handler(&evt);
             }

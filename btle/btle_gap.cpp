@@ -33,21 +33,15 @@ error_t btle_gap_init(void)
 {
     ble_gap_conn_params_t gap_conn_params = {0};
 
-    gap_conn_params.min_conn_interval = msec_to_1_25msec(
-                                            CFG_GAP_CONNECTION_MIN_INTERVAL_MS);  // in 1.25ms units
-    gap_conn_params.max_conn_interval = msec_to_1_25msec(
-                                            CFG_GAP_CONNECTION_MAX_INTERVAL_MS);  // in 1.25ms unit
+    gap_conn_params.min_conn_interval = msec_to_1_25msec(CFG_GAP_CONNECTION_MIN_INTERVAL_MS);  // in 1.25ms units
+    gap_conn_params.max_conn_interval = msec_to_1_25msec(CFG_GAP_CONNECTION_MAX_INTERVAL_MS);  // in 1.25ms unit
     gap_conn_params.slave_latency     = CFG_GAP_CONNECTION_SLAVE_LATENCY;
-    gap_conn_params.conn_sup_timeout  =
-        CFG_GAP_CONNECTION_SUPERVISION_TIMEOUT_MS / 10; // in 10ms unit
+    gap_conn_params.conn_sup_timeout  = CFG_GAP_CONNECTION_SUPERVISION_TIMEOUT_MS / 10; // in 10ms unit
 
     ble_gap_conn_sec_mode_t sec_mode;
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode); // no security is needed
 
-    ASSERT_STATUS( sd_ble_gap_device_name_set(&sec_mode,
-                   (const uint8_t *)
-                   CFG_GAP_LOCAL_NAME,
-                   strlen(CFG_GAP_LOCAL_NAME)));
+    ASSERT_STATUS( sd_ble_gap_device_name_set(&sec_mode, (const uint8_t *) CFG_GAP_LOCAL_NAME, strlen(CFG_GAP_LOCAL_NAME)));
     ASSERT_STATUS( sd_ble_gap_appearance_set(CFG_GAP_APPEARANCE));
     ASSERT_STATUS( sd_ble_gap_ppcp_set(&gap_conn_params));
     ASSERT_STATUS( sd_ble_gap_tx_power_set(CFG_BLE_TX_POWER_LEVEL));
