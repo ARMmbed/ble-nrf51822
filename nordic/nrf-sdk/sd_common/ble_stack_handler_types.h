@@ -31,6 +31,10 @@
 #include "app_scheduler.h"
 #include "app_util.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif // #ifdef __cplusplus
+
 #define BLE_STACK_EVT_MSG_BUF_SIZE       (sizeof(ble_evt_t) + (GATT_MTU_SIZE_DEFAULT))     /**< Size of BLE event message buffer. This will be provided to the SoftDevice while fetching an event. */
 #define BLE_STACK_HANDLER_SCHED_EVT_SIZE 0                                                 /**< The size of the scheduler event used by SoftDevice handler when passing BLE events using the @ref app_scheduler. */
 
@@ -59,6 +63,10 @@ uint32_t softdevice_ble_evt_handler_set(ble_evt_handler_t ble_evt_handler);
 #define BLE_STACK_HANDLER_SCHED_EVT_SIZE  0
 
 #endif // BLE_STACK_SUPPORT_REQD
+
+#ifdef __cplusplus
+}
+#endif // #ifdef __cplusplus
 
 #endif // BLE_STACK_HANDLER_TYPES_H__
 

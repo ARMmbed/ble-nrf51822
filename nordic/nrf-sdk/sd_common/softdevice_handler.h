@@ -41,6 +41,10 @@
 #include "ble_stack_handler_types.h"
 #include "ant_stack_handler_types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif // #ifdef __cplusplus
+
 #define SOFTDEVICE_SCHED_EVT_SIZE       0                                                 /**< Size of button events being passed through the scheduler (is to be used for computing the maximum size of scheduler events). For SoftDevice events, this size is 0, since the events are being pulled in the event handler. */
 #define SYS_EVT_MSG_BUF_SIZE            sizeof(uint32_t)                                  /**< Size of System (SOC) event message buffer. */
 
@@ -159,6 +163,10 @@ static __INLINE uint32_t softdevice_evt_schedule(void)
     return app_sched_event_put(NULL, 0, softdevice_evt_get);
 }
 /**@endcond */
+
+#ifdef __cplusplus
+}
+#endif // #ifdef __cplusplus
 
 #endif // SOFTDEVICE_HANDLER_H__
 

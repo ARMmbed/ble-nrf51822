@@ -28,6 +28,10 @@
 #include "ble.h"
 #include "app_util.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**@brief Advertising data name type. This contains the options available for the device name inside
  *        the advertising data. */
 typedef enum
@@ -100,13 +104,17 @@ typedef struct
  * @warning This API may override application's request to use the long name and use a short name
  * instead. This truncation will occur in case the long name does not fit advertisement data size.
  * Application is permitted to specify a preferred short name length in case truncation is required.
- * For example, if the complete device name is ABCD_HRMonitor, application can specify short name 
+ * For example, if the complete device name is ABCD_HRMonitor, application can specify short name
  * length to 8 such that short device name appears as ABCD_HRM instead of ABCD_HRMo or ABCD_HRMoni
  * etc if available size for short name is 9 or 12 respectively to have more apporpriate short name.
  * However, it should be noted that this is just a preference that application can specify and
- * if the preference too large to fit in Advertisement Data, this can be further truncated. 
+ * if the preference too large to fit in Advertisement Data, this can be further truncated.
  */
 uint32_t ble_advdata_set(const ble_advdata_t * p_advdata, const ble_advdata_t * p_srdata);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // BLE_ADVDATA_H__
 
