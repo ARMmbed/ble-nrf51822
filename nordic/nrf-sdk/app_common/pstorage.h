@@ -25,6 +25,10 @@
 #ifndef PSTORAGE_H__
 #define PSTORAGE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* #ifdef __cplusplus */
+
 #include "pstorage_platform.h"
 
 
@@ -56,22 +60,22 @@
 /**@brief Persistent Storage Error Reporting Callback
  *
  * @details Persistent Storage Error Reporting Callback that is used by the interface to report
- *          success or failure of a flash operation. Therefore, for any operations, application 
- *          can know when the procedure was complete. For store operation, since no data copy 
- *          is made, receiving a success or failure notification, indicated by the reason 
- *          parameter of callback is an indication that the resident memory could now be reused 
+ *          success or failure of a flash operation. Therefore, for any operations, application
+ *          can know when the procedure was complete. For store operation, since no data copy
+ *          is made, receiving a success or failure notification, indicated by the reason
+ *          parameter of callback is an indication that the resident memory could now be reused
  *          or freed, as the case may be.
- * 
+ *
  * @param[in] handle   Identifies module and block for which callback is received.
  * @param[in] op_code  Identifies the operation for which the event is notified.
  * @param[in] result   Identifies the result of flash access operation.
  *                     NRF_SUCCESS implies, operation succeeded.
- * @param[in] p_data   Identifies the application data pointer. In case of store operation, this 
- *                     points to the resident source of application memory that application can now 
- *                     free or reuse. In case of clear, this is NULL as no application pointer is 
+ * @param[in] p_data   Identifies the application data pointer. In case of store operation, this
+ *                     points to the resident source of application memory that application can now
+ *                     free or reuse. In case of clear, this is NULL as no application pointer is
  *                     needed for this operation.
  * @param[in] data_len Length data application had provided for the operation.
- * 
+ *
  */
 typedef void (*pstorage_ntf_cb_t)(pstorage_handle_t *  p_handle,
                                   uint8_t              op_code,
@@ -116,11 +120,11 @@ uint32_t pstorage_init(void);
 /**@brief Register with persistent storage interface.
  *
  * @param[in]  p_module_param Module registration param.
- * @param[out] p_block_id     Block identifier to identify persistent memory blocks in case 
- *                            registration succeeds. Application is expected to use the block ids 
- *                            for subsequent operations on requested persistent memory. Maximum 
- *                            registrations permitted is determined by configuration parameter 
- *                            PSTORAGE_MAX_APPLICATIONS. 
+ * @param[out] p_block_id     Block identifier to identify persistent memory blocks in case
+ *                            registration succeeds. Application is expected to use the block ids
+ *                            for subsequent operations on requested persistent memory. Maximum
+ *                            registrations permitted is determined by configuration parameter
+ *                            PSTORAGE_MAX_APPLICATIONS.
  *             In case more than one memory blocks are requested, the identifier provided here is
  *             the base identifier for the first block and to identify subsequent block,
  *             application shall use \@ref pstorage_block_identifier_get with this base identifier
@@ -256,9 +260,9 @@ uint32_t pstorage_load(uint8_t *           p_dest,
  *
  * @param[in]  size      Size of data to be cleared from persistent memory expressed in bytes.
  *                       This parameter is to provision for clearing of certain blocks
- *                       of memory, or all memory blocks in a registered module. If the total size 
+ *                       of memory, or all memory blocks in a registered module. If the total size
  *                       of the application module is used (blocks * block size) in combination with
- *                       the identifier for the first block in the module, all blocks in the 
+ *                       the identifier for the first block in the module, all blocks in the
  *                       module will be erased.
  *
  * @retval     NRF_SUCCESS             on success, else an error code indicating reason for failure.
@@ -292,8 +296,8 @@ uint32_t pstorage_access_status_get(uint32_t * p_count);
 /**@brief      Function for registering with persistent storage interface.
  *
  * @param[in]  p_module_param Module registration param.
- * @param[out] p_block_id     Block identifier to identify persistent memory blocks in case 
- *                            registration succeeds. Application is expected to use the block ids 
+ * @param[out] p_block_id     Block identifier to identify persistent memory blocks in case
+ *                            registration succeeds. Application is expected to use the block ids
  *                            for subsequent operations on requested persistent memory.
  *             In case more than one memory blocks are requested, the identifier provided here is
  *             the base identifier for the first block and to identify subsequent block,
@@ -364,6 +368,11 @@ uint32_t pstorage_raw_store(pstorage_handle_t * p_dest,
 uint32_t pstorage_raw_clear(pstorage_handle_t * p_dest, pstorage_size_t size);
 
 #endif // PSTORAGE_RAW_MODE_ENABLE
+
+#ifdef __cplusplus
+}
+#endif /* #ifdef __cplusplus */
+
 
 /**@} */
 /**@} */
