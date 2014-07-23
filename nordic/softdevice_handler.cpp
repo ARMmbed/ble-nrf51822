@@ -17,7 +17,6 @@
 #include "app_util.h"
 #include "nrf_assert.h"
 #include "nrf_soc.h"
-#include "mbed.h"
 
 #if defined(ANT_STACK_SUPPORT_REQD) && defined(BLE_STACK_SUPPORT_REQD)
     #include "ant_interface.h"
