@@ -53,6 +53,41 @@ nRF51822n::~nRF51822n(void)
 {
 }
 
+const char *nRF51822n::getVersion(void)
+{
+    static char versionString[10];
+    static bool versionFetched = false;
+
+    if (!versionFetched) {
+        ble_version_t version;
+        if (sd_ble_version_get(&version) == NRF_SUCCESS) {
+            snprintf(versionString, sizeof(versionString), "%u.%u", version.version_number, version.subversion_number);
+            versionFetched = true;
+        } else {
+            strncpy(versionString, "unknown", sizeof(versionString));
+        }
+    }
+
+    return versionString;
+}
+
+/* (Valid values are -40, -20, -16, -12, -8, -4, 0, 4) */
+ble_error_t nRF51822n::setTxPower(int8_t txPower)
+{
+    unsigned rc;
+    if ((rc = sd_ble_gap_tx_power_set(txPower)) != NRF_SUCCESS) {
+        switch (rc) {
+            case NRF_ERROR_BUSY:
+                return BLE_STACK_BUSY;
+            case NRF_ERROR_INVALID_PARAM:
+            default:
+                return BLE_ERROR_PARAM_OUT_OF_RANGE;
+        }
+    }
+
+    return BLE_ERROR_NONE;
+}
+
 /**************************************************************************/
 /*!
     @brief  Initialises anything required to start using BLE

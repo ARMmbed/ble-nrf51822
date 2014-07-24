@@ -34,12 +34,17 @@ public:
     nRF51822n(void);
     virtual ~nRF51822n(void);
 
+    virtual const char *getVersion(void);
+
     virtual Gap        &getGap()        {
         return nRF51Gap::getInstance();
     };
     virtual GattServer &getGattServer() {
         return nRF51GattServer::getInstance();
     };
+
+    virtual ble_error_t setTxPower(int8_t txPower);
+
     virtual ble_error_t init(void);
     virtual ble_error_t reset(void);
     virtual void        waitForEvent(void);

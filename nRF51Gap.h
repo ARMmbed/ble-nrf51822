@@ -22,7 +22,7 @@
 #include "ble.h"
 #include "GapAdvertisingParams.h"
 #include "GapAdvertisingData.h"
-#include "hw/Gap.h"
+#include "public/Gap.h"
 
 /**************************************************************************/
 /*!

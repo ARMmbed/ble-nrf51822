@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "common/common.h"
 #include "nordic_common.h"
 
@@ -34,14 +35,14 @@
 #include "softdevice_handler.h"
 #include "pstorage.h"
 
-#include "hw/GapEvents.h"
+#include "GapEvents.h"
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
 
 #if NEED_BOND_MANAGER /* disabled by default */
 static void service_error_callback(uint32_t nrf_error);
 #endif
-void        assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
+extern "C" void        assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
 void        app_error_handler(uint32_t       error_code,
                               uint32_t       line_num,
                               const uint8_t *p_file_name);

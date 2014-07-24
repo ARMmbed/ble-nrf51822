@@ -21,7 +21,7 @@
 #include "blecommon.h"
 #include "ble.h" /* nordic ble */
 #include "GattService.h"
-#include "hw/GattServer.h"
+#include "public/GattServer.h"
 
 #define BLE_TOTAL_CHARACTERISTICS 10
 
@@ -37,6 +37,11 @@ public:
     virtual ble_error_t addService(GattService &);
     virtual ble_error_t readValue(uint16_t handle, uint8_t buffer[], uint16_t *const lengthP);
     virtual ble_error_t updateValue(uint16_t, uint8_t[], uint16_t, bool localOnly = false);
+
+    virtual ble_error_t setDeviceName(const uint8_t *deviceName);
+    virtual ble_error_t getDeviceName(uint8_t *deviceName, unsigned *lengthP);
+    virtual ble_error_t setAppearance(uint16_t appearance);
+    virtual ble_error_t getAppearance(uint16_t *appearanceP);
 
     /* nRF51 Functions */
     void eventCallback(void);
