@@ -42,10 +42,8 @@
 #if NEED_BOND_MANAGER /* disabled by default */
 static void service_error_callback(uint32_t nrf_error);
 #endif
-extern "C" void        assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
-void        app_error_handler(uint32_t       error_code,
-                              uint32_t       line_num,
-                              const uint8_t *p_file_name);
+extern "C" void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
+void            app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name);
 
 #if NEED_BOND_MANAGER /* disabled by default */
 static error_t bond_manager_init(void);
