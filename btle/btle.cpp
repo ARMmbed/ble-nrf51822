@@ -62,8 +62,9 @@ static void sys_evt_dispatch(uint32_t sys_evt)
 
 error_t btle_init(void)
 {
-    APP_TIMER_INIT(0, 8, 5, false);
-    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, false);
+    const bool useScheduler = false;
+    APP_TIMER_INIT(0 /* PRESCALAR */, 8 /* num timers */, 1 /* event queue max depth */, useScheduler);
+    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, useScheduler);
 
     ASSERT_STATUS( softdevice_ble_evt_handler_set(btle_handler));
     ASSERT_STATUS( softdevice_sys_evt_handler_set(sys_evt_dispatch));
