@@ -16,7 +16,7 @@
 #include "nrf51_bitfields.h"
 #include "nrf_soc.h"
 #include "app_error.h"
-//#include "nrf_delay.h"
+#include "nrf_delay.h"
 #include "mbed.h"
 #include "app_util.h"
 #include "app_util_platform.h"
@@ -162,7 +162,7 @@ static void rtc1_start(void)
     NVIC_EnableIRQ(RTC1_IRQn);
 
     NRF_RTC1->TASKS_START = 1;
-    wait(0.0000001 * MAX_RTC_TASKS_DELAY);
+    nrf_delay_us(MAX_RTC_TASKS_DELAY / 10);
 }
 
 
@@ -176,7 +176,7 @@ static void rtc1_stop(void)
     NRF_RTC1->INTENCLR = RTC_INTENSET_COMPARE0_Msk;
 
     NRF_RTC1->TASKS_STOP = 1;
-    wait(0.0000001 * MAX_RTC_TASKS_DELAY);
+    nrf_delay_us(MAX_RTC_TASKS_DELAY / 10);
 }
 
 
