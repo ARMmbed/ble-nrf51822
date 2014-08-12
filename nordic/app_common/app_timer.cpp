@@ -138,6 +138,7 @@ static uint32_t                      m_ticks_elapsed[CONTEXT_QUEUE_SIZE_MAX];   
 static uint8_t                       m_ticks_elapsed_q_read_ind;                /**< Timer internal elapsed ticks queue read index. */
 static uint8_t                       m_ticks_elapsed_q_write_ind;               /**< Timer internal elapsed ticks queue write index. */
 static app_timer_evt_schedule_func_t m_evt_schedule_func;                       /**< Pointer to function for propagating timeout events to the scheduler. */
+static bool                          m_rtc1_running;                            /**< Boolean indicating if RTC1 is running. */
 
 
 /**@brief Function for initializing the RTC1 counter.
@@ -162,7 +163,9 @@ static void rtc1_start(void)
     NVIC_EnableIRQ(RTC1_IRQn);
 
     NRF_RTC1->TASKS_START = 1;
-    nrf_delay_us(MAX_RTC_TASKS_DELAY / 10);
+    nrf_delay_us(MAX_RTC_TASKS_DELAY);
+
+    m_rtc1_running = true;
 }
 
 
@@ -176,7 +179,13 @@ static void rtc1_stop(void)
     NRF_RTC1->INTENCLR = RTC_INTENSET_COMPARE0_Msk;
 
     NRF_RTC1->TASKS_STOP = 1;
-    nrf_delay_us(MAX_RTC_TASKS_DELAY / 10);
+    nrf_delay_us(MAX_RTC_TASKS_DELAY);
+
+    NRF_RTC1->TASKS_CLEAR = 1;
+    m_ticks_latest        = 0;
+    nrf_delay_us(MAX_RTC_TASKS_DELAY);
+
+    m_rtc1_running = false;
 }
 
 
@@ -296,6 +305,12 @@ static void timer_list_remove(app_timer_id_t timer_id)
     if (previous == current)
     {
         m_timer_id_head = mp_nodes[m_timer_id_head].next;
+
+        // No more timers in the list. Disable RTC1.
+        if (m_timer_id_head == TIMER_NULL)
+        {
+            rtc1_stop();
+        }
     }
 
     // Remaining timeout between next timeout
@@ -673,7 +688,7 @@ static void compare_reg_update(app_timer_id_t timer_id_head_old)
         uint32_t cc              = m_ticks_latest;
         uint32_t ticks_elapsed   = ticks_diff_get(pre_counter_val, cc) + RTC_COMPARE_OFFSET_MIN;
 
-        if (timer_id_head_old == TIMER_NULL)
+        if (!m_rtc1_running)
         {
             // No timers were already running, start RTC
             rtc1_start();
@@ -686,11 +701,7 @@ static void compare_reg_update(app_timer_id_t timer_id_head_old)
 
         uint32_t post_counter_val = rtc1_counter_get();
 
-        if (
-            (ticks_diff_get(post_counter_val, pre_counter_val) + RTC_COMPARE_OFFSET_MIN)
-            >
-            ticks_diff_get(cc, pre_counter_val)
-           )
+        if ((ticks_diff_get(post_counter_val, pre_counter_val) + RTC_COMPARE_OFFSET_MIN) > ticks_diff_get(cc, pre_counter_val))
         {
             // When this happens the COMPARE event may not be triggered by the RTC.
             // The nRF51 Series User Specification states that if the COUNTER value is N
