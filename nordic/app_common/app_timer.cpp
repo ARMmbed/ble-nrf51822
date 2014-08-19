@@ -29,8 +29,6 @@
 // (e.g. by using guard/trigger flags).
 STATIC_ASSERT(RTC1_IRQ_PRI == SWI0_IRQ_PRI);
 
-#define MAX_RTC_COUNTER_VAL     0x00FFFFFF                                  /**< Maximum value of the RTC counter. */
-
 #define APP_HIGH_USER_ID        0                                           /**< User Id for the Application High "user". */
 #define APP_LOW_USER_ID         1                                           /**< User Id for the Application Low "user". */
 #define THREAD_MODE_USER_ID     2                                           /**< User Id for the Thread Mode "user". */
@@ -124,7 +122,6 @@ STATIC_ASSERT(sizeof(timer_user_t) % 4 == 0);
  */
 typedef uint32_t timer_user_id_t;
 
-#define TIMER_NULL                  ((app_timer_id_t)(0 - 1))                   /**< Invalid timer id. */
 #define CONTEXT_QUEUE_SIZE_MAX      (2)                                         /**< Timer internal elapsed ticks queue size. */
 
 static uint8_t                       m_node_array_size;                         /**< Size of timer node array. */
