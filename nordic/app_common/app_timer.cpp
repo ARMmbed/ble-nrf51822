@@ -153,6 +153,10 @@ static void rtc1_init(uint32_t prescaler)
  */
 static void rtc1_start(void)
 {
+    if (m_rtc1_running) {
+        return;
+    }
+
     NRF_RTC1->EVTENSET = RTC_EVTEN_COMPARE0_Msk;
     NRF_RTC1->INTENSET = RTC_INTENSET_COMPARE0_Msk | RTC_INTENSET_OVRFLW_Msk;
 
@@ -170,6 +174,10 @@ static void rtc1_start(void)
  */
 static void rtc1_stop(void)
 {
+    if (!m_rtc1_running) {
+        return;
+    }
+
     NVIC_DisableIRQ(RTC1_IRQn);
 
     NRF_RTC1->EVTENCLR = RTC_EVTEN_COMPARE0_Msk;
@@ -990,6 +998,7 @@ uint32_t app_timer_init(uint32_t                      prescaler,
     NVIC_EnableIRQ(SWI0_IRQn);
 
     rtc1_init(prescaler);
+    rtc1_start();
 
     m_ticks_latest = rtc1_counter_get();
 
