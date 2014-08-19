@@ -253,13 +253,14 @@ uint32_t app_timer_stop(app_timer_id_t timer_id);
  */
 uint32_t app_timer_stop_all(void);
 
-/**@brief Function for returning the current value of the RTC1 counter.
+/**@brief Function for returning the current value of the RTC1 counter. The
+ * value includes overflow bits to extend the range to 64-bits.
  *
  * @param[out] p_ticks   Current value of the RTC1 counter.
  *
  * @retval     NRF_SUCCESS   Counter was successfully read.
  */
-uint32_t app_timer_cnt_get(uint32_t * p_ticks);
+uint32_t app_timer_cnt_get(uint64_t * p_ticks);
 
 /**@brief Function for computing the difference between two RTC1 counter values.
  *
