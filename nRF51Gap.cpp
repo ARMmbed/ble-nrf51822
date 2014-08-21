@@ -168,8 +168,7 @@ ble_error_t nRF51Gap::startAdvertising(const GapAdvertisingParams &params)
     adv_para.interval    = params.getInterval();         // advertising interval (in units of 0.625 ms)
     adv_para.timeout     = params.getTimeout();
 
-    ASSERT(ERROR_NONE == sd_ble_gap_adv_start(&adv_para),
-           BLE_ERROR_PARAM_OUT_OF_RANGE);
+    ASSERT(ERROR_NONE == sd_ble_gap_adv_start(&adv_para), BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     state.advertising = 1;
 
