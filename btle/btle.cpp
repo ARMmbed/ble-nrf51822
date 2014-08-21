@@ -61,7 +61,6 @@ static void sys_evt_dispatch(uint32_t sys_evt)
 error_t btle_init(void)
 {
     const bool useScheduler = false;
-    APP_TIMER_INIT(0 /* PRESCALAR */, 8 /* num timers */, 1 /* event queue max depth */, useScheduler);
     SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, useScheduler);
 
     // Enable BLE stack
