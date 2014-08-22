@@ -64,6 +64,38 @@ error_t btle_init(void)
     APP_TIMER_INIT(0 /* PRESCALAR */, 8 /* num timers */, 1 /* event queue max depth */, useScheduler);
     SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, useScheduler);
 
+    // Enable BLE stack
+    /**
+     * Using this call, the application can select whether to include the
+     * Service Changed characteristic in the GATT Server. The default in all
+     * previous releases has been to include the Service Changed characteristic,
+     * but this affects how GATT clients behave. Specifically, it requires
+     * clients to subscribe to this attribute and not to cache attribute handles
+     * between connections unless the devices are bonded. If the application
+     * does not need to change the structure of the GATT server attributes at
+     * runtime this adds unnecessary complexity to the interaction with peer
+     * clients. If the SoftDevice is enabled with the Service Changed
+     * Characteristics turned off, then clients are allowed to cache attribute
+     * handles making applications simpler on both sides.
+     */
+    static const bool IS_SRVC_CHANGED_CHARACT_PRESENT = false;
+    ble_enable_params_t enableParams = {
+        .gatts_enable_params = {
+            .service_changed = IS_SRVC_CHANGED_CHARACT_PRESENT
+        }
+    };
+    if (sd_ble_enable(&enableParams) != NRF_SUCCESS) {
+        return ERROR_INVALID_PARAM;
+    }
+
+    ble_gap_addr_t addr;
+    if (sd_ble_gap_address_get(&addr) != NRF_SUCCESS) {
+        return ERROR_INVALID_PARAM;
+    }
+    if (sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_NONE, &addr) != NRF_SUCCESS) {
+        return ERROR_INVALID_PARAM;
+    }
+
     ASSERT_STATUS( softdevice_ble_evt_handler_set(btle_handler));
     ASSERT_STATUS( softdevice_sys_evt_handler_set(sys_evt_dispatch));
 
