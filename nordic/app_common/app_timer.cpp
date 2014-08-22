@@ -17,7 +17,6 @@
 #include "nrf_soc.h"
 #include "app_error.h"
 #include "nrf_delay.h"
-#include "mbed.h"
 #include "app_util.h"
 #include "app_util_platform.h"
 
