@@ -315,13 +315,13 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
         if (nrfCharacteristicHandles[i].value_handle == handle_value) {
             switch (eventType) {
                 case GattServerEvents::GATT_EVENT_DATA_WRITTEN: {
-                    GattCharacteristicWriteEvent eventData = {
-                        .op     = static_cast<GattCharacteristicWriteEvent::Type>(gattsEventP->params.write.op),
+                    GattCharacteristicWriteCBParams cbParams = {
+                        .op     = static_cast<GattCharacteristicWriteCBParams::Type>(gattsEventP->params.write.op),
                         .offset = gattsEventP->params.write.offset,
                         .len    = gattsEventP->params.write.len,
                         .data   = gattsEventP->params.write.data
                     };
-                    handleDataWrittenEvent(i, &eventData);
+                    handleDataWrittenEvent(i, &cbParams);
                     break;
                 }
                 default:
