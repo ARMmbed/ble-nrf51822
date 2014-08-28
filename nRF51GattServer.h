@@ -24,6 +24,7 @@
 #include "public/GattServer.h"
 
 #define BLE_TOTAL_CHARACTERISTICS 10
+#define BLE_TOTAL_DESCRIPTORS     10
 
 class nRF51GattServer : public GattServer
 {
@@ -50,10 +51,13 @@ public:
 private:
     GattCharacteristic *p_characteristics[BLE_TOTAL_CHARACTERISTICS];
     ble_gatts_char_handles_t nrfCharacteristicHandles[BLE_TOTAL_CHARACTERISTICS];
+    GattAttribute *p_descriptors[BLE_TOTAL_DESCRIPTORS];
+    uint16_t nrfDescriptorHandles[BLE_TOTAL_DESCRIPTORS];
 
     nRF51GattServer() {
         serviceCount = 0;
         characteristicCount = 0;
+        descriptorCount = 0;
     };
 
     nRF51GattServer(nRF51GattServer const &);
