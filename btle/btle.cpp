@@ -39,6 +39,8 @@
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
 
+#include "ble_hci.h"
+
 #if NEED_BOND_MANAGER /* disabled by default */
 static void service_error_callback(uint32_t nrf_error);
 #endif
@@ -133,7 +135,10 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 #if NEED_BOND_MANAGER /* disabled by default */
             ASSERT_STATUS_RET_VOID ( ble_bondmngr_bonded_centrals_store());
 #endif
-            nRF51Gap::getInstance().processHandleSpecificEvent(GapEvents::GAP_EVENT_DISCONNECTED, handle);
+
+            if (p_ble_evt->evt.gap_evt.params.disconnected.reason == BLE_HCI_LOCAL_HOST_TERMINATED_CONNECTION) {
+                nRF51Gap::getInstance().processDisconnectionEvent(handle, Gap::LOCAL_HOST_TERMINATED_CONNECTION);
+            }
             break;
         }
 

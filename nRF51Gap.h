@@ -45,7 +45,7 @@ public:
                                            const GapAdvertisingData &);
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
     virtual ble_error_t stopAdvertising(void);
-    virtual ble_error_t disconnect(void);
+    virtual ble_error_t disconnect(DisconnectionReason_t reason);
 
     virtual ble_error_t setDeviceName(const uint8_t *deviceName);
     virtual ble_error_t getDeviceName(uint8_t *deviceName, unsigned *lengthP);

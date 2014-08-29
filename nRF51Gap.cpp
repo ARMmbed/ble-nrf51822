@@ -217,14 +217,23 @@ ble_error_t nRF51Gap::stopAdvertising(void)
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51Gap::disconnect(void)
+ble_error_t nRF51Gap::disconnect(DisconnectionReason_t reason)
 {
     state.advertising = 0;
     state.connected   = 0;
 
+    uint8_t code = BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION;
+    switch (reason) {
+        case REMOTE_USER_TERMINATED_CONNECTION:
+            code = BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION;
+            break;
+        case CONN_INTERVAL_UNACCEPTABLE:
+            code = BLE_HCI_CONN_INTERVAL_UNACCEPTABLE;
+            break;
+    }
+
     /* Disconnect if we are connected to a central device */
-    ASSERT_INT(ERROR_NONE,
-        sd_ble_gap_disconnect(m_connectionHandle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION), BLE_ERROR_PARAM_OUT_OF_RANGE);
+    ASSERT_INT(ERROR_NONE, sd_ble_gap_disconnect(m_connectionHandle, code), BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     return BLE_ERROR_NONE;
 }
