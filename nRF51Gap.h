@@ -47,6 +47,11 @@ public:
     virtual ble_error_t stopAdvertising(void);
     virtual ble_error_t disconnect(void);
 
+    virtual ble_error_t setDeviceName(const uint8_t *deviceName);
+    virtual ble_error_t getDeviceName(uint8_t *deviceName, unsigned *lengthP);
+    virtual ble_error_t setAppearance(uint16_t appearance);
+    virtual ble_error_t getAppearance(uint16_t *appearanceP);
+
     void     setConnectionHandle(uint16_t con_handle);
     uint16_t getConnectionHandle(void);
 

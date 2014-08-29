@@ -213,45 +213,6 @@ ble_error_t nRF51GattServer::updateValue(uint16_t charHandle, uint8_t buffer[], 
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF51GattServer::setDeviceName(const uint8_t *deviceName)
-{
-    ble_gap_conn_sec_mode_t sec_mode;
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode); // no security is needed
-
-    if (sd_ble_gap_device_name_set(&sec_mode, deviceName, strlen((const char *)deviceName)) == NRF_SUCCESS) {
-        return BLE_ERROR_NONE;
-    } else {
-        return BLE_ERROR_PARAM_OUT_OF_RANGE;
-    }
-}
-
-ble_error_t nRF51GattServer::getDeviceName(uint8_t *deviceName, unsigned *lengthP)
-{
-    if (sd_ble_gap_device_name_get(deviceName, (uint16_t *)lengthP) == NRF_SUCCESS) {
-        return BLE_ERROR_NONE;
-    } else {
-        return BLE_ERROR_PARAM_OUT_OF_RANGE;
-    }
-}
-
-ble_error_t nRF51GattServer::setAppearance(uint16_t appearance)
-{
-    if (sd_ble_gap_appearance_set(appearance) == NRF_SUCCESS) {
-        return BLE_ERROR_NONE;
-    } else {
-        return BLE_ERROR_PARAM_OUT_OF_RANGE;
-    }
-}
-
-ble_error_t nRF51GattServer::getAppearance(uint16_t *appearanceP)
-{
-    if (sd_ble_gap_appearance_get(appearanceP)) {
-        return BLE_ERROR_NONE;
-    } else {
-        return BLE_ERROR_PARAM_OUT_OF_RANGE;
-    }
-}
-
 /**************************************************************************/
 /*!
     @brief  Callback handler for events getting pushed up from the SD
