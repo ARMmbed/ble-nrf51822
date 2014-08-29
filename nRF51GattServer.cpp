@@ -298,9 +298,12 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
             handle_value = gattsEventP->params.hvc.handle;
             break;
 
-        case BLE_EVT_TX_COMPLETE:
-            handleEvent(GattServerEvents::GATT_EVENT_DATA_SENT);
+        case BLE_EVT_TX_COMPLETE: {
+            for (unsigned i = 0; i < p_ble_evt->evt.common_evt.params.tx_complete.count; i++) {
+                handleEvent(GattServerEvents::GATT_EVENT_DATA_SENT);
+            }
             return;
+        }
 
         case BLE_GATTS_EVT_SYS_ATTR_MISSING:
             sd_ble_gatts_sys_attr_set(gattsEventP->conn_handle, NULL, 0);
