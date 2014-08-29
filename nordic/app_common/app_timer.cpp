@@ -29,8 +29,6 @@
 // (e.g. by using guard/trigger flags).
 STATIC_ASSERT(RTC1_IRQ_PRI == SWI0_IRQ_PRI);
 
-#define MAX_RTC_COUNTER_VAL     0x00FFFFFF                                  /**< Maximum value of the RTC counter. */
-
 #define APP_HIGH_USER_ID        0                                           /**< User Id for the Application High "user". */
 #define APP_LOW_USER_ID         1                                           /**< User Id for the Application Low "user". */
 #define THREAD_MODE_USER_ID     2                                           /**< User Id for the Thread Mode "user". */
@@ -124,7 +122,6 @@ STATIC_ASSERT(sizeof(timer_user_t) % 4 == 0);
  */
 typedef uint32_t timer_user_id_t;
 
-#define TIMER_NULL                  ((app_timer_id_t)(0 - 1))                   /**< Invalid timer id. */
 #define CONTEXT_QUEUE_SIZE_MAX      (2)                                         /**< Timer internal elapsed ticks queue size. */
 
 static uint8_t                       m_node_array_size;                         /**< Size of timer node array. */
@@ -138,6 +135,7 @@ static uint8_t                       m_ticks_elapsed_q_read_ind;                
 static uint8_t                       m_ticks_elapsed_q_write_ind;               /**< Timer internal elapsed ticks queue write index. */
 static app_timer_evt_schedule_func_t m_evt_schedule_func;                       /**< Pointer to function for propagating timeout events to the scheduler. */
 static bool                          m_rtc1_running;                            /**< Boolean indicating if RTC1 is running. */
+static volatile uint64_t             overflowBits;                              /**< The upper 40 bits of the 64-bit value returned by cnt_get() */
 
 
 /**@brief Function for initializing the RTC1 counter.
@@ -155,8 +153,12 @@ static void rtc1_init(uint32_t prescaler)
  */
 static void rtc1_start(void)
 {
+    if (m_rtc1_running) {
+        return;
+    }
+
     NRF_RTC1->EVTENSET = RTC_EVTEN_COMPARE0_Msk;
-    NRF_RTC1->INTENSET = RTC_INTENSET_COMPARE0_Msk;
+    NRF_RTC1->INTENSET = RTC_INTENSET_COMPARE0_Msk | RTC_INTENSET_OVRFLW_Msk;
 
     NVIC_ClearPendingIRQ(RTC1_IRQn);
     NVIC_EnableIRQ(RTC1_IRQn);
@@ -172,10 +174,14 @@ static void rtc1_start(void)
  */
 static void rtc1_stop(void)
 {
+    if (!m_rtc1_running) {
+        return;
+    }
+
     NVIC_DisableIRQ(RTC1_IRQn);
 
     NRF_RTC1->EVTENCLR = RTC_EVTEN_COMPARE0_Msk;
-    NRF_RTC1->INTENCLR = RTC_INTENSET_COMPARE0_Msk;
+    NRF_RTC1->INTENCLR = RTC_INTENSET_COMPARE0_Msk | RTC_INTENSET_OVRFLW_Msk;
 
     NRF_RTC1->TASKS_STOP = 1;
     nrf_delay_us(MAX_RTC_TASKS_DELAY);
@@ -907,6 +913,9 @@ extern "C" void RTC1_IRQHandler(void)
     NRF_RTC1->EVENTS_COMPARE[2] = 0;
     NRF_RTC1->EVENTS_COMPARE[3] = 0;
     NRF_RTC1->EVENTS_TICK       = 0;
+    if (NRF_RTC1->EVENTS_OVRFLW) {
+        overflowBits += (1 << 24);
+    }
     NRF_RTC1->EVENTS_OVRFLW     = 0;
 
     // Check for expired timers
@@ -989,6 +998,7 @@ uint32_t app_timer_init(uint32_t                      prescaler,
     NVIC_EnableIRQ(SWI0_IRQn);
 
     rtc1_init(prescaler);
+    rtc1_start();
 
     m_ticks_latest = rtc1_counter_get();
 
@@ -1125,9 +1135,9 @@ uint32_t app_timer_stop_all(void)
 }
 
 
-uint32_t app_timer_cnt_get(uint32_t * p_ticks)
+uint32_t app_timer_cnt_get(uint64_t * p_ticks)
 {
-    *p_ticks = rtc1_counter_get();
+    *p_ticks = overflowBits | rtc1_counter_get();
     return NRF_SUCCESS;
 }
 

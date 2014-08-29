@@ -62,6 +62,8 @@ extern "C" {
 #define APP_TIMER_USER_SIZE          8                          /**< Size of app_timer.timer_user_t (only for use inside APP_TIMER_BUF_SIZE()). */
 #define APP_TIMER_INT_LEVELS         3                          /**< Number of interrupt levels from where timer operations may be initiated (only for use inside APP_TIMER_BUF_SIZE()). */
 
+#define MAX_RTC_COUNTER_VAL     0x00FFFFFF                                  /**< Maximum value of the RTC counter. */
+
 /**@brief Compute number of bytes required to hold the application timer data structures.
  *
  * @param[in]  MAX_TIMERS      Maximum number of timers that can be created at any given time.
@@ -105,6 +107,8 @@ extern "C" {
 
 /**@brief Timer id type. */
 typedef uint32_t app_timer_id_t;
+
+#define TIMER_NULL                  ((app_timer_id_t)(0 - 1))                   /**< Invalid timer id. */
 
 /**@brief Application timeout handler type. */
 typedef void (*app_timer_timeout_handler_t)(void * p_context);
@@ -249,13 +253,14 @@ uint32_t app_timer_stop(app_timer_id_t timer_id);
  */
 uint32_t app_timer_stop_all(void);
 
-/**@brief Function for returning the current value of the RTC1 counter.
+/**@brief Function for returning the current value of the RTC1 counter. The
+ * value includes overflow bits to extend the range to 64-bits.
  *
  * @param[out] p_ticks   Current value of the RTC1 counter.
  *
  * @retval     NRF_SUCCESS   Counter was successfully read.
  */
-uint32_t app_timer_cnt_get(uint32_t * p_ticks);
+uint32_t app_timer_cnt_get(uint64_t * p_ticks);
 
 /**@brief Function for computing the difference between two RTC1 counter values.
  *
