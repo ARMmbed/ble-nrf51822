@@ -154,11 +154,8 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             sec_params.min_key_size = CFG_BLE_SEC_PARAM_MIN_KEY_SIZE;
             sec_params.max_key_size = CFG_BLE_SEC_PARAM_MAX_KEY_SIZE;
 
-            ASSERT_STATUS_RET_VOID(
-                sd_ble_gap_sec_params_reply(nRF51Gap::getInstance().
-                                            getConnectionHandle(),
-                                            BLE_GAP_SEC_STATUS_SUCCESS,
-                                            &sec_params));
+            ASSERT_STATUS_RET_VOID(sd_ble_gap_sec_params_reply(nRF51Gap::getInstance().getConnectionHandle(),
+                                                               BLE_GAP_SEC_STATUS_SUCCESS, &sec_params));
         }
         break;
 
