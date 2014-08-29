@@ -299,9 +299,7 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
             break;
 
         case BLE_EVT_TX_COMPLETE: {
-            for (unsigned i = 0; i < p_ble_evt->evt.common_evt.params.tx_complete.count; i++) {
-                handleEvent(GattServerEvents::GATT_EVENT_DATA_SENT);
-            }
+            handleDataSentEvent(p_ble_evt->evt.common_evt.params.tx_complete.count);
             return;
         }
 
