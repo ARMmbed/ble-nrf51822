@@ -112,7 +112,9 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 #if NEED_BOND_MANAGER /* disabled by default */
     ble_bondmngr_on_ble_evt(p_ble_evt);
 #endif
+#if SDK_CONN_PARAMS_MODULE_ENABLE
     ble_conn_params_on_ble_evt(p_ble_evt);
+#endif
 
     /* Custom event handler */
     switch (p_ble_evt->header.evt_id) {

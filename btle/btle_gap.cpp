@@ -20,7 +20,9 @@
 #include "ble_conn_params.h"
 
 static inline uint32_t msec_to_1_25msec(uint32_t interval_ms) ATTR_ALWAYS_INLINE ATTR_CONST;
+#if SDK_CONN_PARAMS_MODULE_ENABLE
 static void   error_callback(uint32_t nrf_error);
+#endif // SDK_CONN_PARAMS_MODULE_ENABLE
 
 /**************************************************************************/
 /*!
@@ -46,6 +48,11 @@ error_t btle_gap_init(void)
     ASSERT_STATUS( sd_ble_gap_ppcp_set(&gap_conn_params));
     ASSERT_STATUS( sd_ble_gap_tx_power_set(CFG_BLE_TX_POWER_LEVEL));
 
+    /**
+     * Call to conn_params_init() is not necessary; and so is disabled by default.
+     * This API should be exposed to the user to be invoked when necessary.
+     */
+#if SDK_CONN_PARAMS_MODULE_ENABLE
     /* Connection Parameters */
     enum {
         FIRST_UPDATE_DELAY = APP_TIMER_TICKS(5000, CFG_TIMER_PRESCALER),
@@ -65,6 +72,7 @@ error_t btle_gap_init(void)
     cp_init.error_handler                  = error_callback;
 
     ASSERT_STATUS ( ble_conn_params_init(&cp_init));
+#endif // SDK_CONN_PARAMS_MODULE_ENABLE
 
     return ERROR_NONE;
 }
@@ -84,7 +92,9 @@ static inline uint32_t msec_to_1_25msec(uint32_t interval_ms)
     return (interval_ms * 4) / 5;
 }
 
+#if SDK_CONN_PARAMS_MODULE_ENABLE
 static void error_callback(uint32_t nrf_error)
 {
     ASSERT_STATUS_RET_VOID( nrf_error );
 }
+#endif // SDK_CONN_PARAMS_MODULE_ENABLE
