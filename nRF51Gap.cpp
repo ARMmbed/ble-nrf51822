@@ -251,8 +251,7 @@ ble_error_t nRF51Gap::updateConnectionParams(Handle_t handle, const ConnectionPa
 {
     uint32_t rc;
 
-    rc = sd_ble_gap_conn_param_update(handle,
-                                      reinterpret_cast<ble_gap_conn_params_t *>(const_cast<ConnectionParams_t*>(newParams)));
+    rc = sd_ble_gap_conn_param_update(handle, reinterpret_cast<ble_gap_conn_params_t *>(const_cast<ConnectionParams_t*>(newParams)));
     if (rc == NRF_SUCCESS) {
         return BLE_ERROR_NONE;
     } else {
