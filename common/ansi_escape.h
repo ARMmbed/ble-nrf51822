@@ -54,7 +54,7 @@
 
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #define CSI_CODE(seq)   "\33[" seq
@@ -95,7 +95,7 @@
 #define ANSI_BG_DEFAULT          CSI_SGR(49)
 
 #ifdef __cplusplus
- }
+}
 #endif
 
 #endif /* _TUSB_ANSI_ESC_CODE_H_ */

@@ -39,13 +39,13 @@
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
 
+#include "ble_hci.h"
+
 #if NEED_BOND_MANAGER /* disabled by default */
 static void service_error_callback(uint32_t nrf_error);
 #endif
-extern "C" void        assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
-void        app_error_handler(uint32_t       error_code,
-                              uint32_t       line_num,
-                              const uint8_t *p_file_name);
+extern "C" void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
+void            app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name);
 
 #if NEED_BOND_MANAGER /* disabled by default */
 static error_t bond_manager_init(void);
@@ -62,8 +62,40 @@ static void sys_evt_dispatch(uint32_t sys_evt)
 
 error_t btle_init(void)
 {
-    APP_TIMER_INIT(0, 8, 5, false);
-    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, false);
+    const bool useScheduler = false;
+    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, useScheduler);
+
+    // Enable BLE stack
+    /**
+     * Using this call, the application can select whether to include the
+     * Service Changed characteristic in the GATT Server. The default in all
+     * previous releases has been to include the Service Changed characteristic,
+     * but this affects how GATT clients behave. Specifically, it requires
+     * clients to subscribe to this attribute and not to cache attribute handles
+     * between connections unless the devices are bonded. If the application
+     * does not need to change the structure of the GATT server attributes at
+     * runtime this adds unnecessary complexity to the interaction with peer
+     * clients. If the SoftDevice is enabled with the Service Changed
+     * Characteristics turned off, then clients are allowed to cache attribute
+     * handles making applications simpler on both sides.
+     */
+    static const bool IS_SRVC_CHANGED_CHARACT_PRESENT = false;
+    ble_enable_params_t enableParams = {
+        .gatts_enable_params = {
+            .service_changed = IS_SRVC_CHANGED_CHARACT_PRESENT
+        }
+    };
+    if (sd_ble_enable(&enableParams) != NRF_SUCCESS) {
+        return ERROR_INVALID_PARAM;
+    }
+
+    ble_gap_addr_t addr;
+    if (sd_ble_gap_address_get(&addr) != NRF_SUCCESS) {
+        return ERROR_INVALID_PARAM;
+    }
+    if (sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_NONE, &addr) != NRF_SUCCESS) {
+        return ERROR_INVALID_PARAM;
+    }
 
     ASSERT_STATUS( softdevice_ble_evt_handler_set(btle_handler));
     ASSERT_STATUS( softdevice_sys_evt_handler_set(sys_evt_dispatch));
@@ -82,14 +114,17 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 #if NEED_BOND_MANAGER /* disabled by default */
     ble_bondmngr_on_ble_evt(p_ble_evt);
 #endif
+#if SDK_CONN_PARAMS_MODULE_ENABLE
     ble_conn_params_on_ble_evt(p_ble_evt);
+#endif
 
     /* Custom event handler */
     switch (p_ble_evt->header.evt_id) {
         case BLE_GAP_EVT_CONNECTED: {
             Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
             nRF51Gap::getInstance().setConnectionHandle(handle);
-            nRF51Gap::getInstance().processHandleSpecificEvent(GapEvents::GAP_EVENT_CONNECTED, handle);
+            const Gap::ConnectionParams_t *params = reinterpret_cast<Gap::ConnectionParams_t *>(&(p_ble_evt->evt.gap_evt.params.connected.conn_params));
+            nRF51Gap::getInstance().processConnectionEvent(handle, params);
             break;
         }
 
@@ -101,7 +136,10 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 #if NEED_BOND_MANAGER /* disabled by default */
             ASSERT_STATUS_RET_VOID ( ble_bondmngr_bonded_centrals_store());
 #endif
-            nRF51Gap::getInstance().processHandleSpecificEvent(GapEvents::GAP_EVENT_DISCONNECTED, handle);
+
+            if (p_ble_evt->evt.gap_evt.params.disconnected.reason == BLE_HCI_LOCAL_HOST_TERMINATED_CONNECTION) {
+                nRF51Gap::getInstance().processDisconnectionEvent(handle, Gap::LOCAL_HOST_TERMINATED_CONNECTION);
+            }
             break;
         }
 
@@ -117,11 +155,8 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             sec_params.min_key_size = CFG_BLE_SEC_PARAM_MIN_KEY_SIZE;
             sec_params.max_key_size = CFG_BLE_SEC_PARAM_MAX_KEY_SIZE;
 
-            ASSERT_STATUS_RET_VOID(
-                sd_ble_gap_sec_params_reply(nRF51Gap::getInstance().
-                                            getConnectionHandle(),
-                                            BLE_GAP_SEC_STATUS_SUCCESS,
-                                            &sec_params));
+            ASSERT_STATUS_RET_VOID(sd_ble_gap_sec_params_reply(nRF51Gap::getInstance().getConnectionHandle(),
+                                                               BLE_GAP_SEC_STATUS_SUCCESS, &sec_params));
         }
         break;
 

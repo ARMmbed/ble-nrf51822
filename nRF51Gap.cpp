@@ -168,8 +168,7 @@ ble_error_t nRF51Gap::startAdvertising(const GapAdvertisingParams &params)
     adv_para.interval    = params.getInterval();         // advertising interval (in units of 0.625 ms)
     adv_para.timeout     = params.getTimeout();
 
-    ASSERT(ERROR_NONE == sd_ble_gap_adv_start(&adv_para),
-           BLE_ERROR_PARAM_OUT_OF_RANGE);
+    ASSERT(ERROR_NONE == sd_ble_gap_adv_start(&adv_para), BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     state.advertising = 1;
 
@@ -218,14 +217,23 @@ ble_error_t nRF51Gap::stopAdvertising(void)
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51Gap::disconnect(void)
+ble_error_t nRF51Gap::disconnect(DisconnectionReason_t reason)
 {
     state.advertising = 0;
     state.connected   = 0;
 
+    uint8_t code = BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION;
+    switch (reason) {
+        case REMOTE_USER_TERMINATED_CONNECTION:
+            code = BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION;
+            break;
+        case CONN_INTERVAL_UNACCEPTABLE:
+            code = BLE_HCI_CONN_INTERVAL_UNACCEPTABLE;
+            break;
+    }
+
     /* Disconnect if we are connected to a central device */
-    ASSERT_INT(ERROR_NONE,
-        sd_ble_gap_disconnect(m_connectionHandle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION), BLE_ERROR_PARAM_OUT_OF_RANGE);
+    ASSERT_INT(ERROR_NONE, sd_ble_gap_disconnect(m_connectionHandle, code), BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     return BLE_ERROR_NONE;
 }
@@ -252,8 +260,7 @@ ble_error_t nRF51Gap::updateConnectionParams(Handle_t handle, const ConnectionPa
 {
     uint32_t rc;
 
-    rc = sd_ble_gap_conn_param_update(handle,
-                                      reinterpret_cast<ble_gap_conn_params_t *>(const_cast<ConnectionParams_t*>(newParams)));
+    rc = sd_ble_gap_conn_param_update(handle, reinterpret_cast<ble_gap_conn_params_t *>(const_cast<ConnectionParams_t*>(newParams)));
     if (rc == NRF_SUCCESS) {
         return BLE_ERROR_NONE;
     } else {
@@ -313,4 +320,43 @@ ble_error_t nRF51Gap::setAddress(addr_type_t type, const uint8_t address[6])
 
 
     return BLE_ERROR_NONE;
+}
+
+ble_error_t nRF51Gap::setDeviceName(const uint8_t *deviceName)
+{
+    ble_gap_conn_sec_mode_t sec_mode;
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode); // no security is needed
+
+    if (sd_ble_gap_device_name_set(&sec_mode, deviceName, strlen((const char *)deviceName)) == NRF_SUCCESS) {
+        return BLE_ERROR_NONE;
+    } else {
+        return BLE_ERROR_PARAM_OUT_OF_RANGE;
+    }
+}
+
+ble_error_t nRF51Gap::getDeviceName(uint8_t *deviceName, unsigned *lengthP)
+{
+    if (sd_ble_gap_device_name_get(deviceName, (uint16_t *)lengthP) == NRF_SUCCESS) {
+        return BLE_ERROR_NONE;
+    } else {
+        return BLE_ERROR_PARAM_OUT_OF_RANGE;
+    }
+}
+
+ble_error_t nRF51Gap::setAppearance(uint16_t appearance)
+{
+    if (sd_ble_gap_appearance_set(appearance) == NRF_SUCCESS) {
+        return BLE_ERROR_NONE;
+    } else {
+        return BLE_ERROR_PARAM_OUT_OF_RANGE;
+    }
+}
+
+ble_error_t nRF51Gap::getAppearance(uint16_t *appearanceP)
+{
+    if (sd_ble_gap_appearance_get(appearanceP)) {
+        return BLE_ERROR_NONE;
+    } else {
+        return BLE_ERROR_PARAM_OUT_OF_RANGE;
+    }
 }

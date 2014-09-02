@@ -19,6 +19,7 @@
 #include "nrf_soc.h"
 
 #include "btle/btle.h"
+#include "nrf_delay.h"
 
 /**
  * The singleton which represents the nRF51822 transport for the BLEDevice.
@@ -133,10 +134,10 @@ ble_error_t nRF51822n::init(void)
 /**************************************************************************/
 ble_error_t nRF51822n::reset(void)
 {
-    wait(0.5);
+    nrf_delay_us(500000);
 
     /* Wait for the radio to come back up */
-    wait(1);
+    nrf_delay_us(1000000);
 
     return BLE_ERROR_NONE;
 }

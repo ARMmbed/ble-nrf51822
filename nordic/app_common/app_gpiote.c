@@ -10,6 +10,8 @@
  *
  */
 
+#if NEED_APP_GPIOTE /* disabled by default */
+
 #include "app_gpiote.h"
 #include <stdlib.h>
 #include <string.h>
@@ -358,3 +360,5 @@ uint32_t app_gpiote_disable_interrupts(void)
     return NRF_ERROR_NOT_SUPPORTED;
 }
 #endif // SVCALL_AS_NORMAL_FUNCTION || SER_CONNECTIVITY
+
+#endif // #if NEED_APP_GPIOTE

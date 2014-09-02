@@ -235,36 +235,6 @@ uint32_t softdevice_handler_init(nrf_clock_lfclksrc_t           clock_source,
         return err_code;
     }
 
-    /**
-     * Using this call, the application can select whether to include the
-     * Service Changed characteristic in the GATT Server. The default in all
-     * previous releases has been to include the Service Changed characteristic,
-     * but this affects how GATT clients behave. Specifically, it requires
-     * clients to subscribe to this attribute and not to cache attribute handles
-     * between connections unless the devices are bonded. If the application
-     * does not need to change the structure of the GATT server attributes at
-     * runtime this adds unnecessary complexity to the interaction with peer
-     * clients. If the SoftDevice is enabled with the Service Changed
-     * Characteristics turned off, then clients are allowed to cache attribute
-     * handles making applications simpler on both sides.
-     */
-    ble_enable_params_t enableParams = {
-        .gatts_enable_params = {
-            .service_changed = 0
-        }
-    };
-    if ((err_code = sd_ble_enable(&enableParams)) != NRF_SUCCESS) {
-        return err_code;
-    }
-
-    ble_gap_addr_t addr;
-    if ((err_code = sd_ble_gap_address_get(&addr)) != NRF_SUCCESS) {
-        return err_code;
-    }
-    if ((err_code = sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_NONE, &addr)) != NRF_SUCCESS) {
-        return err_code;
-    }
-
     m_softdevice_enabled = true;
     // Enable BLE event interrupt (interrupt priority has already been set by the stack).
     return sd_nvic_EnableIRQ(SWI2_IRQn);
