@@ -98,7 +98,6 @@ ble_error_t nRF51GattServer::addService(GattService &service)
             p_descriptors[descriptorCount++] = p_desc;
             p_desc->setHandle(descHandle);
         }
-
     }
 
     serviceCount++;
