@@ -123,7 +123,8 @@ static void btle_handler(ble_evt_t *p_ble_evt)
         case BLE_GAP_EVT_CONNECTED: {
             Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
             nRF51Gap::getInstance().setConnectionHandle(handle);
-            nRF51Gap::getInstance().processHandleSpecificEvent(GapEvents::GAP_EVENT_CONNECTED, handle);
+            const Gap::ConnectionParams_t *params = reinterpret_cast<Gap::ConnectionParams_t *>(&(p_ble_evt->evt.gap_evt.params.connected.conn_params));
+            nRF51Gap::getInstance().processConnectionEvent(handle, params);
             break;
         }
 
