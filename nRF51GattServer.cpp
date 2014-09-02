@@ -60,15 +60,15 @@ ble_error_t nRF51GattServer::addService(GattService &service)
     for (uint8_t i = 0; i < service.getCharacteristicCount(); i++) {
         GattCharacteristic *p_char = service.getCharacteristic(i);
 
-        nordicUUID = custom_convert_to_nordic_uuid(p_char->getUUID());
+        nordicUUID = custom_convert_to_nordic_uuid(p_char->getValueAttribute().getUUID());
 
         ASSERT ( ERROR_NONE ==
-                 custom_add_in_characteristic(service.getHandle(),
+                 custom_add_in_characteristic(BLE_GATT_HANDLE_INVALID,
                                               &nordicUUID,
                                               p_char->getProperties(),
-                                              NULL,
-                                              p_char->getInitialLength(),
-                                              p_char->getMaxLength(),
+                                              p_char->getValueAttribute().getValuePtr(),
+                                              p_char->getValueAttribute().getInitialLength(),
+                                              p_char->getValueAttribute().getMaxLength(),
                                               &nrfCharacteristicHandles[characteristicCount]),
                  BLE_ERROR_PARAM_OUT_OF_RANGE );
 
@@ -76,9 +76,27 @@ ble_error_t nRF51GattServer::addService(GattService &service)
         uint16_t charHandle = characteristicCount;
         p_characteristics[characteristicCount++] = p_char;
 
-        p_char->setHandle(charHandle);
-        if ((p_char->getValuePtr() != NULL) && (p_char->getInitialLength() > 0)) {
-            updateValue(charHandle, p_char->getValuePtr(), p_char->getInitialLength(), false /* localOnly */);
+        p_char->getValueAttribute().setHandle(charHandle);
+
+        /* Add optional descriptors if any */
+        /* ToDo: Make sure we don't overflow the array */
+        for (uint8_t j = 0; j < p_char->getDescriptorCount(); j++) {
+             GattAttribute *p_desc = p_char->getDescriptor(j);
+
+             nordicUUID = custom_convert_to_nordic_uuid(p_desc->getUUID());
+
+             ASSERT ( ERROR_NONE ==
+                      custom_add_in_descriptor(BLE_GATT_HANDLE_INVALID,
+                                               &nordicUUID,
+                                               p_desc->getValuePtr(),
+                                               p_desc->getInitialLength(),
+                                               p_desc->getMaxLength(),
+                                               &nrfDescriptorHandles[descriptorCount]),
+                 BLE_ERROR_PARAM_OUT_OF_RANGE );
+
+            uint16_t descHandle = descriptorCount;
+            p_descriptors[descriptorCount++] = p_desc;
+            p_desc->setHandle(descHandle);
         }
     }
 
@@ -194,45 +212,6 @@ ble_error_t nRF51GattServer::updateValue(uint16_t charHandle, uint8_t buffer[], 
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF51GattServer::setDeviceName(const uint8_t *deviceName)
-{
-    ble_gap_conn_sec_mode_t sec_mode;
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode); // no security is needed
-
-    if (sd_ble_gap_device_name_set(&sec_mode, deviceName, strlen((const char *)deviceName)) == NRF_SUCCESS) {
-        return BLE_ERROR_NONE;
-    } else {
-        return BLE_ERROR_PARAM_OUT_OF_RANGE;
-    }
-}
-
-ble_error_t nRF51GattServer::getDeviceName(uint8_t *deviceName, unsigned *lengthP)
-{
-    if (sd_ble_gap_device_name_get(deviceName, (uint16_t *)lengthP) == NRF_SUCCESS) {
-        return BLE_ERROR_NONE;
-    } else {
-        return BLE_ERROR_PARAM_OUT_OF_RANGE;
-    }
-}
-
-ble_error_t nRF51GattServer::setAppearance(uint16_t appearance)
-{
-    if (sd_ble_gap_appearance_set(appearance) == NRF_SUCCESS) {
-        return BLE_ERROR_NONE;
-    } else {
-        return BLE_ERROR_PARAM_OUT_OF_RANGE;
-    }
-}
-
-ble_error_t nRF51GattServer::getAppearance(uint16_t *appearanceP)
-{
-    if (sd_ble_gap_appearance_get(appearanceP)) {
-        return BLE_ERROR_NONE;
-    } else {
-        return BLE_ERROR_PARAM_OUT_OF_RANGE;
-    }
-}
-
 /**************************************************************************/
 /*!
     @brief  Callback handler for events getting pushed up from the SD
@@ -240,50 +219,52 @@ ble_error_t nRF51GattServer::getAppearance(uint16_t *appearanceP)
 /**************************************************************************/
 void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
 {
-    uint16_t                      handle_value;
-    GattServerEvents::gattEvent_t event;
+    uint16_t                       handle_value;
+    GattServerEvents::gattEvent_t  eventType;
+    const ble_gatts_evt_t         *gattsEventP = &p_ble_evt->evt.gatts_evt;
 
     switch (p_ble_evt->header.evt_id) {
         case BLE_GATTS_EVT_WRITE:
             /* There are 2 use case here: Values being updated & CCCD (indicate/notify) enabled */
 
             /* 1.) Handle CCCD changes */
-            handle_value = p_ble_evt->evt.gatts_evt.params.write.handle;
+            handle_value = gattsEventP->params.write.handle;
             for (uint8_t i = 0; i<characteristicCount; i++) {
                 if ((p_characteristics[i]->getProperties() & (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)) &&
                     (nrfCharacteristicHandles[i].cccd_handle == handle_value)) {
                     uint16_t cccd_value =
-                        (p_ble_evt->evt.gatts_evt.params.write.data[1] << 8) |
-                        p_ble_evt->evt.gatts_evt.params.write.data[0]; /* Little Endian but M0 may be mis-aligned */
+                        (gattsEventP->params.write.data[1] << 8) |
+                        gattsEventP->params.write.data[0]; /* Little Endian but M0 may be mis-aligned */
 
                     if (((p_characteristics[i]->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE) && (cccd_value & BLE_GATT_HVX_INDICATION)) ||
                         ((p_characteristics[i]->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) && (cccd_value & BLE_GATT_HVX_NOTIFICATION))) {
-                        event = GattServerEvents::GATT_EVENT_UPDATES_ENABLED;
+                        eventType = GattServerEvents::GATT_EVENT_UPDATES_ENABLED;
                     } else {
-                        event = GattServerEvents::GATT_EVENT_UPDATES_DISABLED;
+                        eventType = GattServerEvents::GATT_EVENT_UPDATES_DISABLED;
                     }
 
-                    handleEvent(event, i);
+                    handleEvent(eventType, i);
                     return;
                 }
             }
 
             /* 2.) Changes to the characteristic value will be handled with other events below */
-            event = GattServerEvents::GATT_EVENT_DATA_WRITTEN;
+            eventType = GattServerEvents::GATT_EVENT_DATA_WRITTEN;
             break;
-
-        case BLE_EVT_TX_COMPLETE:
-            handleEvent(GattServerEvents::GATT_EVENT_DATA_SENT);
-            return;
 
         case BLE_GATTS_EVT_HVC:
             /* Indication confirmation received */
-            event        = GattServerEvents::GATT_EVENT_CONFIRMATION_RECEIVED;
-            handle_value = p_ble_evt->evt.gatts_evt.params.hvc.handle;
+            eventType    = GattServerEvents::GATT_EVENT_CONFIRMATION_RECEIVED;
+            handle_value = gattsEventP->params.hvc.handle;
             break;
 
+        case BLE_EVT_TX_COMPLETE: {
+            handleDataSentEvent(p_ble_evt->evt.common_evt.params.tx_complete.count);
+            return;
+        }
+
         case BLE_GATTS_EVT_SYS_ATTR_MISSING:
-            sd_ble_gatts_sys_attr_set(p_ble_evt->evt.gatts_evt.conn_handle, NULL, 0);
+            sd_ble_gatts_sys_attr_set(gattsEventP->conn_handle, NULL, 0);
             return;
 
         default:
@@ -293,8 +274,21 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
     /* Find index (charHandle) in the pool */
     for (uint8_t i = 0; i<characteristicCount; i++) {
         if (nrfCharacteristicHandles[i].value_handle == handle_value) {
-            handleEvent(event, i);
-            break;
+            switch (eventType) {
+                case GattServerEvents::GATT_EVENT_DATA_WRITTEN: {
+                    GattCharacteristicWriteCBParams cbParams = {
+                        .op     = static_cast<GattCharacteristicWriteCBParams::Type>(gattsEventP->params.write.op),
+                        .offset = gattsEventP->params.write.offset,
+                        .len    = gattsEventP->params.write.len,
+                        .data   = gattsEventP->params.write.data
+                    };
+                    handleDataWrittenEvent(i, &cbParams);
+                    break;
+                }
+                default:
+                    handleEvent(eventType, i);
+                    break;
+            }
         }
     }
 }

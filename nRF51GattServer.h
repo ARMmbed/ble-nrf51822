@@ -24,6 +24,7 @@
 #include "public/GattServer.h"
 
 #define BLE_TOTAL_CHARACTERISTICS 10
+#define BLE_TOTAL_DESCRIPTORS     10
 
 class nRF51GattServer : public GattServer
 {
@@ -38,11 +39,6 @@ public:
     virtual ble_error_t readValue(uint16_t handle, uint8_t buffer[], uint16_t *const lengthP);
     virtual ble_error_t updateValue(uint16_t, uint8_t[], uint16_t, bool localOnly = false);
 
-    virtual ble_error_t setDeviceName(const uint8_t *deviceName);
-    virtual ble_error_t getDeviceName(uint8_t *deviceName, unsigned *lengthP);
-    virtual ble_error_t setAppearance(uint16_t appearance);
-    virtual ble_error_t getAppearance(uint16_t *appearanceP);
-
     /* nRF51 Functions */
     void eventCallback(void);
     void hwCallback(ble_evt_t *p_ble_evt);
@@ -50,10 +46,13 @@ public:
 private:
     GattCharacteristic *p_characteristics[BLE_TOTAL_CHARACTERISTICS];
     ble_gatts_char_handles_t nrfCharacteristicHandles[BLE_TOTAL_CHARACTERISTICS];
+    GattAttribute *p_descriptors[BLE_TOTAL_DESCRIPTORS];
+    uint16_t nrfDescriptorHandles[BLE_TOTAL_DESCRIPTORS];
 
     nRF51GattServer() {
         serviceCount = 0;
         characteristicCount = 0;
+        descriptorCount = 0;
     };
 
     nRF51GattServer(nRF51GattServer const &);

@@ -88,8 +88,8 @@
 
     /*-------------------------------- TIMER ------------------------------*/
     #define CFG_TIMER_PRESCALER                        0                        /**< Value of the RTC1 PRESCALER register. freq = (32768/(PRESCALER+1)) */
-    #define CFG_TIMER_MAX_INSTANCE                     8                        /**< Maximum number of simultaneously created timers. */
-    #define CFG_TIMER_OPERATION_QUEUE_SIZE             5                        /**< Size of timer operation queues. */
+    #define CFG_TIMER_MAX_INSTANCE                     1                        /**< Maximum number of simultaneously created timers. */
+    #define CFG_TIMER_OPERATION_QUEUE_SIZE             1                        /**< Size of timer operation queues. */
 /*=========================================================================*/
 
 
@@ -97,7 +97,7 @@
     BTLE SETTINGS
     -----------------------------------------------------------------------*/
 
-    #define CFG_BLE_TX_POWER_LEVEL                     4                        /**< in dBm (Valid values are -40, -20, -16, -12, -8, -4, 0, 4) */
+    #define CFG_BLE_TX_POWER_LEVEL                     0                        /**< in dBm (Valid values are -40, -20, -16, -12, -8, -4, 0, 4) */
 
     /*---------------------------- BOND MANAGER ---------------------------*/
     #define CFG_BLE_BOND_FLASH_PAGE_BOND               (BLE_FLASH_PAGE_END-1)   /**< Flash page used for bond manager bonding information.*/
@@ -115,8 +115,8 @@
     #define CFG_GAP_APPEARANCE                         BLE_APPEARANCE_GENERIC_TAG
     #define CFG_GAP_LOCAL_NAME                         "nRF5x"
 
-    #define CFG_GAP_CONNECTION_MIN_INTERVAL_MS         500                      /**< Minimum acceptable connection interval */
-    #define CFG_GAP_CONNECTION_MAX_INTERVAL_MS         1000                     /**< Maximum acceptable connection interval */
+    #define CFG_GAP_CONNECTION_MIN_INTERVAL_MS           50                     /**< Minimum acceptable connection interval */
+    #define CFG_GAP_CONNECTION_MAX_INTERVAL_MS          500                     /**< Maximum acceptable connection interval */
     #define CFG_GAP_CONNECTION_SUPERVISION_TIMEOUT_MS  4000                     /**< Connection supervisory timeout */
     #define CFG_GAP_CONNECTION_SLAVE_LATENCY           0                        /**< Slave Latency in number of connection events. */
 

@@ -23,8 +23,8 @@
  * structures involved in maintaining a local cache of 128-bit UUIDs.
  */
 typedef struct {
-    LongUUID_t uuid;
-    uint8_t    type;
+    LongUUIDBytes_t uuid;
+    uint8_t         type;
 } converted_uuid_table_entry_t;
 static const unsigned UUID_TABLE_MAX_ENTRIES = 8; /* This is the maximum number
                                     * of 128-bit UUIDs with distinct bases that
@@ -40,7 +40,7 @@ converted_uuid_table_entry_t convertedUUIDTable[UUID_TABLE_MAX_ENTRIES];
  * @return               true if a match is found.
  */
 static bool
-lookupConvertedUUIDTable(const LongUUID_t uuid, uint8_t *recoveredType)
+lookupConvertedUUIDTable(const LongUUIDBytes_t uuid, uint8_t *recoveredType)
 {
     unsigned i;
     for (i = 0; i < uuidTableEntries; i++) {
@@ -56,7 +56,7 @@ lookupConvertedUUIDTable(const LongUUID_t uuid, uint8_t *recoveredType)
 }
 
 static void
-addToConvertedUUIDTable(const LongUUID_t uuid, uint8_t type)
+addToConvertedUUIDTable(const LongUUIDBytes_t uuid, uint8_t type)
 {
     if (uuidTableEntries == UUID_TABLE_MAX_ENTRIES) {
         return; /* recovery needed; or at least the user should be
@@ -157,7 +157,7 @@ uint8_t custom_add_uuid_base(uint8_t const *const p_uuid_base)
 error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
                                 ble_uuid_t          *p_uuid)
 {
-    LongUUID_t uuid_base_le;
+    LongUUIDBytes_t uuid_base_le;
 
     /* Reverse the bytes since ble_uuid128_t is LSB */
     for (uint8_t i = 0; i<16; i++) {
