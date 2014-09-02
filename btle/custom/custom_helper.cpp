@@ -245,3 +245,53 @@ error_t custom_add_in_characteristic(uint16_t    service_handle,
 
     return ERROR_NONE;
 }
+
+
+
+/**************************************************************************/
+/*!
+    @brief      Adds a new descriptor to the custom service, assigning
+                value, a UUID add-on value, etc.
+
+    @param[in]  char_handle
+    @param[in]  p_uuid            The 16-bit value to add to the base UUID
+                                  for this descriptor (normally >1
+                                  since 1 is typically used by the primary
+                                  service).
+    @param[in]  max_length        The maximum length of this descriptor
+
+    @returns
+    @retval     ERROR_NONE        Everything executed normally
+*/
+/**************************************************************************/
+error_t custom_add_in_descriptor(uint16_t    char_handle,
+                                             ble_uuid_t *p_uuid,
+                                             uint8_t    *p_data,
+                                             uint16_t    min_length,
+                                             uint16_t    max_length,
+                                             uint16_t   *p_desc_handle)
+{
+    /* Descriptor metadata */
+    ble_gatts_attr_md_t   desc_md = {0};
+
+    desc_md.vloc = BLE_GATTS_VLOC_STACK;
+    desc_md.vlen = (min_length == max_length) ? 0 : 1;
+
+    /* Make it readable and writable */
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&desc_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&desc_md.write_perm);
+
+    ble_gatts_attr_t attr_desc = {0};
+
+    attr_desc.p_uuid    = p_uuid;
+    attr_desc.p_attr_md = &desc_md;
+    attr_desc.init_len  = min_length;
+    attr_desc.max_len   = max_length;
+    attr_desc.p_value   = p_data;
+
+    ASSERT_STATUS ( sd_ble_gatts_descriptor_add(char_handle,
+                                                &attr_desc,
+                                                p_desc_handle));
+
+    return ERROR_NONE;
+}
