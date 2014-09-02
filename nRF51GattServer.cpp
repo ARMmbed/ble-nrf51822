@@ -60,15 +60,15 @@ ble_error_t nRF51GattServer::addService(GattService &service)
     for (uint8_t i = 0; i < service.getCharacteristicCount(); i++) {
         GattCharacteristic *p_char = service.getCharacteristic(i);
 
-        nordicUUID = custom_convert_to_nordic_uuid(p_char->getUUID());
+        nordicUUID = custom_convert_to_nordic_uuid(p_char->getValueAttribute().getUUID());
 
         ASSERT ( ERROR_NONE ==
                  custom_add_in_characteristic(BLE_GATT_HANDLE_INVALID,
                                               &nordicUUID,
                                               p_char->getProperties(),
-                                              p_char->getValuePtr(),
-                                              p_char->getInitialLength(),
-                                              p_char->getMaxLength(),
+                                              p_char->getValueAttribute().getValuePtr(),
+                                              p_char->getValueAttribute().getInitialLength(),
+                                              p_char->getValueAttribute().getMaxLength(),
                                               &nrfCharacteristicHandles[characteristicCount]),
                  BLE_ERROR_PARAM_OUT_OF_RANGE );
 
@@ -76,7 +76,7 @@ ble_error_t nRF51GattServer::addService(GattService &service)
         uint16_t charHandle = characteristicCount;
         p_characteristics[characteristicCount++] = p_char;
 
-        p_char->setHandle(charHandle);
+        p_char->getValueAttribute().setHandle(charHandle);
   
         /* Add optional descriptors if any */
         /* ToDo: Make sure we don't overflow the array */
