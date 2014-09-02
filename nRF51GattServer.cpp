@@ -63,10 +63,10 @@ ble_error_t nRF51GattServer::addService(GattService &service)
         nordicUUID = custom_convert_to_nordic_uuid(p_char->getUUID());
 
         ASSERT ( ERROR_NONE ==
-                 custom_add_in_characteristic(service.getHandle(),
+                 custom_add_in_characteristic(BLE_GATT_HANDLE_INVALID,
                                               &nordicUUID,
                                               p_char->getProperties(),
-                                              NULL,
+                                              p_char->getValuePtr(),
                                               p_char->getInitialLength(),
                                               p_char->getMaxLength(),
                                               &nrfCharacteristicHandles[characteristicCount]),
@@ -77,9 +77,28 @@ ble_error_t nRF51GattServer::addService(GattService &service)
         p_characteristics[characteristicCount++] = p_char;
 
         p_char->setHandle(charHandle);
-        if ((p_char->getValuePtr() != NULL) && (p_char->getInitialLength() > 0)) {
-            updateValue(charHandle, p_char->getValuePtr(), p_char->getInitialLength(), false /* localOnly */);
+  
+        /* Add optional descriptors if any */
+        /* ToDo: Make sure we don't overflow the array */
+        for (uint8_t j = 0; j < p_char->getDescriptorCount(); j++) {
+             GattAttribute *p_desc = p_char->getDescriptor(j);
+
+             nordicUUID = custom_convert_to_nordic_uuid(p_desc->getUUID());
+
+             ASSERT ( ERROR_NONE ==
+                      custom_add_in_descriptor(BLE_GATT_HANDLE_INVALID,
+                                               &nordicUUID,
+                                               p_desc->getValuePtr(),
+                                               p_desc->getInitialLength(),
+                                               p_desc->getMaxLength(),
+                                               &nrfDescriptorHandles[descriptorCount]),
+                 BLE_ERROR_PARAM_OUT_OF_RANGE );
+
+            uint16_t descHandle = descriptorCount;
+            p_descriptors[descriptorCount++] = p_desc;
+            p_desc->setHandle(descHandle);
         }
+
     }
 
     serviceCount++;
@@ -273,7 +292,9 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
             break;
 
         case BLE_EVT_TX_COMPLETE:
-            handleEvent(GattServerEvents::GATT_EVENT_DATA_SENT);
+            for (uint8_t i = 0; i<p_ble_evt->evt.common_evt.params.tx_complete.count; i++){
+                handleEvent(GattServerEvents::GATT_EVENT_DATA_SENT);
+            }
             return;
 
         case BLE_GATTS_EVT_HVC:
