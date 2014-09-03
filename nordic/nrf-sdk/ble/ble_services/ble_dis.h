@@ -70,9 +70,9 @@ typedef struct
     ble_srv_utf8_str_t             hw_rev_str;                  /**< Hardware Revision String. */
     ble_srv_utf8_str_t             fw_rev_str;                  /**< Firmware Revision String. */
     ble_srv_utf8_str_t             sw_rev_str;                  /**< Software Revision String. */
-    ble_dis_sys_id_t *             p_sys_id;                    /**< System ID. The helper function @ref dis_sys_id_encode can be used to encode the value of this characteristic. */
+    ble_dis_sys_id_t *             p_sys_id;                    /**< System ID. */
     ble_dis_reg_cert_data_list_t * p_reg_cert_data_list;        /**< IEEE 11073-20601 Regulatory Certification Data List. */
-    ble_dis_pnp_id_t *             p_pnp_id;                    /**< PnP ID. The helper function @ref dis_pnp_id_encode can be used to encode the value of this characteristic. */
+    ble_dis_pnp_id_t *             p_pnp_id;                    /**< PnP ID. */
     ble_srv_security_mode_t        dis_attr_md;                 /**< Initial Security Setting for Device Information Characteristics. */
 } ble_dis_init_t;
 

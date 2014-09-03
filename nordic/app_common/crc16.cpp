@@ -20,12 +20,12 @@ uint16_t crc16_compute(const uint8_t * p_data, uint32_t size, const uint16_t * p
 
     for (i = 0; i < size; i++)
     {
-        crc = (unsigned char)(crc >> 8) | (crc << 8);
+        crc  = (unsigned char)(crc >> 8) | (crc << 8);
         crc ^= p_data[i];
         crc ^= (unsigned char)(crc & 0xff) >> 4;
         crc ^= (crc << 8) << 4;
         crc ^= ((crc & 0xff) << 4) << 1;
     }
-    
+
     return crc;
 }

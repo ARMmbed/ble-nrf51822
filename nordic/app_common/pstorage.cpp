@@ -80,7 +80,9 @@
  * @brief Verifies block size requested by Application in registration API.
  */
 #define BLOCK_COUNT_CHECK(COUNT, SIZE)                                                            \
-        if (((COUNT) == 0) || ((m_next_page_addr + ((COUNT) *(SIZE)) > PSTORAGE_SWAP_ADDR)))      \
+        if (((COUNT) == 0) ||                                                                     \
+            ((m_next_page_addr + ((COUNT) *(SIZE)) > PSTORAGE_SWAP_ADDR)) ||                      \
+            ((((COUNT) * (SIZE)) > PSTORAGE_FLASH_PAGE_SIZE) && (PSTORAGE_FLASH_PAGE_SIZE % (SIZE))))  \
         {                                                                                         \
             return NRF_ERROR_INVALID_PARAM;                                                       \
         }
@@ -372,13 +374,10 @@ static uint32_t cmd_queue_dequeue(void)
         {
             // Flash could be accessed by modules other than Bond Manager, hence a busy error is
             // acceptable, but any other error needs to be indicated to the bond manager.
-            if (retval != NRF_ERROR_BUSY)
+            if (retval == NRF_ERROR_BUSY)
             {
-                app_notify(retval);
-            }
-            else
-            {
-                // In case of busy next trigger will be a success or a failure event.
+                // In case of busy error code, it is possible to attempt to access flash.
+                retval = NRF_SUCCESS;
             }
         }
     }

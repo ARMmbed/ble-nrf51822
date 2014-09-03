@@ -40,6 +40,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "nrf.h"
 #include "app_error.h"
 #include "app_scheduler.h"
 #include "nrf_gpio.h"
@@ -97,7 +98,7 @@ typedef struct
                                             (USE_SCHEDULER) ? app_button_evt_schedule : NULL);     \
         APP_ERROR_CHECK(ERR_CODE);                                                                 \
     } while (0)
-
+    
 /**@brief Function for initializing the Buttons.
  *
  * @details This function will initialize the specified pins as buttons, and configure the Button
@@ -106,7 +107,7 @@ typedef struct
  * @note Normally initialization should be done using the APP_BUTTON_INIT() macro, as that will take
  *       care of connecting the Buttons module to the scheduler (if specified).
  *
- * @note app_button_enable() function must be called in order to enable the button detection.
+ * @note app_button_enable() function must be called in order to enable the button detection.    
  *
  * @param[in]  p_buttons           Array of buttons to be used (NOTE: Must be static!).
  * @param[in]  button_count        Number of buttons.
@@ -141,13 +142,13 @@ uint32_t app_button_disable(void);
 
 /**@brief Function for checking if a button is currently being pushed.
  *
- * @param[in]  pin_no        Button pin to be checked.
+ * @param[in]  button_id     Button index (in the app_button_cfg_t array given to app_button_init) to be checked.
  * @param[out] p_is_pushed   Button state.
  *
  * @retval     NRF_SUCCESS               State successfully read.
- * @retval     NRF_ERROR_INVALID_PARAM   Invalid pin_no.
+ * @retval     NRF_ERROR_INVALID_PARAM   Invalid button index.
  */
-uint32_t app_button_is_pushed(uint8_t pin_no, bool * p_is_pushed);
+uint32_t app_button_is_pushed(uint8_t button_id, bool * p_is_pushed);
 
 
 // Type and functions for connecting the Buttons module to the scheduler:
@@ -163,7 +164,7 @@ typedef struct
 static __INLINE void app_button_evt_get(void * p_event_data, uint16_t event_size)
 {
     app_button_event_t * p_buttons_event = (app_button_event_t *)p_event_data;
-
+    
     APP_ERROR_CHECK_BOOL(event_size == sizeof(app_button_event_t));
     p_buttons_event->button_handler(p_buttons_event->pin_no, p_buttons_event->button_action);
 }
@@ -173,11 +174,11 @@ static __INLINE uint32_t app_button_evt_schedule(app_button_handler_t button_han
                                                  uint8_t              button_action)
 {
     app_button_event_t buttons_event;
-
+    
     buttons_event.button_handler = button_handler;
     buttons_event.pin_no         = pin_no;
     buttons_event.button_action  = button_action;
-
+    
     return app_sched_event_put(&buttons_event, sizeof(buttons_event), app_button_evt_get);
 }
 /**@endcond */

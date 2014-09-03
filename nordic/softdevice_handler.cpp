@@ -236,6 +236,7 @@ uint32_t softdevice_handler_init(nrf_clock_lfclksrc_t           clock_source,
     }
 
     m_softdevice_enabled = true;
+
     // Enable BLE event interrupt (interrupt priority has already been set by the stack).
     return sd_nvic_EnableIRQ(SWI2_IRQn);
 }

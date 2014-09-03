@@ -21,14 +21,14 @@
 #include "app_error.h"
 
 
-uint8_t ble_srv_report_ref_encode(uint8_t *                    p_encoded_buffer,
+uint8_t ble_srv_report_ref_encode(uint8_t                    * p_encoded_buffer,
                                   const ble_srv_report_ref_t * p_report_ref)
 {
     uint8_t len = 0;
-    
+
     p_encoded_buffer[len++] = p_report_ref->report_id;
     p_encoded_buffer[len++] = p_report_ref->report_type;
-    
+
     APP_ERROR_CHECK_BOOL(len == BLE_SRV_ENCODED_REPORT_REF_LEN);
     return len;
 }

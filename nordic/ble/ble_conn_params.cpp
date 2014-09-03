@@ -226,7 +226,7 @@ static void on_write(ble_evt_t * p_ble_evt)
         (p_evt_write->handle == m_conn_params_config.start_on_notify_cccd_handle)
         &&
         (p_evt_write->len == 2)
-    )
+       )
     {
         // Check if this is a 'start notification'
         if (ble_srv_is_notification_enabled(p_evt_write->data))
@@ -280,7 +280,7 @@ void ble_conn_params_on_ble_evt(ble_evt_t * p_ble_evt)
 
         default:
             // No implementation needed.
-           break;
+            break;
     }
 }
 
