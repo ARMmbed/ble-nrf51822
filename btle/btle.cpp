@@ -141,9 +141,24 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             ASSERT_STATUS_RET_VOID ( ble_bondmngr_bonded_centrals_store());
 #endif
 
-            if (p_ble_evt->evt.gap_evt.params.disconnected.reason == BLE_HCI_LOCAL_HOST_TERMINATED_CONNECTION) {
-                nRF51Gap::getInstance().processDisconnectionEvent(handle, Gap::LOCAL_HOST_TERMINATED_CONNECTION);
+            Gap::DisconnectionReason_t reason;
+            switch (p_ble_evt->evt.gap_evt.params.disconnected.reason) {
+                case BLE_HCI_LOCAL_HOST_TERMINATED_CONNECTION:
+                    reason = Gap::LOCAL_HOST_TERMINATED_CONNECTION;
+                    break;
+                case BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION:
+                    reason = Gap::REMOTE_USER_TERMINATED_CONNECTION;
+                    break;
+                case BLE_HCI_CONN_INTERVAL_UNACCEPTABLE:
+                    reason = Gap::CONN_INTERVAL_UNACCEPTABLE;
+                    break;
+                default:
+                    /* Please refer to the underlying transport library for an
+                     * interpretion of this reason's value. */
+                    reason = static_cast<Gap::DisconnectionReason_t>(p_ble_evt->evt.gap_evt.params.disconnected.reason);
+                    break;
             }
+            nRF51Gap::getInstance().processDisconnectionEvent(handle, reason);
             break;
         }
 
