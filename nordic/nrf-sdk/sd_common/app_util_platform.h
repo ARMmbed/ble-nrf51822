@@ -63,8 +63,8 @@ typedef enum
             {                                                                               \
                 APP_ERROR_CHECK(ERR_CODE);                                                  \
             }                                                                               \
-        }        
-    
+        }
+
 /**@brief Macro for leaving a critical region.
  *
  * @note Due to implementation details, there must exist one and only one call to
@@ -83,7 +83,7 @@ typedef enum
             }                                                                               \
         }                                                                                   \
     }
-        
+
 /**@brief Function for finding the current interrupt level.
  *
  * @return   Current interrupt level.

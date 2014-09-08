@@ -9,7 +9,7 @@
  * the file.
  *
  */
- 
+
 /** @file
  *
  * @defgroup memory_pool_internal Memory Pool Internal
@@ -18,7 +18,7 @@
  *
  * @brief Memory pool internal definitions
  */
- 
+
 #ifndef MEM_POOL_INTERNAL_H__
 #define MEM_POOL_INTERNAL_H__
 
@@ -28,5 +28,5 @@
 #define RX_BUF_QUEUE_SIZE 4u           /**< RX buffer element size. */
 
 #endif // MEM_POOL_INTERNAL_H__
- 
+
 /** @} */

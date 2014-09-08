@@ -62,7 +62,7 @@ typedef struct
 
 /**@brief Function for initializing the Connection Parameters module.
  *
- * @note If the negotiation procedure should be triggered when notification/indication of
+ * @note If the negotiation procedure should be triggered when notification/indication of 
  *       any characteristic is enabled by the peer, then this function must be called after
  *       having initialized the services.
  *
@@ -87,7 +87,7 @@ uint32_t ble_conn_params_stop(void);
 
 /**@brief Function for changing the current connection parameters to a new set.
  *
- *  @details Use this function to change the connection parameters to a new set of parameter
+ *  @details Use this function to change the connection parameters to a new set of parameter 
  *       (ie different from the ones given at init of the module).
  *       This function is usefull for scenario where most of the time the application
  *       needs a relatively big connection interval, and just sometimes, for a temporary

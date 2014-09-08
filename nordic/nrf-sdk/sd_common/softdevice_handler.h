@@ -71,12 +71,21 @@ typedef void (*sys_evt_handler_t) (uint32_t evt_id);
  *            reinitialization).
  */
 /*lint -emacro(506, SOFTDEVICE_HANDLER_INIT) */ /* Suppress "Constant value Boolean */
-#define SOFTDEVICE_HANDLER_INIT(CLOCK_SOURCE, USE_SCHEDULER)                                       \
+#define SOFTDEVICE_HANDLER_INIT(CLOCK_SOURCE,                                                      \
+                                USE_SCHEDULER)                                                     \
     do                                                                                             \
     {                                                                                              \
-        static uint32_t EVT_BUFFER[CEIL_DIV(MAX(MAX(BLE_STACK_EVT_MSG_BUF_SIZE, ANT_STACK_EVT_STRUCT_SIZE), SYS_EVT_MSG_BUF_SIZE), sizeof(uint32_t))]; \
+        static uint32_t EVT_BUFFER[CEIL_DIV(MAX(                                                   \
+                                                MAX(BLE_STACK_EVT_MSG_BUF_SIZE,                    \
+                                                    ANT_STACK_EVT_STRUCT_SIZE),                    \
+                                                SYS_EVT_MSG_BUF_SIZE                               \
+                                               ),                                                  \
+                                            sizeof(uint32_t))];                                    \
         uint32_t ERR_CODE;                                                                         \
-        ERR_CODE = softdevice_handler_init((CLOCK_SOURCE), EVT_BUFFER, sizeof(EVT_BUFFER), (USE_SCHEDULER) ? softdevice_evt_schedule : NULL); \
+        ERR_CODE = softdevice_handler_init((CLOCK_SOURCE),                                         \
+                                           EVT_BUFFER,                                             \
+                                           sizeof(EVT_BUFFER),                                     \
+                                           (USE_SCHEDULER) ? softdevice_evt_schedule : NULL);      \
         APP_ERROR_CHECK(ERR_CODE);                                                                 \
     } while (0)
 

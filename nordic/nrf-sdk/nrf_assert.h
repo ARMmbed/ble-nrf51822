@@ -57,7 +57,6 @@ else                                                                          \
 #else
 #define ASSERT(expr) //!< Assert empty when disabled
 void assert_nrf_callback(uint16_t line_num, const uint8_t *file_name);
-
 #endif /* defined(DEBUG_NRF) || defined(DEBUG_NRF_USER) */
 
 #ifdef __cplusplus
