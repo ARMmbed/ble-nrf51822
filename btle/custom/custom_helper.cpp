@@ -26,10 +26,8 @@ typedef struct {
     LongUUIDBytes_t uuid;
     uint8_t         type;
 } converted_uuid_table_entry_t;
-static const unsigned UUID_TABLE_MAX_ENTRIES = 8; /* This is the maximum number
-                                    * of 128-bit UUIDs with distinct bases that
-                                    * we expect to be in use; increase this
-                                    * limit if needed. */
+static const unsigned UUID_TABLE_MAX_ENTRIES = 8; /* This is the maximum number of 128-bit UUIDs with distinct bases that
+                                                   * we expect to be in use; increase this limit if needed. */
 static unsigned uuidTableEntries = 0; /* current usage of the table */
 converted_uuid_table_entry_t convertedUUIDTable[UUID_TABLE_MAX_ENTRIES];
 
@@ -44,9 +42,7 @@ lookupConvertedUUIDTable(const LongUUIDBytes_t uuid, uint8_t *recoveredType)
 {
     unsigned i;
     for (i = 0; i < uuidTableEntries; i++) {
-        if (memcmp(convertedUUIDTable[i].uuid,
-                   uuid,
-                   LENGTH_OF_LONG_UUID) == 0) {
+        if (memcmp(convertedUUIDTable[i].uuid, uuid, LENGTH_OF_LONG_UUID) == 0) {
             *recoveredType = convertedUUIDTable[i].type;
             return true;
         }
@@ -59,8 +55,7 @@ static void
 addToConvertedUUIDTable(const LongUUIDBytes_t uuid, uint8_t type)
 {
     if (uuidTableEntries == UUID_TABLE_MAX_ENTRIES) {
-        return; /* recovery needed; or at least the user should be
-                 * warned about this fact.*/
+        return; /* recovery needed; or at least the user should be warned about this fact.*/
     }
 
     memcpy(convertedUUIDTable[uuidTableEntries].uuid, uuid,LENGTH_OF_LONG_UUID);
