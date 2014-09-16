@@ -291,12 +291,13 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                     }
 
                     GattCharacteristicWriteCBParams cbParams = {
+                        .charHandle = i,
                         .op     = static_cast<GattCharacteristicWriteCBParams::Type>(gattsEventP->params.write.op),
                         .offset = gattsEventP->params.write.offset,
                         .len    = gattsEventP->params.write.len,
                         .data   = gattsEventP->params.write.data
                     };
-                    handleDataWrittenEvent(i, &cbParams);
+                    handleDataWrittenEvent(&cbParams);
                     break;
                 }
                 default:
