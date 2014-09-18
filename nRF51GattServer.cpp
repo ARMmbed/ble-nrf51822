@@ -277,19 +277,6 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
         if (nrfCharacteristicHandles[i].value_handle == handle_value) {
             switch (eventType) {
                 case GattServerEvents::GATT_EVENT_DATA_WRITTEN: {
-                    /* If DFUService has been employed, then filter writes to the DFU control
-                     * characteristic before any further callback processing. */
-                    uint8_t convertedDFUServiceUUIDType;
-                    if (custom_lookupConvertedUUIDTable(DFUServiceBaseUUID, &convertedDFUServiceUUIDType)) {
-                        if ((gattsEventP->params.write.context.srvc_uuid.type == convertedDFUServiceUUIDType) &&
-                            (gattsEventP->params.write.context.srvc_uuid.uuid == DFUServiceShortUUID)         &&
-                            (gattsEventP->params.write.context.char_uuid.type == convertedDFUServiceUUIDType) &&
-                            (gattsEventP->params.write.context.char_uuid.uuid == DFUServiceControlCharacteristicShortUUID)) {
-                            DFUService::triggerHandoverToBooloader();
-                            break; /* the break here is un-necessary, we shouldn't return from the handover to the bootloader */
-                        }
-                    }
-
                     GattCharacteristicWriteCBParams cbParams = {
                         .charHandle = i,
                         .op     = static_cast<GattCharacteristicWriteCBParams::Type>(gattsEventP->params.write.op),
