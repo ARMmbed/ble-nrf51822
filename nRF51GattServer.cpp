@@ -21,7 +21,6 @@
 #include "btle/custom/custom_helper.h"
 
 #include "nRF51Gap.h"
-#include "DFUService.h"
 
 /**************************************************************************/
 /*!
