@@ -30,14 +30,6 @@ error_t custom_decode_uuid(uint8_t const *const p_uuid_base,
                            ble_uuid_t          *p_uuid);
 ble_uuid_t custom_convert_to_nordic_uuid(const UUID &uuid);
 
-/**
- * lookup the cache of previously converted 128-bit UUIDs to find a type value.
- * @param  uuid          base 128-bit UUID
- * @param  recoveredType the type field of the 3-byte nRF's uuid.
- * @return               true if a match is found.
- */
-bool custom_lookupConvertedUUIDTable(const LongUUIDBytes_t uuid, uint8_t *recoveredType);
-
 error_t custom_add_in_characteristic(uint16_t                  service_handle,
                                      ble_uuid_t               *p_uuid,
                                      uint8_t                   properties,
