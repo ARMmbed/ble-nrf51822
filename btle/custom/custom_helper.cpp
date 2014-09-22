@@ -37,8 +37,8 @@ converted_uuid_table_entry_t convertedUUIDTable[UUID_TABLE_MAX_ENTRIES];
  * @param  recoveredType the type field of the 3-byte nRF's uuid.
  * @return               true if a match is found.
  */
-bool
-custom_lookupConvertedUUIDTable(const LongUUIDBytes_t uuid, uint8_t *recoveredType)
+static bool
+lookupConvertedUUIDTable(const LongUUIDBytes_t uuid, uint8_t *recoveredType)
 {
     unsigned i;
     for (i = 0; i < uuidTableEntries; i++) {
@@ -86,7 +86,7 @@ ble_uuid_t custom_convert_to_nordic_uuid(const UUID &uuid)
     if (uuid.shortOrLong() == UUID::UUID_TYPE_SHORT) {
         nordicUUID.type = BLE_UUID_TYPE_BLE;
     } else {
-        if (!custom_lookupConvertedUUIDTable(uuid.getBaseUUID(), &nordicUUID.type)) {
+        if (!lookupConvertedUUIDTable(uuid.getBaseUUID(), &nordicUUID.type)) {
             nordicUUID.type = custom_add_uuid_base(uuid.getBaseUUID());
             addToConvertedUUIDTable(uuid.getBaseUUID(), nordicUUID.type);
         }

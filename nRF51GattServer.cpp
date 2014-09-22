@@ -21,7 +21,6 @@
 #include "btle/custom/custom_helper.h"
 
 #include "nRF51Gap.h"
-#include "DFUService.h"
 
 /**************************************************************************/
 /*!
@@ -60,6 +59,13 @@ ble_error_t nRF51GattServer::addService(GattService &service)
     /* Add characteristics to the service */
     for (uint8_t i = 0; i < service.getCharacteristicCount(); i++) {
         GattCharacteristic *p_char = service.getCharacteristic(i);
+
+        /* Skip any incompletely defined, read-only characteristics. */
+        if ((p_char->getValueAttribute().getValuePtr() == NULL) &&
+            (p_char->getValueAttribute().getInitialLength() == 0) &&
+            (p_char->getProperties() == GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)) {
+            continue;
+        }
 
         nordicUUID = custom_convert_to_nordic_uuid(p_char->getValueAttribute().getUUID());
 
@@ -277,26 +283,14 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
         if (nrfCharacteristicHandles[i].value_handle == handle_value) {
             switch (eventType) {
                 case GattServerEvents::GATT_EVENT_DATA_WRITTEN: {
-                    /* If DFUService has been employed, then filter writes to the DFU control
-                     * characteristic before any further callback processing. */
-                    uint8_t convertedDFUServiceUUIDType;
-                    if (custom_lookupConvertedUUIDTable(DFUServiceBaseUUID, &convertedDFUServiceUUIDType)) {
-                        if ((gattsEventP->params.write.context.srvc_uuid.type == convertedDFUServiceUUIDType) &&
-                            (gattsEventP->params.write.context.srvc_uuid.uuid == DFUServiceShortUUID)         &&
-                            (gattsEventP->params.write.context.char_uuid.type == convertedDFUServiceUUIDType) &&
-                            (gattsEventP->params.write.context.char_uuid.uuid == DFUServiceControlCharacteristicShortUUID)) {
-                            DFUService::triggerHandoverToBooloader();
-                            break; /* the break here is un-necessary, we shouldn't return from the handover to the bootloader */
-                        }
-                    }
-
                     GattCharacteristicWriteCBParams cbParams = {
+                        .charHandle = i,
                         .op     = static_cast<GattCharacteristicWriteCBParams::Type>(gattsEventP->params.write.op),
                         .offset = gattsEventP->params.write.offset,
                         .len    = gattsEventP->params.write.len,
                         .data   = gattsEventP->params.write.data
                     };
-                    handleDataWrittenEvent(i, &cbParams);
+                    handleDataWrittenEvent(&cbParams);
                     break;
                 }
                 default:
