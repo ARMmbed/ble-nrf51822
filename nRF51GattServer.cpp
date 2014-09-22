@@ -60,7 +60,7 @@ ble_error_t nRF51GattServer::addService(GattService &service)
     for (uint8_t i = 0; i < service.getCharacteristicCount(); i++) {
         GattCharacteristic *p_char = service.getCharacteristic(i);
 
-        /* skip any incompletely definied, read-only characteristics. */
+        /* Skip any incompletely defined, read-only characteristics. */
         if ((p_char->getValueAttribute().getValuePtr() == NULL) &&
             (p_char->getValueAttribute().getInitialLength() == 0) &&
             (p_char->getProperties() == GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)) {
