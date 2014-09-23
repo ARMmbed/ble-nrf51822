@@ -23,8 +23,8 @@
 #include "GattService.h"
 #include "public/GattServer.h"
 
-#define BLE_TOTAL_CHARACTERISTICS 10
-#define BLE_TOTAL_DESCRIPTORS     10
+#define BLE_TOTAL_CHARACTERISTICS 24
+#define BLE_TOTAL_DESCRIPTORS     24
 
 class nRF51GattServer : public GattServer
 {
