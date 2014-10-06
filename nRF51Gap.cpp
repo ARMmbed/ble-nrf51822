@@ -319,6 +319,22 @@ ble_error_t nRF51Gap::setAddress(addr_type_t type, const uint8_t address[BLE_GAP
     return BLE_ERROR_NONE;
 }
 
+ble_error_t nRF51Gap::getAddress(addr_type_t *typeP, uint8_t addressP[BLE_GAP_ADDR_LEN])
+{
+    ble_gap_addr_t dev_addr;
+    if (sd_ble_gap_address_get(&dev_addr) != NRF_SUCCESS) {
+        return BLE_ERROR_PARAM_OUT_OF_RANGE;
+    }
+
+    if (typeP != NULL) {
+        *typeP = static_cast<addr_type_t>(dev_addr.addr_type);
+    }
+    if (addressP != NULL) {
+        memcpy(addressP, dev_addr.addr, BLE_GAP_ADDR_LEN);
+    }
+    return BLE_ERROR_NONE;
+}
+
 ble_error_t nRF51Gap::setDeviceName(const uint8_t *deviceName)
 {
     ble_gap_conn_sec_mode_t sec_mode;
