@@ -39,8 +39,8 @@ public:
     }
 
     /* Functions that must be implemented from Gap */
-    virtual ble_error_t setAddress(addr_type_t  type,  const uint8_t address[BLE_GAP_ADDR_LEN]);
-    virtual ble_error_t getAddress(addr_type_t *typeP, uint8_t addressP[BLE_GAP_ADDR_LEN]);
+    virtual ble_error_t setAddress(addr_type_t  type,  const uint8_t address[ADDR_LEN]);
+    virtual ble_error_t getAddress(addr_type_t *typeP, uint8_t addressP[ADDR_LEN]);
     virtual ble_error_t setAdvertisingData(const GapAdvertisingData &, const GapAdvertisingData &);
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
     virtual ble_error_t stopAdvertising(void);
