@@ -17,14 +17,14 @@
 /**
  * @brief Function for aborting current handler mode and jump to to other application/bootloader.
  *
- * @details This functions will use the address provide (reset handler) to be executed after 
- *          handler mode is exited. It creates an initial stack to ensure correct reset behavior 
+ * @details This functions will use the address provide (reset handler) to be executed after
+ *          handler mode is exited. It creates an initial stack to ensure correct reset behavior
  *          when the reset handler is executed.
  *
  * @param[in]  reset_handler  Address of the reset handler to be executed when handler mode exits.
  *
- * @note This function must never be called directly from 'C' but is intended only to be used from 
- *       \ref bootloader_util_reset. This function will never return but issue a reset into 
+ * @note This function must never be called directly from 'C' but is intended only to be used from
+ *       \ref bootloader_util_reset. This function will never return but issue a reset into
  *       provided address.
  */
 __asm void isr_abort(uint32_t reset_handler)
@@ -37,13 +37,13 @@ EXC_RETURN_CMD  EQU 0xFFFFFFF9  ; EXC_RETURN for ARM Cortex. When loaded to PC t
     MOV   R6, R0                ; Move address of reset handler to R6. Will be popped as PC when exiting ISR. Ensures the reset handler will be executed when exist ISR.
     LDR   R7,=xPSR_RESET        ; Move reset value of xPSR to R7. Will be popped as xPSR when exiting ISR.
     PUSH  {r4-r7}               ; Push everything to new stack to allow interrupt handler to fetch it on exiting the ISR.
-    
+
     LDR   R4,=MASK_ZEROS        ; Fill with zeros before jumping to reset handling. We be popped as R0 when exiting ISR (Cleaning up of the registers).
     LDR   R5,=MASK_ZEROS        ; Fill with zeros before jumping to reset handling. We be popped as R1 when exiting ISR (Cleaning up of the registers).
     LDR   R6,=MASK_ZEROS        ; Fill with zeros before jumping to reset handling. We be popped as R2 when exiting ISR (Cleaning up of the registers).
     LDR   R7,=MASK_ZEROS        ; Fill with zeros before jumping to reset handling. We be popped as R3 when exiting ISR (Cleaning up of the registers).
     PUSH  {r4-r7}               ; Push zeros (R4-R7) to stack to prepare for exiting the interrupt routine.
-    
+
     LDR   R0,=EXC_RETURN_CMD    ; Load the execution return command into register.
     BX    R0                    ; No return - Handler mode will be exited. Stack will be popped and execution will continue in reset handler initializing other application.
     ALIGN
@@ -72,9 +72,9 @@ MASK_ZEROS      EQU 0x00000000  ; Zeros, to be loaded into register as default v
     LDR   R1, [R0]              ; Get App initial MSP for bootloader.
     MSR   MSP, R1               ; Set the main stack pointer to the applications MSP.
     LDR   R0,[R0, #0x04]        ; Load Reset handler into register 0.
-    
+
     LDR   R2, =MASK_ZEROS       ; Load zeros to R2
-    MRS   R3, IPSR              ; Load IPSR to R3 to check for handler or thread mode 
+    MRS   R3, IPSR              ; Load IPSR to R3 to check for handler or thread mode
     CMP   R2, R3                ; Compare, if 0 then we are in thread mode and can continue to reset handler of bootloader
     BNE   isr_abort             ; If not zero we need to exit current ISR and jump to reset handler of bootloader
 
