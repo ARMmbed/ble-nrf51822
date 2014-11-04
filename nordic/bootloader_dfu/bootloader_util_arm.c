@@ -17,7 +17,7 @@
 /**
  * @brief Function for aborting current handler mode and jump to to other application/bootloader.
  *
- * @details This functions will use the address provide (reset handler) to be executed after
+ * @details This function will use the address provided (reset handler) to be executed after
  *          handler mode is exited. It creates an initial stack to ensure correct reset behavior
  *          when the reset handler is executed.
  *
@@ -79,7 +79,7 @@ void isr_abort(uint32_t reset_handler)
 /**
  * @brief Function for aborting current application/bootloader jump to to other app/bootloader.
  *
- * @details This functions will use the address provide to swap the stack pointer and then load
+ * @details This function will use the address provided to swap the stack pointer and then load
  *          the address of the reset handler to be executed. It will check current system mode
  *          (thread/handler) and if in thread mode it will reset into other application.
  *          If in handler mode \ref isr_abort will be executed to ensure correct exit of handler
