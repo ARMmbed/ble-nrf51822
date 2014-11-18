@@ -17,11 +17,11 @@
 #ifndef __NRF51822_GATT_SERVER_H__
 #define __NRF51822_GATT_SERVER_H__
 
-#include "mbed.h"
+#include <stddef.h>
+
 #include "blecommon.h"
 #include "ble.h" /* nordic ble */
-#include "GattService.h"
-#include "public/GattServer.h"
+#include "GattServer.h"
 
 class nRF51GattServer : public GattServer
 {
