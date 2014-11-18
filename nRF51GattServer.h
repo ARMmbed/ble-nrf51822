@@ -44,10 +44,11 @@ public:
     void hwCallback(ble_evt_t *p_ble_evt);
 
 private:
-    GattCharacteristic *p_characteristics[BLE_TOTAL_CHARACTERISTICS];
+    GattCharacteristic      *p_characteristics[BLE_TOTAL_CHARACTERISTICS];
     ble_gatts_char_handles_t nrfCharacteristicHandles[BLE_TOTAL_CHARACTERISTICS];
-    GattAttribute *p_descriptors[BLE_TOTAL_DESCRIPTORS];
-    uint16_t nrfDescriptorHandles[BLE_TOTAL_DESCRIPTORS];
+    GattAttribute           *p_descriptors[BLE_TOTAL_DESCRIPTORS];
+    uint8_t                  descriptorCount;
+    uint16_t                 nrfDescriptorHandles[BLE_TOTAL_DESCRIPTORS];
 
     nRF51GattServer() : GattServer(), p_characteristics(), nrfCharacteristicHandles(), p_descriptors(), descriptorCount(0), nrfDescriptorHandles() {
         /* empty */
