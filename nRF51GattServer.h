@@ -23,9 +23,6 @@
 #include "GattService.h"
 #include "public/GattServer.h"
 
-#define BLE_TOTAL_CHARACTERISTICS 24
-#define BLE_TOTAL_DESCRIPTORS     24
-
 class nRF51GattServer : public GattServer
 {
 public:
@@ -44,6 +41,9 @@ public:
     void hwCallback(ble_evt_t *p_ble_evt);
 
 private:
+    const static unsigned BLE_TOTAL_CHARACTERISTICS = 24;
+    const static unsigned BLE_TOTAL_DESCRIPTORS     = 24;
+
     GattCharacteristic       *p_characteristics[BLE_TOTAL_CHARACTERISTICS];
     ble_gatts_char_handles_t  nrfCharacteristicHandles[BLE_TOTAL_CHARACTERISTICS];
     GattAttribute            *p_descriptors[BLE_TOTAL_DESCRIPTORS];
