@@ -128,7 +128,8 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
             nRF51Gap::getInstance().setConnectionHandle(handle);
             const Gap::ConnectionParams_t *params = reinterpret_cast<Gap::ConnectionParams_t *>(&(p_ble_evt->evt.gap_evt.params.connected.conn_params));
-            nRF51Gap::getInstance().processConnectionEvent(handle, params);
+            const ble_gap_addr_t *peer = &p_ble_evt->evt.gap_evt.params.connected.peer_addr;
+            nRF51Gap::getInstance().processConnectionEvent(handle, static_cast<Gap::addr_type_t>(peer->addr_type), peer->addr, params);
             break;
         }
 
