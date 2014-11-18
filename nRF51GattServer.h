@@ -55,8 +55,10 @@ private:
         descriptorCount = 0;
     };
 
-    nRF51GattServer(nRF51GattServer const &);
-    void operator=(nRF51GattServer const &);
+
+private:
+    nRF51GattServer(const nRF51GattServer &);
+    const nRF51GattServer& operator=(const nRF51GattServer &);
 };
 
 #endif
