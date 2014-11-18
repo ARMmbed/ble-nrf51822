@@ -49,12 +49,9 @@ private:
     GattAttribute *p_descriptors[BLE_TOTAL_DESCRIPTORS];
     uint16_t nrfDescriptorHandles[BLE_TOTAL_DESCRIPTORS];
 
-    nRF51GattServer() {
-        serviceCount = 0;
-        characteristicCount = 0;
-        descriptorCount = 0;
-    };
-
+    nRF51GattServer() : GattServer(), p_characteristics(), nrfCharacteristicHandles(), p_descriptors(), descriptorCount(0), nrfDescriptorHandles() {
+        /* empty */
+    }
 
 private:
     nRF51GattServer(const nRF51GattServer &);
