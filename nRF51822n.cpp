@@ -21,6 +21,8 @@
 #include "btle/btle.h"
 #include "nrf_delay.h"
 
+#include "softdevice_handler.h"
+
 /**
  * The singleton which represents the nRF51822 transport for the BLEDevice.
  */
@@ -36,20 +38,10 @@ createBLEDeviceInstance(void)
     return (&deviceInstance);
 }
 
-/**************************************************************************/
-/*!
-    @brief  Constructor
-*/
-/**************************************************************************/
 nRF51822n::nRF51822n(void)
 {
 }
 
-/**************************************************************************/
-/*!
-    @brief  Destructor
-*/
-/**************************************************************************/
 nRF51822n::~nRF51822n(void)
 {
 }
@@ -89,22 +81,6 @@ ble_error_t nRF51822n::setTxPower(int8_t txPower)
     return BLE_ERROR_NONE;
 }
 
-/**************************************************************************/
-/*!
-    @brief  Initialises anything required to start using BLE
-
-    @returns    ble_error_t
-
-    @retval     BLE_ERROR_NONE
-                Everything executed properly
-
-    @section EXAMPLE
-
-    @code
-
-    @endcode
-*/
-/**************************************************************************/
 ble_error_t nRF51822n::init(void)
 {
     /* ToDo: Clear memory contents, reset the SD, etc. */
@@ -115,23 +91,11 @@ ble_error_t nRF51822n::init(void)
     return BLE_ERROR_NONE;
 }
 
-/**************************************************************************/
-/*!
-    @brief  Resets the BLE HW, removing any existing services and
-            characteristics
+ble_error_t nRF51822n::shutdown(void)
+{
+    return (softdevice_handler_sd_disable() == NRF_SUCCESS) ? BLE_ERROR_NONE : BLE_STACK_BUSY;
+}
 
-    @returns    ble_error_t
-
-    @retval     BLE_ERROR_NONE
-                Everything executed properly
-
-    @section EXAMPLE
-
-    @code
-
-    @endcode
-*/
-/**************************************************************************/
 ble_error_t nRF51822n::reset(void)
 {
     nrf_delay_us(500000);
