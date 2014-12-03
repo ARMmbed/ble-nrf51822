@@ -21,6 +21,8 @@
 #include "btle/btle.h"
 #include "nrf_delay.h"
 
+#include "softdevice_handler.h"
+
 /**
  * The singleton which represents the nRF51822 transport for the BLEDevice.
  */
@@ -87,6 +89,11 @@ ble_error_t nRF51822n::init(void)
     reset();
 
     return BLE_ERROR_NONE;
+}
+
+ble_error_t nRF51822n::shutdown(void)
+{
+    return (softdevice_handler_sd_disable() == NRF_SUCCESS) ? BLE_ERROR_NONE : BLE_STACK_BUSY;
 }
 
 ble_error_t nRF51822n::reset(void)
