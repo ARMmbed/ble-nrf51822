@@ -76,6 +76,7 @@ ble_error_t nRF51GattServer::addService(GattService &service)
                                               p_char->getValueAttribute().getValuePtr(),
                                               p_char->getValueAttribute().getInitialLength(),
                                               p_char->getValueAttribute().getMaxLength(),
+                                              p_char->isReadAuthorizationEnabled(),
                                               p_char->isWriteAuthorizationEnabled(),
                                               &nrfCharacteristicHandles[characteristicCount]),
                  BLE_ERROR_PARAM_OUT_OF_RANGE );
@@ -276,11 +277,18 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
             return;
 
         case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
-            if (gattsEventP->params.authorize_request.type != BLE_GATTS_AUTHORIZE_TYPE_WRITE) {
-                return; /* we don't handle anything other than write authorization at the moment */
+            switch (gattsEventP->params.authorize_request.type) {
+                case BLE_GATTS_AUTHORIZE_TYPE_READ:
+                    eventType    = GattServerEvents::GATT_EVENT_READ_AUTHORIZATION_REQ;
+                    handle_value = gattsEventP->params.authorize_request.request.read.handle;
+                    break;
+                case BLE_GATTS_AUTHORIZE_TYPE_WRITE:
+                    eventType    = GattServerEvents::GATT_EVENT_WRITE_AUTHORIZATION_REQ;
+                    handle_value = gattsEventP->params.authorize_request.request.write.handle;
+                    break;
+                default:
+                    return;
             }
-            eventType    = GattServerEvents::GATT_EVENT_WRITE_AUTHORIZATION_REQ;
-            handle_value = gattsEventP->params.authorize_request.request.write.handle;
             break;
 
         default:
@@ -321,6 +329,24 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                     sd_ble_gatts_rw_authorize_reply(gattsEventP->conn_handle, &reply);
                     break;
                 }
+                case GattServerEvents::GATT_EVENT_READ_AUTHORIZATION_REQ: {
+                    GattCharacteristicReadAuthCBParams cbParams = {
+                        .charHandle = i,
+                        .offset     = gattsEventP->params.authorize_request.request.read.offset,
+                    };
+                    ble_gatts_rw_authorize_reply_params_t reply = {
+                        .type = BLE_GATTS_AUTHORIZE_TYPE_READ,
+                        .params {
+                            .read = {
+                                .gatt_status = (p_characteristics[i]->authorizeRead(&cbParams) ?
+                                                    BLE_GATT_STATUS_SUCCESS : BLE_GATT_STATUS_ATTERR_READ_NOT_PERMITTED)
+                            }
+                        }
+                    };
+                    sd_ble_gatts_rw_authorize_reply(gattsEventP->conn_handle, &reply);
+                    break;
+                }
+
                 default:
                     handleEvent(eventType, i);
                     break;
