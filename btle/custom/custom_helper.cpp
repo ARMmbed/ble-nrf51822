@@ -189,6 +189,7 @@ error_t custom_add_in_characteristic(uint16_t    service_handle,
                                      uint8_t    *p_data,
                                      uint16_t    min_length,
                                      uint16_t    max_length,
+                                     bool        writeAuthorization,
                                      ble_gatts_char_handles_t *p_char_handle)
 {
     /* Characteristic metadata */
@@ -212,7 +213,7 @@ error_t custom_add_in_characteristic(uint16_t    service_handle,
         (char_props.notify || char_props.indicate) ? &cccd_md : NULL;
 
     /* Attribute declaration */
-    ble_gatts_attr_md_t attr_md = {0};
+    ble_gatts_attr_md_t attr_md = {.wr_auth = writeAuthorization};
 
     attr_md.vloc = BLE_GATTS_VLOC_STACK;
     attr_md.vlen = (min_length == max_length) ? 0 : 1;

@@ -76,6 +76,7 @@ ble_error_t nRF51GattServer::addService(GattService &service)
                                               p_char->getValueAttribute().getValuePtr(),
                                               p_char->getValueAttribute().getInitialLength(),
                                               p_char->getValueAttribute().getMaxLength(),
+                                              p_char->isWriteAuthorizationEnabled(),
                                               &nrfCharacteristicHandles[characteristicCount]),
                  BLE_ERROR_PARAM_OUT_OF_RANGE );
 
@@ -274,6 +275,14 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
             sd_ble_gatts_sys_attr_set(gattsEventP->conn_handle, NULL, 0);
             return;
 
+        case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
+            if (gattsEventP->params.authorize_request.type != BLE_GATTS_AUTHORIZE_TYPE_WRITE) {
+                return; /* we don't handle anything other than write authorization at the moment */
+            }
+            eventType    = GattServerEvents::GATT_EVENT_WRITE_AUTHORIZATION_REQ;
+            handle_value = gattsEventP->params.authorize_request.request.write.handle;
+            break;
+
         default:
             return;
     }
@@ -291,6 +300,25 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                         .data   = gattsEventP->params.write.data
                     };
                     handleDataWrittenEvent(&cbParams);
+                    break;
+                }
+                case GattServerEvents::GATT_EVENT_WRITE_AUTHORIZATION_REQ: {
+                    GattCharacteristicWriteAuthCBParams cbParams = {
+                        .charHandle = i,
+                        .offset     = gattsEventP->params.authorize_request.request.write.offset,
+                        .len        = gattsEventP->params.authorize_request.request.write.len,
+                        .data       = gattsEventP->params.authorize_request.request.write.data,
+                    };
+                    ble_gatts_rw_authorize_reply_params_t reply = {
+                        .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
+                        .params {
+                            .write = {
+                                .gatt_status = (p_characteristics[i]->authorizeWrite(&cbParams) ?
+                                                    BLE_GATT_STATUS_SUCCESS : BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED)
+                            }
+                        }
+                    };
+                    sd_ble_gatts_rw_authorize_reply(gattsEventP->conn_handle, &reply);
                     break;
                 }
                 default:
