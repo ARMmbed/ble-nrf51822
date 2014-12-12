@@ -214,10 +214,10 @@ error_t custom_add_in_characteristic(uint16_t    service_handle,
         (char_props.notify || char_props.indicate) ? &cccd_md : NULL;
 
     /* Attribute declaration */
-    ble_gatts_attr_md_t attr_md = {
-        .rd_auth = readAuthorization,
-        .wr_auth = writeAuthorization,
-    };
+    ble_gatts_attr_md_t attr_md = {0};
+
+    attr_md.rd_auth = readAuthorization;
+    attr_md.wr_auth = writeAuthorization;
 
     attr_md.vloc = BLE_GATTS_VLOC_STACK;
     attr_md.vlen = (min_length == max_length) ? 0 : 1;

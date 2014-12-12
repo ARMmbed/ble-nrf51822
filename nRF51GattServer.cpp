@@ -319,7 +319,7 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                     };
                     ble_gatts_rw_authorize_reply_params_t reply = {
                         .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
-                        .params {
+                        .params = {
                             .write = {
                                 .gatt_status = (p_characteristics[i]->authorizeWrite(&cbParams) ?
                                                     BLE_GATT_STATUS_SUCCESS : BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED)
@@ -336,7 +336,7 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                     };
                     ble_gatts_rw_authorize_reply_params_t reply = {
                         .type = BLE_GATTS_AUTHORIZE_TYPE_READ,
-                        .params {
+                        .params = {
                             .read = {
                                 .gatt_status = (p_characteristics[i]->authorizeRead(&cbParams) ?
                                                     BLE_GATT_STATUS_SUCCESS : BLE_GATT_STATUS_ATTERR_READ_NOT_PERMITTED)
