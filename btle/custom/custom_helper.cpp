@@ -226,7 +226,7 @@ error_t custom_add_in_characteristic(uint16_t    service_handle,
         BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
     }
 
-    if (char_props.write) {
+    if (char_props.write || char_props.write_wo_resp) {
         BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
     }
 
