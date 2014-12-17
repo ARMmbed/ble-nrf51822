@@ -337,9 +337,7 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                         .data       = NULL
                     };
 
-                    /*  Ask for authorization and, potentially, new data.
-                        Use updated parameters to construct reply. 
-                    */
+                    /*  Ask for authorization and, potentially, new data. Use updated parameters to construct reply. */
                     p_characteristics[i]->authorizeRead(&cbParams);
 
                     ble_gatts_rw_authorize_reply_params_t reply = {
@@ -350,10 +348,10 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                         reply.params.read.gatt_status = BLE_GATT_STATUS_SUCCESS;
 
                         if (cbParams.data != NULL) {
-                            reply.params.read.update      = 1;
-                            reply.params.read.offset      = cbParams.offset;
-                            reply.params.read.len         = cbParams.len;
-                            reply.params.read.p_data      = cbParams.data;
+                            reply.params.read.update = 1;
+                            reply.params.read.offset = cbParams.offset;
+                            reply.params.read.len    = cbParams.len;
+                            reply.params.read.p_data = cbParams.data;
                         }
                     } else {
                         reply.params.read.gatt_status = BLE_GATT_STATUS_ATTERR_READ_NOT_PERMITTED;
