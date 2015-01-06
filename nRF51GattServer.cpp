@@ -176,6 +176,7 @@ ble_error_t nRF51GattServer::readValue(uint16_t charHandle, uint8_t buffer[], ui
 ble_error_t nRF51GattServer::updateValue(uint16_t charHandle, uint8_t buffer[], uint16_t len, bool localOnly)
 {
     uint16_t gapConnectionHandle = nRF51Gap::getInstance().getConnectionHandle();
+    ble_error_t returnValue = BLE_ERROR_NONE;
 
     if (localOnly) {
         /* Only update locally regardless of notify/indicate */
@@ -212,13 +213,22 @@ ble_error_t nRF51GattServer::updateValue(uint16_t charHandle, uint8_t buffer[], 
                         sd_ble_gatts_value_set(nrfCharacteristicHandles[charHandle].value_handle, 0, &len, buffer),
                         BLE_ERROR_PARAM_OUT_OF_RANGE );
         }
+
+        /*  Notifications consume application buffers. The return value can 
+            be used for resending notifications.
+        */
+        if (error != ERROR_NONE)
+        {
+            returnValue = BLE_STACK_BUSY;
+        }
+
     } else {
         ASSERT_INT( ERROR_NONE,
                     sd_ble_gatts_value_set(nrfCharacteristicHandles[charHandle].value_handle, 0, &len, buffer),
                     BLE_ERROR_PARAM_OUT_OF_RANGE );
     }
 
-    return BLE_ERROR_NONE;
+    return returnValue;
 }
 
 /**************************************************************************/
