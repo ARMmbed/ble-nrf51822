@@ -329,7 +329,8 @@ void ble_conn_params_on_ble_evt(ble_evt_t * p_ble_evt)
     }
 }
 
-uint32_t ble_conn_params_change_conn_params(ble_gap_conn_params_t *new_params)
+
+uint32_t ble_conn_params_change_conn_params(ble_gap_conn_params_t * new_params)
 {
     uint32_t err_code;
 
