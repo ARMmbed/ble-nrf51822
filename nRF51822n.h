@@ -17,11 +17,6 @@
 #ifndef __NRF51822_H__
 #define __NRF51822_H__
 
-#define NRF51
-#define DEBUG_NRF_USER
-#define BLE_STACK_SUPPORT_REQD
-#define BOARD_PCA10001
-
 #include "mbed.h"
 #include "blecommon.h"
 #include "BLEDevice.h"
