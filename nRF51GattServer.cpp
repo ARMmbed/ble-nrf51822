@@ -214,14 +214,12 @@ ble_error_t nRF51GattServer::updateValue(uint16_t charHandle, uint8_t buffer[], 
                         BLE_ERROR_PARAM_OUT_OF_RANGE );
         }
 
-        /*  Notifications consume application buffers. The return value can 
+        /*  Notifications consume application buffers. The return value can
             be used for resending notifications.
         */
-        if (error != ERROR_NONE)
-        {
+        if (error != ERROR_NONE) {
             returnValue = BLE_STACK_BUSY;
         }
-
     } else {
         ASSERT_INT( ERROR_NONE,
                     sd_ble_gatts_value_set(nrfCharacteristicHandles[charHandle].value_handle, 0, &len, buffer),
