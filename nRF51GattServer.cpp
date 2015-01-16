@@ -335,6 +335,24 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                         }
                     };
                     sd_ble_gatts_rw_authorize_reply(gattsEventP->conn_handle, &reply);
+
+                    /*
+                     * If write-authorization is enabled for a characteristic,
+                     * AUTHORIZATION_REQ event (if replied with true) is *not*
+                     * followed by another DATA_WRITTEN event; so we still need
+                     * to invoke handleDataWritten(), much the same as we would
+                     * have done if write-authorization had not been enabled.
+                     */
+                    if (reply.params.write.gatt_status == BLE_GATT_STATUS_SUCCESS) {
+                        GattCharacteristicWriteCBParams cbParams = {
+                            .charHandle = i,
+                            .op         = static_cast<GattCharacteristicWriteCBParams::Type>(gattsEventP->params.authorize_request.request.write.op),
+                            .offset     = gattsEventP->params.authorize_request.request.write.offset,
+                            .len        = gattsEventP->params.authorize_request.request.write.len,
+                            .data       = gattsEventP->params.authorize_request.request.write.data,
+                        };
+                        handleDataWrittenEvent(&cbParams);
+                    }
                     break;
                 }
                 case GattServerEvents::GATT_EVENT_READ_AUTHORIZATION_REQ: {
