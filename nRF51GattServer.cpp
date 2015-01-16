@@ -304,7 +304,7 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
     }
 
     /* Find index (charHandle) in the pool */
-    for (uint8_t i = 0; i<characteristicCount; i++) {
+    for (uint8_t i = 0; i < characteristicCount; i++) {
         if (nrfCharacteristicHandles[i].value_handle == handle_value) {
             switch (eventType) {
                 case GattServerEvents::GATT_EVENT_DATA_WRITTEN: {
