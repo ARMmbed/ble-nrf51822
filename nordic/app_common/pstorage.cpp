@@ -10,8 +10,6 @@
  *
  */
 
-#if NEED_PSTORAGE /* disabled by default */
-
 #include "pstorage.h"
 #include <stdlib.h>
 #include <stdint.h>
@@ -19,7 +17,7 @@
 #include "nordic_common.h"
 #include "nrf_error.h"
 #include "nrf_assert.h"
-#include "nrf.h"
+// #include "nrf.h"
 #include "nrf_soc.h"
 #include "app_util.h"
 
@@ -1121,5 +1119,3 @@ uint32_t pstorage_raw_clear(pstorage_handle_t * p_dest, pstorage_size_t size)
 }
 
 #endif // PSTORAGE_RAW_MODE_ENABLE
-
-#endif /* #if NEED_PSTORAGE */
