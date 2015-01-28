@@ -10,6 +10,8 @@
  *
  */
 
+#if SDK_CONN_PARAMS_MODULE_ENABLE
+
 #include "ble_conn_params.h"
 #include <stdlib.h>
 #include "nordic_common.h"
@@ -314,3 +316,5 @@ uint32_t ble_conn_params_change_conn_params(ble_gap_conn_params_t *new_params)
     }
     return err_code;
 }
+
+#endif /*SDK_CONN_PARAMS_MODULE_ENABLE*/
