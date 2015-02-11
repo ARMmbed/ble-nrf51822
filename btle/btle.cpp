@@ -61,7 +61,7 @@ static void sys_evt_dispatch(uint32_t sys_evt)
 error_t btle_init(void)
 {
     const bool useScheduler = false;
-#ifdef TARGET_HRM1017
+#if defined(TARGET_DELTA_DFCM_NNN40) || defined(TARGET_HRM1017)
     SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_RC_250_PPM_4000MS_CALIBRATION, useScheduler);
 #else
     SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, useScheduler);
