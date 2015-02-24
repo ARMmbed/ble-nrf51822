@@ -33,8 +33,8 @@ public:
 
     /* Functions that must be implemented from GattServer */
     virtual ble_error_t addService(GattService &);
-    virtual ble_error_t readValue(uint16_t handle, uint8_t buffer[], uint16_t *const lengthP);
-    virtual ble_error_t updateValue(uint16_t, uint8_t[], uint16_t, bool localOnly = false);
+    virtual ble_error_t readValue(GattAttribute::Handle_t handle, uint8_t buffer[], uint16_t *const lengthP);
+    virtual ble_error_t updateValue(GattAttribute::Handle_t, uint8_t[], uint16_t, bool localOnly = false);
     virtual ble_error_t initializeGATTDatabase(void);
 
     /* nRF51 Functions */

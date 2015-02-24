@@ -139,7 +139,7 @@ ble_error_t nRF51GattServer::addService(GattService &service)
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51GattServer::readValue(uint16_t charHandle, uint8_t buffer[], uint16_t *const lengthP)
+ble_error_t nRF51GattServer::readValue(GattAttribute::Handle_t charHandle, uint8_t buffer[], uint16_t *const lengthP)
 {
     ASSERT( ERROR_NONE ==
             sd_ble_gatts_value_get(nrfCharacteristicHandles[charHandle].value_handle, 0, lengthP, buffer),
@@ -173,7 +173,7 @@ ble_error_t nRF51GattServer::readValue(uint16_t charHandle, uint8_t buffer[], ui
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51GattServer::updateValue(uint16_t charHandle, uint8_t buffer[], uint16_t len, bool localOnly)
+ble_error_t nRF51GattServer::updateValue(GattAttribute::Handle_t charHandle, uint8_t buffer[], uint16_t len, bool localOnly)
 {
     uint16_t gapConnectionHandle = nRF51Gap::getInstance().getConnectionHandle();
     ble_error_t returnValue = BLE_ERROR_NONE;
