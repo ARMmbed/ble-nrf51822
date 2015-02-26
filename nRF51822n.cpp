@@ -81,6 +81,16 @@ ble_error_t nRF51822n::setTxPower(int8_t txPower)
     return BLE_ERROR_NONE;
 }
 
+void nRF51822n::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP)
+{
+    static const int8_t permittedTxValues[] = {
+        -40, -30, -20, -16, -12, -8, -4, 0, 4
+    };
+
+    *valueArrayPP = permittedTxValues;
+    *countP = sizeof(permittedTxValues) / sizeof(int8_t);
+}
+
 ble_error_t nRF51822n::init(void)
 {
     /* ToDo: Clear memory contents, reset the SD, etc. */
