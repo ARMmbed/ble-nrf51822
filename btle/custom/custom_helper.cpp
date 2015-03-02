@@ -42,7 +42,20 @@ lookupConvertedUUIDTable(const LongUUIDBytes_t uuid, uint8_t *recoveredType)
 {
     unsigned i;
     for (i = 0; i < uuidTableEntries; i++) {
-        if (memcmp(convertedUUIDTable[i].uuid, uuid, LENGTH_OF_LONG_UUID) == 0) {
+        unsigned byteIndex;
+        for (byteIndex = 0; byteIndex < LENGTH_OF_LONG_UUID; byteIndex++) {
+            /* Skip bytes 2 and 3, because they contain the shortUUID (16-bit) version of the
+             * long UUID; and we're comparing against the remainder. */
+            if ((byteIndex == 2) || (byteIndex == 3)) {
+                continue;
+            }
+
+            if (convertedUUIDTable[i].uuid[byteIndex] != uuid[byteIndex]) {
+                break;
+            }
+        }
+
+        if (byteIndex == LENGTH_OF_LONG_UUID) {
             *recoveredType = convertedUUIDTable[i].type;
             return true;
         }
@@ -58,8 +71,10 @@ addToConvertedUUIDTable(const LongUUIDBytes_t uuid, uint8_t type)
         return; /* recovery needed; or at least the user should be warned about this fact.*/
     }
 
-    memcpy(convertedUUIDTable[uuidTableEntries].uuid, uuid,LENGTH_OF_LONG_UUID);
-    convertedUUIDTable[uuidTableEntries].type = type;
+    memcpy(convertedUUIDTable[uuidTableEntries].uuid, uuid, LENGTH_OF_LONG_UUID);
+    convertedUUIDTable[uuidTableEntries].uuid[2] = 0;
+    convertedUUIDTable[uuidTableEntries].uuid[3] = 0;
+    convertedUUIDTable[uuidTableEntries].type    = type;
     uuidTableEntries++;
 }
 
@@ -135,8 +150,8 @@ uint8_t custom_add_uuid_base(uint8_t const *const p_uuid_base)
     uint8_t       uuid_type = 0;
 
     /* Reverse the bytes since ble_uuid128_t is LSB */
-    for (uint8_t i = 0; i<16; i++) {
-        base_uuid.uuid128[i] = p_uuid_base[15 - i];
+    for (unsigned i = 0; i < LENGTH_OF_LONG_UUID; i++) {
+        base_uuid.uuid128[i] = p_uuid_base[LENGTH_OF_LONG_UUID - 1 - i];
     }
 
     ASSERT_INT( ERROR_NONE, sd_ble_uuid_vs_add( &base_uuid, &uuid_type ), 0);
@@ -155,11 +170,11 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
     LongUUIDBytes_t uuid_base_le;
 
     /* Reverse the bytes since ble_uuid128_t is LSB */
-    for (uint8_t i = 0; i<16; i++) {
-        uuid_base_le[i] = p_uuid_base[15 - i];
+    for (uint8_t i = 0; i < LENGTH_OF_LONG_UUID; i++) {
+        uuid_base_le[i] = p_uuid_base[LENGTH_OF_LONG_UUID - 1 - i];
     }
 
-    ASSERT_STATUS( sd_ble_uuid_decode(16, uuid_base_le, p_uuid));
+    ASSERT_STATUS( sd_ble_uuid_decode(LENGTH_OF_LONG_UUID, uuid_base_le, p_uuid));
 
     return ERROR_NONE;
 }
