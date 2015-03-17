@@ -10,23 +10,20 @@
  *
  */
 
-#if SDK_CONN_PARAMS_MODULE_ENABLE
-
 #include "ble_conn_params.h"
 #include <stdlib.h>
 #include "nordic_common.h"
 #include "ble_hci.h"
-#include "app_timer.h"
 #include "ble_srv_common.h"
 #include "app_util.h"
-
+#include "mbed.h"
 
 static ble_conn_params_init_t m_conn_params_config;     /**< Configuration as specified by the application. */
 static ble_gap_conn_params_t  m_preferred_conn_params;  /**< Connection parameters preferred by the application. */
 static uint8_t                m_update_count;           /**< Number of Connection Parameter Update messages that has currently been sent. */
 static uint16_t               m_conn_handle;            /**< Current connection handle. */
 static ble_gap_conn_params_t  m_current_conn_params;    /**< Connection parameters received in the most recent Connect event. */
-static app_timer_id_t         m_conn_params_timer_id;   /**< Connection parameters timer. */
+static Ticker                 m_conn_params_timer;
 
 static bool m_change_param = false;
 
@@ -44,10 +41,9 @@ static bool is_conn_params_ok(ble_gap_conn_params_t * p_conn_params)
 }
 
 
-static void update_timeout_handler(void * p_context)
+static void update_timeout_handler(void)
 {
-    UNUSED_PARAMETER(p_context);
-
+    m_conn_params_timer.detach(); /* this is supposed to be a single-shot timer callback */
     if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
     {
         // Check if we have reached the maximum number of attempts
@@ -122,15 +118,14 @@ uint32_t ble_conn_params_init(const ble_conn_params_init_t * p_init)
     m_conn_handle  = BLE_CONN_HANDLE_INVALID;
     m_update_count = 0;
 
-    return app_timer_create(&m_conn_params_timer_id,
-                            APP_TIMER_MODE_SINGLE_SHOT,
-                            update_timeout_handler);
+    return NRF_SUCCESS;
 }
 
 
 uint32_t ble_conn_params_stop(void)
 {
-    return app_timer_stop(m_conn_params_timer_id);
+    m_conn_params_timer.detach();
+    return NRF_SUCCESS;
 }
 
 
@@ -139,7 +134,6 @@ static void conn_params_negotiation(void)
     // Start negotiation if the received connection parameters are not acceptable
     if (!is_conn_params_ok(&m_current_conn_params))
     {
-        uint32_t err_code;
         uint32_t timeout_ticks;
 
         if (m_change_param)
@@ -165,11 +159,7 @@ static void conn_params_negotiation(void)
                 timeout_ticks = m_conn_params_config.next_conn_params_update_delay;
             }
 
-            err_code = app_timer_start(m_conn_params_timer_id, timeout_ticks, NULL);
-            if ((err_code != NRF_SUCCESS) && (m_conn_params_config.error_handler != NULL))
-            {
-                m_conn_params_config.error_handler(err_code);
-            }
+            m_conn_params_timer.attach(update_timeout_handler, timeout_ticks / 32768);
         }
     }
     else
@@ -204,18 +194,12 @@ static void on_connect(ble_evt_t * p_ble_evt)
 
 static void on_disconnect(ble_evt_t * p_ble_evt)
 {
-    uint32_t err_code;
-
     m_conn_handle = BLE_CONN_HANDLE_INVALID;
 
     // Stop timer if running
     m_update_count = 0; // Connection parameters updates should happen during every connection
 
-    err_code = app_timer_stop(m_conn_params_timer_id);
-    if ((err_code != NRF_SUCCESS) && (m_conn_params_config.error_handler != NULL))
-    {
-        m_conn_params_config.error_handler(err_code);
-    }
+    m_conn_params_timer.detach();
 }
 
 
@@ -238,14 +222,8 @@ static void on_write(ble_evt_t * p_ble_evt)
         }
         else
         {
-            uint32_t err_code;
-
             // Stop timer if running
-            err_code = app_timer_stop(m_conn_params_timer_id);
-            if ((err_code != NRF_SUCCESS) && (m_conn_params_config.error_handler != NULL))
-            {
-                m_conn_params_config.error_handler(err_code);
-            }
+            m_conn_params_timer.detach();
         }
     }
 }
@@ -316,5 +294,3 @@ uint32_t ble_conn_params_change_conn_params(ble_gap_conn_params_t *new_params)
     }
     return err_code;
 }
-
-#endif /*SDK_CONN_PARAMS_MODULE_ENABLE*/
