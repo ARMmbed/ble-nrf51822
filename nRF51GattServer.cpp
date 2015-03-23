@@ -329,8 +329,7 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                         .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
                         .params = {
                             .write = {
-                                .gatt_status = (p_characteristics[i]->authorizeWrite(&cbParams) ?
-                                                    BLE_GATT_STATUS_SUCCESS : BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED)
+                                .gatt_status = p_characteristics[i]->authorizeWrite(&cbParams)
                             }
                         }
                     };
@@ -363,24 +362,22 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                         .data       = NULL
                     };
 
-                    /*  Ask for authorization and, potentially, new data. Use updated parameters to construct reply. */
-                    p_characteristics[i]->authorizeRead(&cbParams);
-
                     ble_gatts_rw_authorize_reply_params_t reply = {
-                        .type = BLE_GATTS_AUTHORIZE_TYPE_READ
+                        .type = BLE_GATTS_AUTHORIZE_TYPE_READ,
+                        .params = {
+                            .read = {
+                                .gatt_status = p_characteristics[i]->authorizeRead(&cbParams)
+                            }
+                        }
                     };
 
-                    if (cbParams.authorizationReply == true) {
-                        reply.params.read.gatt_status = BLE_GATT_STATUS_SUCCESS;
-
+                    if (cbParams.authorizationReply == BLE_GATT_STATUS_SUCCESS) {
                         if (cbParams.data != NULL) {
                             reply.params.read.update = 1;
                             reply.params.read.offset = cbParams.offset;
                             reply.params.read.len    = cbParams.len;
                             reply.params.read.p_data = cbParams.data;
                         }
-                    } else {
-                        reply.params.read.gatt_status = BLE_GATT_STATUS_ATTERR_READ_NOT_PERMITTED;
                     }
 
                     sd_ble_gatts_rw_authorize_reply(gattsEventP->conn_handle, &reply);
