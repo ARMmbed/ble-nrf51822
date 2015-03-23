@@ -31,6 +31,10 @@ extern "C" {
 
 #include "pstorage_platform.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* #ifdef __cplusplus */
+
 
 /**@defgroup ps_opcode Persistent Storage Access Operation Codes
  * @{
@@ -379,6 +383,10 @@ uint32_t pstorage_raw_clear(pstorage_handle_t * p_dest, pstorage_size_t size);
 
 /**@} */
 /**@} */
+
+#ifdef __cplusplus
+}
+#endif /* #ifdef __cplusplus */
 
 #endif // PSTORAGE_H__
 
