@@ -73,9 +73,9 @@ static void dfu_app_set_peer_data(void)
     err_code = dm_distributed_keys_get(&m_dm_handle, &key_set);
     APP_ERROR_CHECK(err_code);
 
-    m_peer_data.addr     = key_set.keys_central.p_id_key->id_addr_info;
-    m_peer_data.enc_info = *key_set.keys_central.enc_key.p_enc_info;
-    m_peer_data.irk      = key_set.keys_central.p_id_key->id_info;
+    m_peer_data.addr    = key_set.keys_central.p_id_key->id_addr_info;
+    m_peer_data.enc_key = *((ble_gap_enc_key_t *)(key_set.keys_central.enc_key.p_enc_key));
+    m_peer_data.irk     = key_set.keys_central.p_id_key->id_info;
 
     err_code = dfu_ble_svc_set_peer_data(&m_peer_data);
     APP_ERROR_CHECK(err_code);

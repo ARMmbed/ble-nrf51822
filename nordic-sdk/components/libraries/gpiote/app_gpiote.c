@@ -94,8 +94,8 @@ void GPIOTE_IRQHandler(void)
         if (((1 << i) & m_enabled_users_mask) != 0)
         {
             uint32_t transition_pins;
-            uint32_t event_low_to_high;
-            uint32_t event_high_to_low;
+            uint32_t event_low_to_high = 0;
+            uint32_t event_high_to_low = 0;
 
             // Find set of pins on which there has been a transition.
             transition_pins = (pins_state ^ ~p_user->sense_high_pins) & p_user->pins_mask;
@@ -103,29 +103,33 @@ void GPIOTE_IRQHandler(void)
             // Toggle SENSE level for all pins that have changed state.
             sense_level_toggle(p_user, transition_pins);
 
-            // Second read after setting sense.
+            // Second read for this user after setting sense.
+            // Level changes for previous processed users would trigger a pending interrupt.
             // Check if any pins have changed while serving this interrupt.
-            pins_changed = NRF_GPIO->IN ^ pins_state;
+            pins_changed = (NRF_GPIO->IN ^ pins_state) & p_user->pins_mask;
             if (pins_changed)
             {
                 // Transition pins detected in late stage.
                 uint32_t late_transition_pins;
+                uint32_t late_pins_state;
 
-                pins_state          |= pins_changed;
+                late_pins_state = pins_state ^ pins_changed;
 
                 // Find set of pins on which there has been a transition.
-                late_transition_pins = (pins_state ^ ~p_user->sense_high_pins) & p_user->pins_mask;
+                late_transition_pins = (late_pins_state ^ ~p_user->sense_high_pins) & p_user->pins_mask;
 
                 // Toggle SENSE level for all pins that have changed state in last phase.
                 sense_level_toggle(p_user, late_transition_pins);
 
                 // Update pins that has changed state since the interrupt occurred.
-                transition_pins |= late_transition_pins;
+                //transition_pins |= late_transition_pins;
+                event_high_to_low = (~late_pins_state & p_user->pins_high_to_low_mask) & late_transition_pins;
+                event_low_to_high = (late_pins_state & p_user->pins_low_to_high_mask) & late_transition_pins;
             }
 
             // Call user event handler if an event has occurred.
-            event_high_to_low = (~pins_state & p_user->pins_high_to_low_mask) & transition_pins;
-            event_low_to_high = (pins_state & p_user->pins_low_to_high_mask) & transition_pins;
+            event_high_to_low |= (~pins_state & p_user->pins_high_to_low_mask) & transition_pins;
+            event_low_to_high |= (pins_state & p_user->pins_low_to_high_mask) & transition_pins;
 
             if ((event_low_to_high | event_high_to_low) != 0)
             {
@@ -133,6 +137,27 @@ void GPIOTE_IRQHandler(void)
             }
         }
     }
+    
+    // Second read after setting sense.
+    // Check if any pins have changed while serving this interrupt.
+//    pins_changed = NRF_GPIO->IN ^ pins_state;
+//    if (pins_changed)
+//    {
+//        // Transition pins detected in late stage.
+//        uint32_t late_transition_pins;
+
+//        pins_state          ^= pins_changed;
+
+//        // Find set of pins on which there has been a transition.
+//        late_transition_pins = (pins_state ^ ~p_user->sense_high_pins) & p_user->pins_mask;
+
+//        // Toggle SENSE level for all pins that have changed state in last phase.
+//        sense_level_toggle(p_user, late_transition_pins);
+
+//        // Update pins that has changed state since the interrupt occurred.
+//        transition_pins |= late_transition_pins;
+//    }
+
 }
 
 

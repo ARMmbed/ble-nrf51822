@@ -122,35 +122,6 @@ static uint32_t appearance_encode(uint8_t * p_encoded_data, uint8_t * p_len)
 }
 
 
-static uint32_t uint8_array_encode(const uint8_array_t * p_uint8_array,
-                                   uint8_t               adv_type,
-                                   uint8_t             * p_encoded_data,
-                                   uint8_t             * p_len)
-{
-    // Check parameter consistency.
-    if (p_uint8_array->p_data == NULL)
-    {
-        return NRF_ERROR_INVALID_PARAM;
-    }
-
-    // Check for buffer overflow.
-    if ((*p_len) + ADV_DATA_OFFSET + p_uint8_array->size > BLE_GAP_ADV_MAX_SIZE)
-    {
-        return NRF_ERROR_DATA_SIZE;
-    }
-
-    // Encode Length and AD Type.
-    p_encoded_data[(*p_len)++] = 1 + p_uint8_array->size;
-    p_encoded_data[(*p_len)++] = adv_type;
-
-    // Encode array.
-    memcpy(&p_encoded_data[*p_len], p_uint8_array->p_data, p_uint8_array->size);
-    (*p_len) += p_uint8_array->size;
-
-    return NRF_SUCCESS;
-}
-
-
 static uint32_t tx_power_level_encode(int8_t    tx_power_level,
                                       uint8_t * p_encoded_data,
                                       uint8_t * p_len)
@@ -439,18 +410,13 @@ static uint32_t adv_data_encode(const ble_advdata_t * p_advdata,
         }
     }
 
-    // Encode flags.
-    if (p_advdata->flags.size > 0)
+    if(p_advdata->flags != 0 )
     {
-        err_code = uint8_array_encode(&p_advdata->flags,
-                                      BLE_GAP_AD_TYPE_FLAGS,
-                                      p_encoded_data,
-                                      p_len);
-        if (err_code != NRF_SUCCESS)
-        {
-            return err_code;
-        }
-    }
+        // Encode flags.
+        p_encoded_data[(*p_len)++] = 1 + sizeof(uint8_t);
+        p_encoded_data[(*p_len)++] = BLE_GAP_AD_TYPE_FLAGS;
+        p_encoded_data[(*p_len)++] = p_advdata->flags;
+    } 
 
     // Encode TX power level.
     if (p_advdata->p_tx_power_level != NULL)
@@ -543,9 +509,8 @@ static uint32_t adv_data_encode(const ble_advdata_t * p_advdata,
 static uint32_t advdata_check(const ble_advdata_t * p_advdata)
 {
     // Flags must be included in advertising data, and the BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED flag must be set.
-    if ((p_advdata->flags.size == 0)      ||
-        (p_advdata->flags.p_data == NULL) ||
-        ((p_advdata->flags.p_data[0] & BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED) == 0)
+    if (
+        ((p_advdata->flags & BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED) == 0)
        )
     {
         return NRF_ERROR_INVALID_PARAM;
@@ -558,7 +523,7 @@ static uint32_t advdata_check(const ble_advdata_t * p_advdata)
 static uint32_t srdata_check(const ble_advdata_t * p_srdata)
 {
     // Flags shall not be included in the scan response data.
-    if (p_srdata->flags.size > 0)
+    if (p_srdata->flags)
     {
         return NRF_ERROR_INVALID_PARAM;
     }

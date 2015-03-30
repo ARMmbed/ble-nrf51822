@@ -30,7 +30,6 @@
 #include "ble.h"
 #include "nrf_sdm.h"
 #include "app_error.h"
-#include "app_scheduler.h"
 #include "app_util.h"
 
 #ifdef __cplusplus

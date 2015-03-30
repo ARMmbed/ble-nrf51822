@@ -88,10 +88,12 @@ uint32_t dfu_init_prevalidate(uint8_t * p_init_data, uint32_t init_data_len)
            m_extended_packet_length);
 
 /** [DFU init application version] */
-    // In order to support application versioning this check should be updated.
-    // This template allows for any application to be installed however customer could place a
-    // revision number at bottom of application to be verified by bootloader. This could be done at
-    // a relative location to this papplication for example Application start address + 0x0100.
+    // To support application versioning, this check should be updated.
+    // This template allows for any application to be installed. However, 
+    // customers can place a revision number at the bottom of the application 
+    // to be verified by the bootloader. This can be done at a location 
+    // relative to the application, for example the application start 
+    // address + 0x0100.
 /** [DFU init application version] */
     
     // First check to verify the image to be transfered matches the device type.

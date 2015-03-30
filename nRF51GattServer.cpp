@@ -119,31 +119,38 @@ ble_error_t nRF51GattServer::addService(GattService &service)
     @brief  Reads the value of a characteristic, based on the service
             and characteristic index fields
 
-    @param[in]  charHandle
+    @param[in]  attributeHandle
                 The handle of the GattCharacteristic to read from
     @param[in]  buffer
                 Buffer to hold the the characteristic's value
                 (raw byte array in LSB format)
-    @param[in]  len
-                The number of bytes read into the buffer
+    @param[in/out] len
+                input:  Length in bytes to be read.
+                output: Total length of attribute value upon successful return.
 
     @returns    ble_error_t
 
     @retval     BLE_ERROR_NONE
                 Everything executed properly
-
-    @section EXAMPLE
-
-    @code
-
-    @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51GattServer::readValue(GattAttribute::Handle_t charHandle, uint8_t buffer[], uint16_t *const lengthP)
+ble_error_t nRF51GattServer::readValue(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
 {
+    return readValue(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, lengthP);
+}
+
+ble_error_t nRF51GattServer::readValue(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
+{
+    ble_gatts_value_t value = {
+        .len     = *lengthP,
+        .offset  = 0,
+        .p_value = buffer,
+    };
+
     ASSERT( ERROR_NONE ==
-            sd_ble_gatts_value_get(nrfCharacteristicHandles[charHandle].value_handle, 0, lengthP, buffer),
+            sd_ble_gatts_value_get(connectionHandle, nrfCharacteristicHandles[attributeHandle].value_handle, &value),
             BLE_ERROR_PARAM_OUT_OF_RANGE);
+    *lengthP = value.len;
 
     return BLE_ERROR_NONE;
 }
@@ -165,52 +172,50 @@ ble_error_t nRF51GattServer::readValue(GattAttribute::Handle_t charHandle, uint8
 
     @retval     BLE_ERROR_NONE
                 Everything executed properly
-
-    @section EXAMPLE
-
-    @code
-
-    @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51GattServer::updateValue(GattAttribute::Handle_t charHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
+ble_error_t nRF51GattServer::updateValue(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
+{
+    return updateValue(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, len, localOnly);
+}
+
+ble_error_t nRF51GattServer::updateValue(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
     uint16_t gapConnectionHandle = nRF51Gap::getInstance().getConnectionHandle();
     ble_error_t returnValue = BLE_ERROR_NONE;
 
+    ble_gatts_value_t value = {
+        .len     = len,
+        .offset  = 0,
+        .p_value = const_cast<uint8_t *>(buffer),
+    };
+
     if (localOnly) {
         /* Only update locally regardless of notify/indicate */
         ASSERT_INT( ERROR_NONE,
-                    sd_ble_gatts_value_set(nrfCharacteristicHandles[charHandle].value_handle, 0, &len, buffer),
+                    sd_ble_gatts_value_set(connectionHandle, nrfCharacteristicHandles[attributeHandle].value_handle, &value),
                     BLE_ERROR_PARAM_OUT_OF_RANGE );
-		return BLE_ERROR_NONE;
+        return BLE_ERROR_NONE;
     }
 
-    if ((p_characteristics[charHandle]->getProperties() &
-         (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE |
-          GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)) &&
-        (gapConnectionHandle != BLE_CONN_HANDLE_INVALID)) {
+    if ((p_characteristics[attributeHandle]->getProperties() & (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)) &&
+        (gapConnectionHandle != connectionHandle)) {
         /* HVX update for the characteristic value */
         ble_gatts_hvx_params_t hvx_params;
 
-        hvx_params.handle = nrfCharacteristicHandles[charHandle].value_handle;
+        hvx_params.handle = nrfCharacteristicHandles[attributeHandle].value_handle;
         hvx_params.type   =
-            (p_characteristics[charHandle]->getProperties() &
-             GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)  ?
-            BLE_GATT_HVX_NOTIFICATION : BLE_GATT_HVX_INDICATION;
+            (p_characteristics[attributeHandle]->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) ? BLE_GATT_HVX_NOTIFICATION : BLE_GATT_HVX_INDICATION;
         hvx_params.offset = 0;
         hvx_params.p_data = const_cast<uint8_t *>(buffer);
         hvx_params.p_len  = &len;
 
         error_t error = (error_t) sd_ble_gatts_hvx(gapConnectionHandle, &hvx_params);
 
-        /* ERROR_INVALID_STATE, ERROR_BUSY, ERROR_GATTS_SYS_ATTR_MISSING and
-         *ERROR_NO_TX_BUFFERS the ATT table has been updated. */
-        if ((error != ERROR_NONE) && (error != ERROR_INVALID_STATE) &&
-                (error != ERROR_BLE_NO_TX_BUFFERS) && (error != ERROR_BUSY) &&
-                (error != ERROR_BLEGATTS_SYS_ATTR_MISSING)) {
+        /* ERROR_INVALID_STATE, ERROR_BUSY, ERROR_GATTS_SYS_ATTR_MISSING and ERROR_NO_TX_BUFFERS the ATT table has been updated. */
+        if ((error != ERROR_NONE) && (error != ERROR_INVALID_STATE) && (error != ERROR_BLE_NO_TX_BUFFERS) && (error != ERROR_BUSY) && (error != ERROR_BLEGATTS_SYS_ATTR_MISSING)) {
             ASSERT_INT( ERROR_NONE,
-                        sd_ble_gatts_value_set(nrfCharacteristicHandles[charHandle].value_handle, 0, &len, buffer),
+                        sd_ble_gatts_value_set(connectionHandle, nrfCharacteristicHandles[attributeHandle].value_handle, &value),
                         BLE_ERROR_PARAM_OUT_OF_RANGE );
         }
 
@@ -222,7 +227,7 @@ ble_error_t nRF51GattServer::updateValue(GattAttribute::Handle_t charHandle, con
         }
     } else {
         ASSERT_INT( ERROR_NONE,
-                    sd_ble_gatts_value_set(nrfCharacteristicHandles[charHandle].value_handle, 0, &len, buffer),
+                    sd_ble_gatts_value_set(connectionHandle, nrfCharacteristicHandles[attributeHandle].value_handle, &value),
                     BLE_ERROR_PARAM_OUT_OF_RANGE );
     }
 
@@ -281,7 +286,7 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
         }
 
         case BLE_GATTS_EVT_SYS_ATTR_MISSING:
-            sd_ble_gatts_sys_attr_set(gattsEventP->conn_handle, NULL, 0);
+            sd_ble_gatts_sys_attr_set(gattsEventP->conn_handle, NULL, 0, 0);
             return;
 
         case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:

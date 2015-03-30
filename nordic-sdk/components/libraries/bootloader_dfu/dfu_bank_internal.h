@@ -46,10 +46,12 @@ typedef enum
 #define IS_UPDATING_SD(START_PKT)   ((START_PKT).dfu_update_mode & DFU_UPDATE_SD)   /**< Macro for determining if a SoftDevice update is ongoing. */
 #define IS_UPDATING_BL(START_PKT)   ((START_PKT).dfu_update_mode & DFU_UPDATE_BL)   /**< Macro for determining if a Bootloader update is ongoing. */
 #define IS_UPDATING_APP(START_PKT)  ((START_PKT).dfu_update_mode & DFU_UPDATE_APP)  /**< Macro for determining if a Application update is ongoing. */
-#define IMAGE_WRITE_IN_PROGRESS()   (m_data_received > 0)                           /**< Macro for determining is image write in progress. */
+#define IMAGE_WRITE_IN_PROGRESS()   (m_data_received > 0)                           /**< Macro for determining if an image write is in progress. */
 #define IS_WORD_SIZED(SIZE)         ((SIZE & (sizeof(uint32_t) - 1)) == 0)          /**< Macro for checking that the provided is word sized. */
 
+/**@cond NO_DOXYGEN */
 static uint32_t                     m_data_received;                                /**< Amount of received data. */
+/**@endcond */
 
 /**@brief     Type definition of function used for preparing of the bank before receiving of a
  *            software image.

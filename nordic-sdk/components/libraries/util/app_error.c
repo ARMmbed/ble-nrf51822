@@ -53,7 +53,7 @@ __WEAK void app_error_handler(uint32_t error_code, uint32_t line_num, const uint
     NVIC_SystemReset();
 #else
     
-#ifdef BSP_DEFINES_ONLY
+#ifdef BSP_DEFINES_ONLY 
     LEDS_ON(LEDS_MASK);
 #else
     UNUSED_VARIABLE(bsp_indication_set(BSP_INDICATE_FATAL_ERROR));

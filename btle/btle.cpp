@@ -58,11 +58,10 @@ static void sys_evt_dispatch(uint32_t sys_evt)
 
 error_t btle_init(void)
 {
-    const bool useScheduler = false;
 #if defined(TARGET_DELTA_DFCM_NNN40) || defined(TARGET_HRM1017)
-    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_RC_250_PPM_4000MS_CALIBRATION, useScheduler);
+    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_RC_250_PPM_4000MS_CALIBRATION, NULL);
 #else
-    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, useScheduler);
+    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, NULL);
 #endif
 
     // Enable BLE stack
@@ -125,7 +124,11 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             nRF51Gap::getInstance().setConnectionHandle(handle);
             const Gap::ConnectionParams_t *params = reinterpret_cast<Gap::ConnectionParams_t *>(&(p_ble_evt->evt.gap_evt.params.connected.conn_params));
             const ble_gap_addr_t *peer = &p_ble_evt->evt.gap_evt.params.connected.peer_addr;
-            nRF51Gap::getInstance().processConnectionEvent(handle, static_cast<Gap::addr_type_t>(peer->addr_type), peer->addr, params);
+            const ble_gap_addr_t *own  = &p_ble_evt->evt.gap_evt.params.connected.own_addr;
+            nRF51Gap::getInstance().processConnectionEvent(handle,
+                                                           static_cast<Gap::addr_type_t>(peer->addr_type), peer->addr,
+                                                           static_cast<Gap::addr_type_t>(own->addr_type),  own->addr,
+                                                           params);
             break;
         }
 
@@ -162,22 +165,21 @@ static void btle_handler(ble_evt_t *p_ble_evt)
         case BLE_GAP_EVT_SEC_PARAMS_REQUEST: {
             ble_gap_sec_params_t sec_params = {0};
 
-            sec_params.timeout      = 30; /*< Timeout for Pairing Request or
-                                   * Security Request (in seconds). */
-            sec_params.bond         = 1;  /**< Perform bonding. */
-            sec_params.mitm         = CFG_BLE_SEC_PARAM_MITM;
-            sec_params.io_caps      = CFG_BLE_SEC_PARAM_IO_CAPABILITIES;
-            sec_params.oob          = CFG_BLE_SEC_PARAM_OOB;
-            sec_params.min_key_size = CFG_BLE_SEC_PARAM_MIN_KEY_SIZE;
-            sec_params.max_key_size = CFG_BLE_SEC_PARAM_MAX_KEY_SIZE;
+            sec_params.bond          = 1;  /**< Perform bonding. */
+            sec_params.mitm          = CFG_BLE_SEC_PARAM_MITM;
+            sec_params.io_caps       = CFG_BLE_SEC_PARAM_IO_CAPABILITIES;
+            sec_params.oob           = CFG_BLE_SEC_PARAM_OOB;
+            sec_params.min_key_size  = CFG_BLE_SEC_PARAM_MIN_KEY_SIZE;
+            sec_params.max_key_size  = CFG_BLE_SEC_PARAM_MAX_KEY_SIZE;
 
-            ASSERT_STATUS_RET_VOID(sd_ble_gap_sec_params_reply(nRF51Gap::getInstance().getConnectionHandle(),
-                                                               BLE_GAP_SEC_STATUS_SUCCESS, &sec_params));
+            ble_gap_sec_keyset_t sec_keyset = {0};
+
+            ASSERT_STATUS_RET_VOID(sd_ble_gap_sec_params_reply(nRF51Gap::getInstance().getConnectionHandle(), BLE_GAP_SEC_STATUS_SUCCESS, &sec_params, &sec_keyset));
         }
         break;
 
         case BLE_GAP_EVT_TIMEOUT:
-            if (p_ble_evt->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISEMENT) {
+            if (p_ble_evt->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISING) {
                 nRF51Gap::getInstance().processEvent(GapEvents::GAP_EVENT_TIMEOUT);
             }
             break;

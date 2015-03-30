@@ -224,14 +224,20 @@ static void on_connect(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
 static bool is_cccd_configured(ble_dfu_t * p_dfu)
 {
     // Check if the CCCDs are configured.
-    uint16_t cccd_len = BLE_CCCD_VALUE_LEN;
     uint8_t  cccd_val_buf[BLE_CCCD_VALUE_LEN];
+    ble_gatts_value_t gatts_value;
+
+    // Initialize value struct.
+    memset(&gatts_value, 0, sizeof(gatts_value));
+
+    gatts_value.len     = BLE_CCCD_VALUE_LEN;
+    gatts_value.offset  = 0;
+    gatts_value.p_value = cccd_val_buf;
 
     // Check the CCCD Value of DFU Control Point.
-    uint32_t err_code = sd_ble_gatts_value_get(p_dfu->dfu_ctrl_pt_handles.cccd_handle,
-                                               0,
-                                               &cccd_len,
-                                               cccd_val_buf);
+    uint32_t err_code = sd_ble_gatts_value_get(p_dfu->conn_handle,
+                                               p_dfu->dfu_ctrl_pt_handles.cccd_handle,
+                                               &gatts_value);
     if (err_code != NRF_SUCCESS)
     {
         if (p_dfu->error_handler != NULL)
@@ -387,7 +393,7 @@ static uint32_t on_ctrl_pt_write(ble_dfu_t * p_dfu, ble_gatts_evt_write_t * p_bl
  * @param[in] p_dfu     DFU Service Structure.
  * @param[in] p_ble_evt Pointer to the event received from BLE stack.
  */
-static void on_rw_auth_req(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
+static void on_rw_authorize_req(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
 {
     ble_gatts_evt_rw_authorize_request_t * p_authorize_request;
 
@@ -397,6 +403,12 @@ static void on_rw_auth_req(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
         (p_authorize_request->type == BLE_GATTS_AUTHORIZE_TYPE_WRITE)
         &&
         (p_authorize_request->request.write.handle == p_dfu->dfu_ctrl_pt_handles.value_handle)
+        && 
+        (p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.op != BLE_GATTS_OP_PREP_WRITE_REQ)
+        &&
+        (p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.op != BLE_GATTS_OP_EXEC_WRITE_REQ_NOW)
+        &&
+        (p_ble_evt->evt.gatts_evt.params.authorize_request.request.write.op != BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL)
        )
     {
         uint32_t err_code;
@@ -537,7 +549,7 @@ void ble_dfu_on_ble_evt(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
                 break;
 
             case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
-                on_rw_auth_req(p_dfu, p_ble_evt);
+                on_rw_authorize_req(p_dfu, p_ble_evt);
                 break;
 
             default:

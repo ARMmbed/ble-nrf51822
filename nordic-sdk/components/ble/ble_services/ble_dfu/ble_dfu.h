@@ -130,7 +130,7 @@ typedef void (*ble_dfu_evt_handler_t) (ble_dfu_t * p_dfu, ble_dfu_evt_t * p_evt)
  *
  * @details This structure contains status information related to the service.
  */
-typedef struct ble_dfu_s
+struct ble_dfu_s
 {
     uint16_t                     conn_handle;                           /**< Handle of the current connection (as provided by the S110 SoftDevice). This will be BLE_CONN_HANDLE_INVALID when not in a connection. */
     uint16_t                     revision;                              /**< Handle of DFU Service (as provided by the S110 SoftDevice). */
@@ -142,7 +142,7 @@ typedef struct ble_dfu_s
     ble_gatts_char_handles_t     dfu_rev_handles;                       /**< Handles related to the DFU Revision characteristic. */
     ble_dfu_evt_handler_t        evt_handler;                           /**< The event handler to be called when an event is to be sent to the application.*/
     ble_srv_error_handler_t      error_handler;                         /**< Function to be called in case of an error. */
-} ble_dfu_t;
+};
 
 /**@brief      DFU service initialization structure.
  *

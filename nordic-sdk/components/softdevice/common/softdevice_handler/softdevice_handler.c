@@ -29,22 +29,18 @@
 
 static softdevice_evt_schedule_func_t m_evt_schedule_func;              /**< Pointer to function for propagating SoftDevice events to the scheduler. */
 
-#if defined (BLE_STACK_SUPPORT_REQD) || defined (ANT_STACK_SUPPORT_REQD)
-// The following two definition is needed only if ANT or BLE events are needed to be pulled from the stack.
-static uint8_t *                      m_evt_buffer;                     /**< Buffer for receiving events from the SoftDevice. */
-#endif
-
-#ifdef BLE_STACK_SUPPORT_REQD
-static uint16_t                       m_ble_evt_buffer_size;            /**< Size of BLE event buffer. */
-#endif
-
 static volatile bool                  m_softdevice_enabled = false;     /**< Variable to indicate whether the SoftDevice is enabled. */
 
 #ifdef BLE_STACK_SUPPORT_REQD
+// The following three definitions is needed only if BLE events are needed to be pulled from the stack.
+static uint8_t                      * mp_ble_evt_buffer;                /**< Buffer for receiving BLE events from the SoftDevice. */
+static uint16_t                       m_ble_evt_buffer_size;            /**< Size of BLE event buffer. */
 static ble_evt_handler_t              m_ble_evt_handler;                /**< Application event handler for handling BLE events. */
 #endif
 
 #ifdef ANT_STACK_SUPPORT_REQD
+// The following two definition is needed only if ANT events are needed to be pulled from the stack.
+static ant_evt_t                      m_ant_evt_buffer;                 /**< Buffer for receiving ANT events from the SoftDevice. */
 static ant_evt_handler_t              m_ant_evt_handler;                /**< Application event handler for handling ANT events.  */
 #endif
 
@@ -118,7 +114,7 @@ void intern_softdevice_events_execute(void)
             // Pull event from stack
             uint16_t evt_len = m_ble_evt_buffer_size;
 
-            err_code = sd_ble_evt_get(m_evt_buffer, &evt_len);
+            err_code = sd_ble_evt_get(mp_ble_evt_buffer, &evt_len);
             if (err_code == NRF_ERROR_NOT_FOUND)
             {
                 no_more_ble_evts = true;
@@ -130,7 +126,7 @@ void intern_softdevice_events_execute(void)
             else
             {
                 // Call application's BLE stack event handler.
-                m_ble_evt_handler((ble_evt_t *)m_evt_buffer);
+                m_ble_evt_handler((ble_evt_t *)mp_ble_evt_buffer);
             }
         }
 #endif
@@ -140,9 +136,9 @@ void intern_softdevice_events_execute(void)
         if (!no_more_ant_evts)
         {
             // Pull event from stack
-            err_code = sd_ant_event_get(&((ant_evt_t *)m_evt_buffer)->channel,
-                                        &((ant_evt_t *)m_evt_buffer)->event,
-                                        ((ant_evt_t *)m_evt_buffer)->evt_buffer);
+            err_code = sd_ant_event_get(&m_ant_evt_buffer.channel,
+                                        &m_ant_evt_buffer.event,
+                                        m_ant_evt_buffer.evt_buffer);
             if (err_code == NRF_ERROR_NOT_FOUND)
             {
                 no_more_ant_evts = true;
@@ -154,7 +150,7 @@ void intern_softdevice_events_execute(void)
             else
             {
                 // Call application's ANT stack event handler.
-                m_ant_evt_handler((ant_evt_t *)m_evt_buffer);
+                m_ant_evt_handler(&m_ant_evt_buffer);
             }
         }
 #endif
@@ -191,40 +187,35 @@ void intern_softdevice_events_execute(void)
 
 
 uint32_t softdevice_handler_init(nrf_clock_lfclksrc_t           clock_source,
-                                 void *                         p_evt_buffer,
-                                 uint16_t                       evt_buffer_size,
+                                 void *                         p_ble_evt_buffer,
+                                 uint16_t                       ble_evt_buffer_size,
                                  softdevice_evt_schedule_func_t evt_schedule_func)
 {
     uint32_t err_code;
 
     // Save configuration.
-#if defined (BLE_STACK_SUPPORT_REQD) || defined (ANT_STACK_SUPPORT_REQD)
+#if defined (BLE_STACK_SUPPORT_REQD)
     // Check that buffer is not NULL.
-    if (p_evt_buffer == NULL)
+    if (p_ble_evt_buffer == NULL)
     {
         return NRF_ERROR_INVALID_PARAM;
     }
     
     // Check that buffer is correctly aligned.
-    if (!is_word_aligned(p_evt_buffer))
+    if (!is_word_aligned(p_ble_evt_buffer))
     {
         return NRF_ERROR_INVALID_PARAM;
     }
 
-    m_evt_buffer = (uint8_t *)p_evt_buffer;
+    mp_ble_evt_buffer     = (uint8_t *)p_ble_evt_buffer;
+    m_ble_evt_buffer_size = ble_evt_buffer_size;
 #else
-    // The variable p_evt_buffer is not needed if neither BLE Stack nor ANT stack support is 
-    // required.
-    UNUSED_PARAMETER(p_evt_buffer);
+    // The variables p_ble_evt_buffer and ble_evt_buffer_size is not needed if BLE Stack support
+    // is not required.
+    UNUSED_PARAMETER(p_ble_evt_buffer);
+    UNUSED_PARAMETER(ble_evt_buffer_size);
 #endif
 
-#if defined (BLE_STACK_SUPPORT_REQD)     
-    m_ble_evt_buffer_size = evt_buffer_size;
-#else
-    // The variable evt_buffer_size is not needed if BLE Stack support is NOT required.
-    UNUSED_PARAMETER(evt_buffer_size);
-#endif
-    
     m_evt_schedule_func = evt_schedule_func;
 
     // Initialize SoftDevice.

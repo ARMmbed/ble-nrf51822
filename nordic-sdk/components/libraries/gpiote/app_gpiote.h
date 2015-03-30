@@ -53,7 +53,7 @@
  *
  * @param[in]   MAX_USERS   Maximum number of GPIOTE users.
  *
- * @return      Required buffer size (in bytes).
+ * @retval      Required buffer size (in bytes).
  */
 #define APP_GPIOTE_BUF_SIZE(MAX_USERS)  ((MAX_USERS) * GPIOTE_USER_NODE_SIZE)
 
@@ -139,7 +139,7 @@ uint32_t app_gpiote_user_enable(app_gpiote_user_id_t user_id);
  *
  * @param[in]   user_id                   Id of user to enable.
  *
- * @return      NRF_SUCCESS               On success.
+ * @retval      NRF_SUCCESS               On success.
  * @retval      NRF_ERROR_INVALID_PARAM   Invalid user_id provided, No a valid user.
  * @retval      NRF_ERROR_INALID_STATE    If @ref app_gpiote_init has not been called on the GPIOTE
  *                                        module.
@@ -153,7 +153,7 @@ uint32_t app_gpiote_user_disable(app_gpiote_user_id_t user_id);
  *                              the specified user. All bits corresponding to pins in the state
  *                              'high' will have value '1', all others will have value '0'.
  *
- * @return      NRF_SUCCESS               On success.
+ * @retval      NRF_SUCCESS               On success.
  * @retval      NRF_ERROR_INVALID_PARAM   Invalid user_id provided, No a valid user.
  * @retval      NRF_ERROR_INALID_STATE    If @ref app_gpiote_init has not been called on the GPIOTE
  *                                        module.
@@ -167,7 +167,7 @@ uint32_t app_gpiote_pins_state_get(app_gpiote_user_id_t user_id, uint32_t * p_pi
  * @param[in] polarity        Specify operation on input that shall trigger IN event.
  * @param[in] event_handler   Event handler invoked on the IN event in the GPIOTE interrupt.
  *
- * @return   NRF_SUCCESS                 On success.
+ * @retval   NRF_SUCCESS                 On success.
  * @retval   NRF_ERROR_INVALID_PARAM     Invalid channel or pin number.
  * @retval   NRF_ERROR_NOT_SUPPORTED     Driver doesn't support IN events.
  */
@@ -178,7 +178,7 @@ uint32_t app_gpiote_input_event_handler_register(const uint8_t channel,
 
 /**@brief Function for unregistering event handlers for GPIOTE IN events.
  *
- * @return   NRF_SUCCESS                 On success.
+ * @retval   NRF_SUCCESS                 On success.
  * @retval   NRF_ERROR_NOT_SUPPORTED     Driver doesn't support IN events.
  */
 uint32_t app_gpiote_input_event_handler_unregister(const uint8_t channel);
@@ -187,28 +187,28 @@ uint32_t app_gpiote_input_event_handler_unregister(const uint8_t channel);
  *
  * @param[in] event_handler    Event handler invoked at the end of the GPIOTE interrupt.
  *
- * @return   NRF_SUCCESS                 On success.
+ * @retval   NRF_SUCCESS                 On success.
  * @retval   NRF_ERROR_NOT_SUPPORTED     Driver doesn't support IN events.
  */
 uint32_t app_gpiote_end_irq_event_handler_register(app_gpiote_input_event_handler_t event_handler);
 
 /**@brief Function for unregistering event handler invoked at the end of a GPIOTE interrupt.
  *
- * @return   NRF_SUCCESS                 On success.
+ * @retval   NRF_SUCCESS                 On success.
  * @retval   NRF_ERROR_NOT_SUPPORTED     Driver doesn't support IN events.
  */
 uint32_t app_gpiote_end_irq_event_handler_unregister(void);
 
 /**@brief Function for enabling interrupts in the GPIOTE driver.
  *
- * @return   NRF_SUCCESS                 On success.
+ * @retval   NRF_SUCCESS                 On success.
  * @retval   NRF_ERROR_NOT_SUPPORTED     Driver doesn't support.
  */
 uint32_t app_gpiote_enable_interrupts(void);
 
 /**@brief Function for disabling interrupts in the GPIOTE driver.
  *
- * @return   NRF_SUCCESS                 On success.
+ * @retval   NRF_SUCCESS                 On success.
  * @retval   NRF_ERROR_NOT_SUPPORTED     Driver doesn't support.
  */
 uint32_t app_gpiote_disable_interrupts(void);

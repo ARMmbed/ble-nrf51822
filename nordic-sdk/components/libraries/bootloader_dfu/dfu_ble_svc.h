@@ -26,8 +26,8 @@
  *
  * @note The application must make sure that all SuperVisor Calls (SVC) are forwarded to the 
  *       bootloader to ensure correct behavior. Forwarding of SVCs to the bootloader is 
- *       done using the SoftDevice SVC \ref sd_softdevice_vector_table_base_set with the value 
- *       present in \c NRF_UICR->BOOTLOADERADDR.
+ *       done using the SoftDevice SVC @ref sd_softdevice_vector_table_base_set with the value 
+ *       present in @c NRF_UICR->BOOTLOADERADDR.
  */
  
 #ifndef DFU_BLE_SVC_H__
@@ -40,12 +40,13 @@
 #include "nrf_soc.h"
 #include "nrf_error_sdm.h"
 
-#define BOOTLOADER_SVC_BASE 0x0  /**< The number of the lowest SVC number reserved for the bootloader. */
+#define BOOTLOADER_SVC_BASE     0x0     /**< The number of the lowest SVC number reserved for the bootloader. */
+#define SYSTEM_SERVICE_ATT_SIZE 8       /**< Size of the system service attribute length including CRC-16 at the end. */  
 
 /**@brief The SVC numbers used by the SVC functions in the SoC library. */
 enum BOOTLOADER_SVCS
 {
-    DFU_BLE_SVC_SET_PEER_DATA = BOOTLOADER_SVC_BASE,
+    DFU_BLE_SVC_SET_PEER_DATA = BOOTLOADER_SVC_BASE,    /**< SVC number for the setting of peer data call. */
     BOOTLOADER_SVC_LAST
 };
 
@@ -58,9 +59,10 @@ enum BOOTLOADER_SVCS
  */
 typedef struct
 {
-    ble_gap_enc_info_t enc_info;
-    ble_gap_irk_t      irk;
-    ble_gap_addr_t     addr;
+    ble_gap_addr_t      addr;                                   /**< BLE GAP address of the device that initiated the DFU process. */
+    ble_gap_irk_t       irk;                                    /**< IRK of the device that initiated the DFU process if this device uses Private Resolvable Addresses. */
+    ble_gap_enc_key_t   enc_key;                                /**< Encryption key structure containing encrypted diversifier and LTK for re-establishing the bond. */
+    uint8_t             sys_serv_attr[SYSTEM_SERVICE_ATT_SIZE]; /**< System service attributes for restoring of Service Changed Indication setting in DFU mode. */
 } dfu_ble_peer_data_t;
 
 /**@brief   SVC Function for setting peer data containing address, IRK, and LTK to establish bonded
@@ -69,7 +71,7 @@ typedef struct
  * @param[in] p_peer_data  Pointer to the peer data containing keys for the connection.
  *
  * @retval NRF_ERROR_NULL If a NULL pointer was provided as argument.
- * @retval NRF_SUCCESS  If the function completed successfully.
+ * @retval NRF_SUCCESS    If the function completed successfully.
  */
 SVCALL(DFU_BLE_SVC_SET_PEER_DATA, uint32_t, dfu_ble_svc_set_peer_data(dfu_ble_peer_data_t * p_peer_data));
 

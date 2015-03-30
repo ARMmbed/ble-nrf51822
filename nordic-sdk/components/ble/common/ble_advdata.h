@@ -72,7 +72,7 @@ typedef struct
     ble_advdata_name_type_t      name_type;                           /**< Type of device name. */
     uint8_t                      short_name_len;                      /**< Length of short device name (if short type is specified). */
     bool                         include_appearance;                  /**< Determines if Appearance shall be included. */
-    uint8_array_t                flags;                               /**< Advertising data Flags field. */
+    uint8_t                      flags;                               /**< Advertising data Flags field. */
     int8_t *                     p_tx_power_level;                    /**< TX Power Level field. */
     ble_advdata_uuid_list_t      uuids_more_available;                /**< List of UUIDs in the 'More Available' list. */
     ble_advdata_uuid_list_t      uuids_complete;                      /**< List of UUIDs in the 'Complete' list. */
