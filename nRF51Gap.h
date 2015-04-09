@@ -24,6 +24,9 @@
 #include "GapAdvertisingData.h"
 #include "public/Gap.h"
 
+#include "nrf_soc.h"
+#include "ble_radio_notification.h"
+
 /**************************************************************************/
 /*!
     \brief
@@ -62,6 +65,11 @@ public:
     virtual ble_error_t getPreferredConnectionParams(ConnectionParams_t *params);
     virtual ble_error_t setPreferredConnectionParams(const ConnectionParams_t *params);
     virtual ble_error_t updateConnectionParams(Handle_t handle, const ConnectionParams_t *params);
+
+    virtual void setOnRadioNotification(RadioNotificationEventCallback_t callback) {
+        Gap::setOnRadioNotification(callback);
+        ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_NONE, onRadioNotification);
+    }
 
 private:
     uint16_t m_connectionHandle;
