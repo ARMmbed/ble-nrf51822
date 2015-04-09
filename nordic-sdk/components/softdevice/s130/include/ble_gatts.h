@@ -157,7 +157,7 @@ enum BLE_GATTS_EVTS
  * @{
  */
 #define BLE_GATTS_ATTR_TAB_SIZE_MIN         216    /**< Minimum Attribute Table size */
-#define BLE_GATTS_ATTR_TAB_SIZE_DEFAULT     0x0000 /**< Default Attribute Table size (0x700 bytes for this version of the SoftDevice). */
+#define BLE_GATTS_ATTR_TAB_SIZE_DEFAULT     0x0000 /**< Default Attribute Table size (0x600 bytes for this version of the SoftDevice). */
 /** @} */
 
 /** @} */

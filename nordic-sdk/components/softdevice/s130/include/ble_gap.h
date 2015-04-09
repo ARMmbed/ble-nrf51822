@@ -127,6 +127,7 @@ enum BLE_GAP_OPTS
 #define BLE_ERROR_GAP_UUID_LIST_MISMATCH            (NRF_GAP_ERR_BASE + 0x000)  /**< UUID list does not contain an integral number of UUIDs. */
 #define BLE_ERROR_GAP_DISCOVERABLE_WITH_WHITELIST   (NRF_GAP_ERR_BASE + 0x001)  /**< Use of Whitelist not permitted with discoverable advertising. */
 #define BLE_ERROR_GAP_INVALID_BLE_ADDR              (NRF_GAP_ERR_BASE + 0x002)  /**< The upper two bits of the address do not correspond to the specified address type. */
+#define BLE_ERROR_GAP_WHITELIST_IN_USE              (NRF_GAP_ERR_BASE + 0x003)  /**< Attempt to overwrite the whitelist while already in use by another operation. */ 
 /**@} */
 
 
@@ -305,6 +306,8 @@ enum BLE_GAP_OPTS
 #define BLE_GAP_SEC_STATUS_SUCCESS                0x00  /**< Procedure completed with success. */
 #define BLE_GAP_SEC_STATUS_TIMEOUT                0x01  /**< Procedure timed out. */
 #define BLE_GAP_SEC_STATUS_PDU_INVALID            0x02  /**< Invalid PDU received. */
+#define BLE_GAP_SEC_STATUS_RFU_RANGE1_BEGIN       0x03  /**< Reserved for Future Use range #1 begin. */
+#define BLE_GAP_SEC_STATUS_RFU_RANGE1_END         0x80  /**< Reserved for Future Use range #1 end. */
 #define BLE_GAP_SEC_STATUS_PASSKEY_ENTRY_FAILED   0x81  /**< Passkey entry failed (user cancelled or other). */
 #define BLE_GAP_SEC_STATUS_OOB_NOT_AVAILABLE      0x82  /**< Out of Band Key not available. */
 #define BLE_GAP_SEC_STATUS_AUTH_REQ               0x83  /**< Authentication requirements not met. */
@@ -315,6 +318,8 @@ enum BLE_GAP_OPTS
 #define BLE_GAP_SEC_STATUS_UNSPECIFIED            0x88  /**< Unspecified reason. */
 #define BLE_GAP_SEC_STATUS_REPEATED_ATTEMPTS      0x89  /**< Too little time elapsed since last attempt. */
 #define BLE_GAP_SEC_STATUS_INVALID_PARAMS         0x8A  /**< Invalid parameters. */
+#define BLE_GAP_SEC_STATUS_RFU_RANGE2_BEGIN       0x8B  /**< Reserved for Future Use range #2 begin. */
+#define BLE_GAP_SEC_STATUS_RFU_RANGE2_END         0xFF  /**< Reserved for Future Use range #2 end. */
 /**@} */
 
 /**@defgroup BLE_GAP_SEC_STATUS_SOURCES GAP Security status sources
@@ -473,7 +478,7 @@ typedef struct
   uint8_t               type;                 /**< See @ref BLE_GAP_ADV_TYPES. */
   ble_gap_addr_t       *p_peer_addr;          /**< For @ref BLE_GAP_ADV_TYPE_ADV_DIRECT_IND mode only, known peer address. */
   uint8_t               fp;                   /**< Filter Policy, see @ref BLE_GAP_ADV_FILTER_POLICIES. */
-  ble_gap_whitelist_t  *p_whitelist;          /**< Pointer to whitelist, NULL if none is given. */
+  ble_gap_whitelist_t  *p_whitelist;          /**< Pointer to whitelist, NULL if no whitelist or the current active whitelist is to be used. */
   uint16_t              interval;             /**< Advertising interval between 0x0020 and 0x4000 in 0.625 ms units (20ms to 10.24s), see @ref BLE_GAP_ADV_INTERVALS.
                                                    - If type equals @ref BLE_GAP_ADV_TYPE_ADV_DIRECT_IND, this parameter must be set to 0 for high duty cycle directed advertising.
                                                    - If type equals @ref BLE_GAP_ADV_TYPE_ADV_DIRECT_IND, set @ref BLE_GAP_ADV_INTERVAL_MIN <= interval <= @ref BLE_GAP_ADV_INTERVAL_MAX for low duty cycle advertising.*/
@@ -487,7 +492,7 @@ typedef struct
 {
   uint8_t                 active    : 1;        /**< If 1, perform active scanning (scan requests). */
   uint8_t                 selective : 1;        /**< If 1, ignore unknown devices (non whitelisted). */
-  ble_gap_whitelist_t *   p_whitelist;          /**< Pointer to whitelist, NULL if none is given. */
+  ble_gap_whitelist_t *   p_whitelist;          /**< Pointer to whitelist, NULL if no whitelist or the current active whitelist is to be used. */
   uint16_t                interval;             /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
   uint16_t                window;               /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
   uint16_t                timeout;              /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
@@ -546,6 +551,7 @@ typedef struct
 {
   ble_gap_addr_t        peer_addr;              /**< Bluetooth address of the peer device. */
   ble_gap_addr_t        own_addr;               /**< Bluetooth address of the local device used during connection setup. */
+  uint8_t               role;                   /**< BLE role for this connection, see @ref BLE_GAP_ROLES */
   uint8_t               irk_match :1;           /**< If 1, peer device's address resolved using an IRK. */
   uint8_t               irk_match_idx  :7;      /**< Index in IRK list where the address was matched. */
   ble_gap_conn_params_t conn_params;            /**< GAP Connection Parameters. */
@@ -980,6 +986,8 @@ SVCALL(SD_BLE_GAP_ADV_DATA_SET, uint32_t, sd_ble_gap_adv_data_set(uint8_t const 
  *       cannot however be connectable (it must be of type @ref BLE_GAP_ADV_TYPE_ADV_SCAN_IND or
  *       @ref BLE_GAP_ADV_TYPE_ADV_NONCONN_IND). @note Only one advertiser may be active at any time.
  *
+ * @note To use the currently active whitelist set p_adv_params->p_whitelist to NULL.
+ *
  * @param[in] p_adv_params Pointer to advertising parameters structure.
  *
  * @retval ::NRF_SUCCESS The BLE stack has started advertising.
@@ -989,6 +997,7 @@ SVCALL(SD_BLE_GAP_ADV_DATA_SET, uint32_t, sd_ble_gap_adv_data_set(uint8_t const 
  * @retval ::BLE_ERROR_GAP_INVALID_BLE_ADDR Invalid Bluetooth address supplied.
  * @retval ::BLE_ERROR_GAP_DISCOVERABLE_WITH_WHITELIST Discoverable mode and whitelist incompatible.
  * @retval ::NRF_ERROR_BUSY The stack is busy, process pending events and retry.
+ * @retval ::BLE_ERROR_GAP_WHITELIST_IN_USE Unable to replace the whitelist while another operation is using it.
  */
 SVCALL(SD_BLE_GAP_ADV_START, uint32_t, sd_ble_gap_adv_start(ble_gap_adv_params_t const *p_adv_params));
 
@@ -1296,6 +1305,8 @@ SVCALL(SD_BLE_GAP_RSSI_GET, uint32_t, sd_ble_gap_rssi_get(uint16_t conn_handle, 
 
 /**@brief Start scanning (GAP Discovery procedure, Observer Procedure).
  *
+ * @note To use the currently active whitelist set p_scan_params->p_whitelist to NULL.
+ *
  * @param[in] p_scan_params Pointer to scan parameters structure.
  *
  * @retval ::NRF_SUCCESS Successfully initiated scanning procedure.
@@ -1303,7 +1314,7 @@ SVCALL(SD_BLE_GAP_RSSI_GET, uint32_t, sd_ble_gap_rssi_get(uint16_t conn_handle, 
  * @retval ::NRF_ERROR_INVALID_STATE Invalid state to perform operation.
  * @retval ::NRF_ERROR_INVALID_PARAM Invalid parameter(s) supplied.
  * @retval ::NRF_ERROR_BUSY The stack is busy, process pending events and retry.
- * @retval ::NRF_ERROR_NOT_SUPPORTED A selected feature is not supported (selective scanning).
+ * @retval ::BLE_ERROR_GAP_WHITELIST_IN_USE Unable to replace the whitelist while another operation is using it.
  */
 SVCALL(SD_BLE_GAP_SCAN_START, uint32_t, sd_ble_gap_scan_start(ble_gap_scan_params_t const *p_scan_params));
 
@@ -1318,6 +1329,8 @@ SVCALL(SD_BLE_GAP_SCAN_STOP, uint32_t, sd_ble_gap_scan_stop(void));
 
 /**@brief Create a connection (GAP Link Establishment).
  *
+ * @note To use the currently active whitelist set p_scan_params->p_whitelist to NULL.    
+ *
  * @param[in] p_peer_addr   Pointer to peer address. If the selective bit is set in @ref ble_gap_scan_params_t, then this must be NULL.
  * @param[in] p_scan_params Pointer to scan parameters structure.
  * @param[in] p_conn_params Pointer to desired connection parameters.
@@ -1328,8 +1341,10 @@ SVCALL(SD_BLE_GAP_SCAN_STOP, uint32_t, sd_ble_gap_scan_stop(void));
  * @retval ::NRF_ERROR_INVALID_STATE Invalid state to perform operation.
  * @retval ::BLE_ERROR_GAP_INVALID_BLE_ADDR Invalid Peer address.
  * @retval ::NRF_ERROR_NO_MEM limit of available connections reached.
- * @retval ::NRF_ERROR_BUSY The stack is busy, process pending events and retry.
-*/
+ * @retval ::NRF_ERROR_BUSY The stack is busy, process pending events and retry. If another connection is being established wait for the corresponding
+ *                          @ref BLE_GAP_EVT_CONNECTED event before calling again.
+ * @retval ::BLE_ERROR_GAP_WHITELIST_IN_USE Unable to replace the whitelist while another operation is using it.
+ */
 SVCALL(SD_BLE_GAP_CONNECT, uint32_t, sd_ble_gap_connect(ble_gap_addr_t const *p_peer_addr, ble_gap_scan_params_t const *p_scan_params, ble_gap_conn_params_t const *p_conn_params));
 
 
