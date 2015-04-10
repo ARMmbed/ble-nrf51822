@@ -21,9 +21,6 @@
 
 #include "ble_stack_handler_types.h"
 #include "ble_flash.h"
-#if NEED_BOND_MANAGER
-#include "ble_bondmngr.h"
-#endif
 #include "ble_conn_params.h"
 
 #include "btle_gap.h"
@@ -39,15 +36,8 @@
 
 #include "ble_hci.h"
 
-#if NEED_BOND_MANAGER /* disabled by default */
-static void service_error_callback(uint32_t nrf_error);
-#endif
 extern "C" void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
 void            app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name);
-
-#if NEED_BOND_MANAGER /* disabled by default */
-static error_t bond_manager_init(void);
-#endif
 
 static void btle_handler(ble_evt_t *p_ble_evt);
 
@@ -99,9 +89,6 @@ error_t btle_init(void)
     ASSERT_STATUS( softdevice_ble_evt_handler_set(btle_handler));
     ASSERT_STATUS( softdevice_sys_evt_handler_set(sys_evt_dispatch));
 
-#if NEED_BOND_MANAGER /* disabled by default */
-    bond_manager_init();
-#endif
     btle_gap_init();
 
     return ERROR_NONE;
@@ -110,9 +97,6 @@ error_t btle_init(void)
 static void btle_handler(ble_evt_t *p_ble_evt)
 {
     /* Library service handlers */
-#if NEED_BOND_MANAGER /* disabled by default */
-    ble_bondmngr_on_ble_evt(p_ble_evt);
-#endif
 #if SDK_CONN_PARAMS_MODULE_ENABLE
     ble_conn_params_on_ble_evt(p_ble_evt);
 #endif
@@ -137,9 +121,6 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             // Since we are not in a connection and have not started advertising,
             // store bonds
             nRF51Gap::getInstance().setConnectionHandle (BLE_CONN_HANDLE_INVALID);
-#if NEED_BOND_MANAGER /* disabled by default */
-            ASSERT_STATUS_RET_VOID ( ble_bondmngr_bonded_centrals_store());
-#endif
 
             Gap::DisconnectionReason_t reason;
             switch (p_ble_evt->evt.gap_evt.params.disconnected.reason) {
@@ -197,55 +178,6 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 
     nRF51GattServer::getInstance().hwCallback(p_ble_evt);
 }
-
-#if NEED_BOND_MANAGER /* disabled by default */
-/**************************************************************************/
-/*!
-    @brief      Initialises the bond manager
-
-    @note       Bond data will be cleared on reset if the bond delete
-                button is pressed during initialisation (the button is
-                defined as CFG_BLE_BOND_DELETE_BUTTON_NUM).
-
-    @returns
-*/
-/**************************************************************************/
-static error_t bond_manager_init(void)
-{
-    ble_bondmngr_init_t bond_para = {0};
-
-    ASSERT_STATUS ( pstorage_init());
-
-    bond_para.flash_page_num_bond     = CFG_BLE_BOND_FLASH_PAGE_BOND;
-    bond_para.flash_page_num_sys_attr = CFG_BLE_BOND_FLASH_PAGE_SYS_ATTR;
-    //bond_para.bonds_delete            = boardButtonCheck(CFG_BLE_BOND_DELETE_BUTTON_NUM) ;
-    bond_para.evt_handler   = NULL;
-    bond_para.error_handler = service_error_callback;
-
-    ASSERT_STATUS( ble_bondmngr_init( &bond_para ));
-
-    /* Init radio active/inactive notification to flash (to only perform flashing when the radio is inactive) */
-    //  ASSERT_STATUS( ble_radio_notification_init(NRF_APP_PRIORITY_HIGH,
-    //                                             NRF_RADIO_NOTIFICATION_DISTANCE_4560US,
-    //                                             ble_flash_on_radio_active_evt) );
-
-    return ERROR_NONE;
-}
-#endif // #if NEED_BOND_MANAGER
-
-#if NEED_BOND_MANAGER /* disabled by default */
-/**************************************************************************/
-/*!
-    @brief
-    @param[in]  nrf_error
-    @returns
-*/
-/**************************************************************************/
-static void service_error_callback(uint32_t nrf_error)
-{
-    ASSERT_STATUS_RET_VOID( nrf_error );
-}
-#endif // #if NEED_BOND_MANAGER
 
 /**************************************************************************/
 /*!
