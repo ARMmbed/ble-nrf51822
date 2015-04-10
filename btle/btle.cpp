@@ -33,6 +33,7 @@
 #include "GapEvents.h"
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
+#include "device_manager.h"
 
 #include "ble_hci.h"
 
@@ -90,6 +91,11 @@ error_t btle_init(void)
     ASSERT_STATUS( softdevice_sys_evt_handler_set(sys_evt_dispatch));
 
     pstorage_init();
+
+    dm_init_param_t dm_init_param = {
+        .clear_persistent_data = false /* Set to true in case the module should clear all persistent data. */
+    };
+    dm_init(&dm_init_param);
 
     btle_gap_init();
 

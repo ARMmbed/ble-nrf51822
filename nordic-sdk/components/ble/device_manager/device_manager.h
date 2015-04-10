@@ -71,6 +71,10 @@
 #include "ble_gap.h"
 #include "device_manager_cnfg.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @defgroup dm_service_cntext_types Service/Protocol Types
  *
@@ -880,6 +884,10 @@ ret_code_t dm_distributed_keys_get(dm_handle_t const * p_handle,
  * @retval NRF_ERROR_NOT_FOUND  If no p_handle is found for the provided connection handle.
  */
 ret_code_t dm_handle_get(uint16_t conn_handle, dm_handle_t * p_handle);
+
+#ifdef __cplusplus
+}
+#endif
 
 /** @} */
 /** @} */
