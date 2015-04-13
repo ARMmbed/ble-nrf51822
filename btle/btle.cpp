@@ -42,6 +42,8 @@ void            app_error_handler(uint32_t error_code, uint32_t line_num, const 
 
 static void btle_handler(ble_evt_t *p_ble_evt);
 
+ret_code_t dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t event_result);
+
 static void sys_evt_dispatch(uint32_t sys_evt)
 {
     pstorage_sys_event_handler(sys_evt);
@@ -97,9 +99,36 @@ error_t btle_init(void)
     };
     dm_init(&dm_init_param);
 
+    uint8_t applicationInstance;
+    const dm_application_param_t dm_param = {
+        .evt_handler  = dm_handler,
+        .service_type = DM_PROTOCOL_CNTXT_GATT_CLI_ID,
+        .sec_param    = {
+            .bond          = 1,            /**< Perform bonding. */
+            .mitm          = 1,            /**< Man In The Middle protection required. */
+            .io_caps       = BLE_GAP_IO_CAPS_NONE, /**< IO capabilities, see @ref BLE_GAP_IO_CAPS. */
+            .oob           = 0,            /**< Out Of Band data available. */
+            .min_key_size  = 16,           /**< Minimum encryption key size in octets between 7 and 16. If 0 then not applicable in this instance. */
+            .max_key_size  = 16,           /**< Maximum encryption key size in octets between min_key_size and 16. */
+            .kdist_periph  = {
+              .enc  = 1,                     /**< Long Term Key and Master Identification. */
+              .id   = 1,                     /**< Identity Resolving Key and Identity Address Information. */
+              .sign = 1,                     /**< Connection Signature Resolving Key. */
+            },                             /**< Key distribution bitmap: keys that the peripheral device will distribute. */
+        }
+    };
+    dm_register(&applicationInstance, &dm_param);
+
     btle_gap_init();
 
     return ERROR_NONE;
+}
+
+ret_code_t
+dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t event_result)
+{
+    printf("dm_handler: event %u\r\n", p_event->event_id);
+    return NRF_SUCCESS;
 }
 
 static void btle_handler(ble_evt_t *p_ble_evt)
@@ -108,6 +137,8 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 #if SDK_CONN_PARAMS_MODULE_ENABLE
     ble_conn_params_on_ble_evt(p_ble_evt);
 #endif
+
+    dm_ble_evt_handler(p_ble_evt);
 
     /* Custom event handler */
     switch (p_ble_evt->header.evt_id) {
