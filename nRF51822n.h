@@ -22,6 +22,7 @@
 #include "BLEDevice.h"
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
+#include "btle.h"
 
 class nRF51822n : public BLEDeviceInstanceBase
 {
@@ -44,6 +45,7 @@ public:
     virtual ble_error_t init(void);
     virtual ble_error_t shutdown(void);
     virtual ble_error_t reset(void);
+    virtual ble_error_t initializeSecurity(void) {return btle_initializeSecurity();}
     virtual void        waitForEvent(void);
 };
 

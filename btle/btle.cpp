@@ -92,12 +92,24 @@ error_t btle_init(void)
     ASSERT_STATUS( softdevice_ble_evt_handler_set(btle_handler));
     ASSERT_STATUS( softdevice_sys_evt_handler_set(sys_evt_dispatch));
 
-    pstorage_init();
+    btle_gap_init();
+
+    return ERROR_NONE;
+}
+
+ble_error_t
+btle_initializeSecurity()
+{
+    if (pstorage_init() != NRF_SUCCESS) {
+        return BLE_ERROR_UNSPECIFIED;
+    }
 
     dm_init_param_t dm_init_param = {
         .clear_persistent_data = false /* Set to true in case the module should clear all persistent data. */
     };
-    dm_init(&dm_init_param);
+    if (dm_init(&dm_init_param) != NRF_SUCCESS) {
+        return BLE_ERROR_UNSPECIFIED;
+    }
 
     uint8_t applicationInstance;
     const dm_application_param_t dm_param = {
@@ -117,17 +129,39 @@ error_t btle_init(void)
             },                             /**< Key distribution bitmap: keys that the peripheral device will distribute. */
         }
     };
-    dm_register(&applicationInstance, &dm_param);
 
-    btle_gap_init();
+    ret_code_t rc;
+    if ((rc = dm_register(&applicationInstance, &dm_param)) != NRF_SUCCESS) {
+        switch (rc) {
+            case NRF_ERROR_INVALID_STATE:
+                return BLE_ERROR_INVALID_STATE;
+            case NRF_ERROR_NO_MEM:
+                return BLE_ERROR_NO_MEM;
+            default:
+                return BLE_ERROR_UNSPECIFIED;
+        }
+    }
 
-    return ERROR_NONE;
+    return BLE_ERROR_NONE;
 }
 
 ret_code_t
 dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t event_result)
 {
     printf("dm_handler: event %u\r\n", p_event->event_id);
+
+    switch (p_event->event_id) {
+        case DM_EVT_SECURITY_SETUP: /* started */
+            break;
+        case DM_EVT_SECURITY_SETUP_COMPLETE:
+            break;
+        case DM_EVT_LINK_SECURED:
+            break;
+        case DM_EVT_DEVICE_CONTEXT_STORED:
+            break;
+        default:
+            break;
+    }
     return NRF_SUCCESS;
 }
 
