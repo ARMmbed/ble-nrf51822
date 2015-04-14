@@ -197,14 +197,14 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
     @retval     ERROR_NONE        Everything executed normally
 */
 /**************************************************************************/
-error_t custom_add_in_characteristic(uint16_t    service_handle,
-                                     ble_uuid_t *p_uuid,
-                                     uint8_t     properties,
-                                     uint8_t    *p_data,
-                                     uint16_t    min_length,
-                                     uint16_t    max_length,
-                                     bool        readAuthorization,
-                                     bool        writeAuthorization,
+error_t custom_add_in_characteristic(uint16_t                  service_handle,
+                                     ble_uuid_t               *p_uuid,
+                                     uint8_t                   properties,
+                                     uint8_t                  *p_data,
+                                     uint16_t                  min_length,
+                                     uint16_t                  max_length,
+                                     bool                      readAuthorization,
+                                     bool                      writeAuthorization,
                                      ble_gatts_char_handles_t *p_char_handle)
 {
     /* Characteristic metadata */
