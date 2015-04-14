@@ -191,7 +191,7 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
     @param[in]  char_props        The characteristic properties, as
                                   defined by ble_gatt_char_props_t
     @param[in]  max_length        The maximum length of this characeristic
-    @param[in]  p_char_handle
+    @param[out] p_char_handle
 
     @returns
     @retval     ERROR_NONE        Everything executed normally
