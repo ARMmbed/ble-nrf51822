@@ -68,7 +68,7 @@ public:
 
     virtual void setOnRadioNotification(RadioNotificationEventCallback_t callback) {
         Gap::setOnRadioNotification(callback);
-        ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_NONE, onRadioNotification);
+        ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, onRadioNotification);
     }
 
 private:
