@@ -173,7 +173,7 @@ ble_error_t nRF51GattServer::readValue(GattAttribute::Handle_t charHandle, uint8
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51GattServer::updateValue(GattAttribute::Handle_t charHandle, uint8_t buffer[], uint16_t len, bool localOnly)
+ble_error_t nRF51GattServer::updateValue(GattAttribute::Handle_t charHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
     uint16_t gapConnectionHandle = nRF51Gap::getInstance().getConnectionHandle();
     ble_error_t returnValue = BLE_ERROR_NONE;
@@ -199,7 +199,7 @@ ble_error_t nRF51GattServer::updateValue(GattAttribute::Handle_t charHandle, uin
              GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)  ?
             BLE_GATT_HVX_NOTIFICATION : BLE_GATT_HVX_INDICATION;
         hvx_params.offset = 0;
-        hvx_params.p_data = buffer;
+        hvx_params.p_data = const_cast<uint8_t *>(buffer);
         hvx_params.p_len  = &len;
 
         error_t error = (error_t) sd_ble_gatts_hvx(gapConnectionHandle, &hvx_params);
