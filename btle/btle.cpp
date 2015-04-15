@@ -150,18 +150,51 @@ dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t ev
 {
     printf("dm_handler: event %u\r\n", p_event->event_id);
 
-    switch (p_event->event_id) {
-        case DM_EVT_SECURITY_SETUP: /* started */
-            break;
-        case DM_EVT_SECURITY_SETUP_COMPLETE:
-            break;
-        case DM_EVT_LINK_SECURED:
-            break;
-        case DM_EVT_DEVICE_CONTEXT_STORED:
-            break;
-        default:
-            break;
-    }
+#if 0
+    /**
+     * @brief Event parameters.
+     *
+     * @details Defines event parameters for each of the events notified by the module.
+     */
+    typedef union
+    {
+        ble_gap_evt_t            * p_gap_param;       /**< All events that are triggered in device manager as a result of GAP events, like connection, disconnection and security procedures are accompanied with GAP parameters. */
+        dm_application_context_t * p_app_context;     /**< All events that are associated with application context procedures of store, load, and deletion have this as event parameter. */
+        dm_service_context_t     * p_service_context; /**< All events that are associated with service context procedures of store, load and deletion have this as event parameter. */
+        dm_device_context_t      * p_device_context;  /**< All events that are associated with device context procedures of store, load and deletion have this as event parameter. */
+    } dm_event_param_t;
+
+    /**
+     * @brief Asynchronous events details notified to the application by the module.
+     *
+     * @details Defines event type along with event parameters notified to the application by the
+     *          module.
+     */
+    typedef struct
+    {
+        uint8_t          event_id;       /**< Identifies the event. See \ref dm_events for details on event types and their significance. */
+        dm_event_param_t event_param;    /**< Event parameters. Can be NULL if the event does not have any parameters. */
+        uint16_t         event_paramlen; /**< Length of the event parameters, is zero if the event does not have any parameters. */
+    } dm_event_t;
+#endif
+
+    // switch (p_event->event_id) {
+    //     case DM_EVT_SECURITY_SETUP: /* started */
+    //         nRF51Gap::getInstance().processConnectionEvent(handle,
+    //                                                        static_cast<Gap::addr_type_t>(peer->addr_type), peer->addr,
+    //                                                        static_cast<Gap::addr_type_t>(own->addr_type),  own->addr,
+    //                                                        params);
+    //         break;
+    //     case DM_EVT_SECURITY_SETUP_COMPLETE:
+    //         break;
+    //     case DM_EVT_LINK_SECURED:
+    //         break;
+    //     case DM_EVT_DEVICE_CONTEXT_STORED:
+    //         break;
+    //     default:
+    //         break;
+    // }
+
     return NRF_SUCCESS;
 }
 
