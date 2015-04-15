@@ -93,10 +93,9 @@ addToConvertedUUIDTable(const LongUUIDBytes_t uuid, uint8_t type)
  */
 ble_uuid_t custom_convert_to_nordic_uuid(const UUID &uuid)
 {
-    ble_uuid_t nordicUUID = {
-        .uuid = uuid.getShortUUID(),
-        .type = BLE_UUID_TYPE_UNKNOWN /* to be set below */
-    };
+    ble_uuid_t nordicUUID;
+    nordicUUID.uuid = uuid.getShortUUID();
+    nordicUUID.type = BLE_UUID_TYPE_UNKNOWN; /* to be set below */
 
     if (uuid.shortOrLong() == UUID::UUID_TYPE_SHORT) {
         nordicUUID.type = BLE_UUID_TYPE_BLE;
