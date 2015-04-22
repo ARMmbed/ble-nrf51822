@@ -28,6 +28,19 @@
 ble_error_t btle_initializeSecurity();
 
 /**
+ * Get the security status of a link.
+ *
+ * @param[in]  connectionHandle
+ *               Handle to identify the connection.
+ * @param[out] securityStatusP
+ *               security status.
+ *
+ * @return BLE_SUCCESS Or appropriate error code indicating reason for failure.
+ */
+
+ble_error_t btle_getLinkSecurity(Gap::Handle_t connectionHandle, Gap::LinkSecurityStatus_t *securityStatusP);
+
+/**
  * Function for deleting all peer device context and all related bonding
  * information from the database.
  *

@@ -56,6 +56,9 @@ public:
     virtual ble_error_t disconnect(DisconnectionReason_t reason);
 
     virtual ble_error_t deleteAllBondedDevices(void) {return btle_deleteAllStoredDevices();}
+    virtual ble_error_t getLinkSecurity(Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
+        return btle_getLinkSecurity(connectionHandle, securityStatusP);
+    }
 
     virtual ble_error_t setDeviceName(const uint8_t *deviceName);
     virtual ble_error_t getDeviceName(uint8_t *deviceName, unsigned *lengthP);
