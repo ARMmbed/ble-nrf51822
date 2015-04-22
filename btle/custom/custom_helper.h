@@ -17,13 +17,13 @@
 #ifndef _CUSTOM_HELPER_H_
 #define _CUSTOM_HELPER_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "common/common.h"
 #include "ble.h"
 #include "UUID.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 uint8_t custom_add_uuid_base(uint8_t const *const p_uuid_base);
 error_t custom_decode_uuid(uint8_t const *const p_uuid_base,
