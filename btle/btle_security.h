@@ -27,4 +27,14 @@
  */
 ble_error_t btle_initializeSecurity();
 
+/**
+ * Function for deleting all peer device context and all related bonding
+ * information from the database.
+ *
+ * @retval BLE_ERROR_NONE             On success, else an error code indicating reason for failure.
+ * @retval BLE_ERROR_INVALID_STATE    If the API is called without module initialization and/or
+ *                                    application registration.
+ */
+ble_error_t btle_deleteAllStoredDevices(void);
+
 #endif /* _BTLE_SECURITY_H_ */
