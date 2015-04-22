@@ -23,6 +23,7 @@
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
 #include "btle.h"
+#include "btle_security.h"
 
 class nRF51822n : public BLEDeviceInstanceBase
 {
