@@ -74,8 +74,18 @@ ble_error_t
 btle_deleteAllStoredDevices(void)
 {
     ret_code_t rc;
+    if ((rc = dm_device_delete_all(&applicationInstance)) == NRF_SUCCESS) {
+        return BLE_ERROR_NONE;
+    }
 
-    return BLE_ERROR_NONE;
+    switch (rc) {
+        case NRF_ERROR_INVALID_STATE:
+            return BLE_ERROR_INVALID_STATE;
+        case NRF_ERROR_NO_MEM:
+            return BLE_ERROR_NO_MEM;
+        default:
+            return BLE_ERROR_UNSPECIFIED;
+    }
 }
 
 ret_code_t

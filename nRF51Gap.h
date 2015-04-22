@@ -26,6 +26,7 @@
 
 #include "nrf_soc.h"
 #include "ble_radio_notification.h"
+#include "btle_security.h"
 
 /**************************************************************************/
 /*!
@@ -53,6 +54,8 @@ public:
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
     virtual ble_error_t stopAdvertising(void);
     virtual ble_error_t disconnect(DisconnectionReason_t reason);
+
+    virtual ble_error_t deleteAllBondedDevices(void) {return btle_deleteAllStoredDevices();}
 
     virtual ble_error_t setDeviceName(const uint8_t *deviceName);
     virtual ble_error_t getDeviceName(uint8_t *deviceName, unsigned *lengthP);
