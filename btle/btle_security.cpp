@@ -20,6 +20,7 @@
 #include "device_manager.h"
 #include "btle_security.h"
 
+static uint8_t applicationInstance;
 static ret_code_t dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t event_result);
 
 ble_error_t
@@ -36,7 +37,6 @@ btle_initializeSecurity()
         return BLE_ERROR_UNSPECIFIED;
     }
 
-    uint8_t applicationInstance;
     const dm_application_param_t dm_param = {
         .evt_handler  = dm_handler,
         .service_type = DM_PROTOCOL_CNTXT_GATT_CLI_ID,
