@@ -88,6 +88,33 @@ btle_deleteAllStoredDevices(void)
     }
 }
 
+ble_error_t
+btle_getLinkSecurity(Gap::Handle_t connectionHandle, Gap::LinkSecurityStatus_t *securityStatusP)
+{
+    dm_handle_t dmHandle;
+    ret_code_t rc;
+    if ((rc = dm_handle_get(connectionHandle, &dmHandle)) != NRF_SUCCESS) {
+        if (rc == NRF_ERROR_NOT_FOUND) {
+            return BLE_ERROR_INVALID_PARAM;
+        } else {
+            return BLE_ERROR_UNSPECIFIED;
+        }
+    }
+
+    if ((rc = dm_security_status_req(&dmHandle, reinterpret_cast<dm_security_status_t *>(securityStatusP))) != NRF_SUCCESS) {
+        switch (rc) {
+            case NRF_ERROR_INVALID_STATE:
+                return BLE_ERROR_INVALID_STATE;
+            case NRF_ERROR_NO_MEM:
+                return BLE_ERROR_NO_MEM;
+            default:
+                return BLE_ERROR_UNSPECIFIED;
+        }
+    }
+
+    return BLE_ERROR_NONE;
+}
+
 ret_code_t
 dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t event_result)
 {
