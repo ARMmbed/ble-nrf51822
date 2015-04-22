@@ -178,22 +178,22 @@ dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t ev
     } dm_event_t;
 #endif
 
-    // switch (p_event->event_id) {
-    //     case DM_EVT_SECURITY_SETUP: /* started */
-    //         nRF51Gap::getInstance().processConnectionEvent(handle,
-    //                                                        static_cast<Gap::addr_type_t>(peer->addr_type), peer->addr,
-    //                                                        static_cast<Gap::addr_type_t>(own->addr_type),  own->addr,
-    //                                                        params);
-    //         break;
-    //     case DM_EVT_SECURITY_SETUP_COMPLETE:
-    //         break;
-    //     case DM_EVT_LINK_SECURED:
-    //         break;
-    //     case DM_EVT_DEVICE_CONTEXT_STORED:
-    //         break;
-    //     default:
-    //         break;
-    // }
+    switch (p_event->event_id) {
+        case DM_EVT_SECURITY_SETUP: /* started */
+            nRF51Gap::getInstance().processSecuritySetupStartedEvent(p_event->event_param.p_gap_param->conn_handle);
+            break;
+        case DM_EVT_SECURITY_SETUP_COMPLETE:
+            nRF51Gap::getInstance().processSecuritySetupCompletedEvent(p_event->event_param.p_gap_param->conn_handle);
+            break;
+        case DM_EVT_LINK_SECURED:
+            nRF51Gap::getInstance().processLinkSecuredEvent(p_event->event_param.p_gap_param->conn_handle);
+            break;
+        case DM_EVT_DEVICE_CONTEXT_STORED:
+            nRF51Gap::getInstance().processSecurityContextStoredEvent(p_event->event_param.p_gap_param->conn_handle);
+            break;
+        default:
+            break;
+    }
 
     return NRF_SUCCESS;
 }
