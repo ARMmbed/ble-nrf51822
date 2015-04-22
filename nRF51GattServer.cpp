@@ -73,6 +73,7 @@ ble_error_t nRF51GattServer::addService(GattService &service)
                  custom_add_in_characteristic(BLE_GATT_HANDLE_INVALID,
                                               &nordicUUID,
                                               p_char->getProperties(),
+                                              p_char->getRequiredSecurity(),
                                               p_char->getValueAttribute().getValuePtr(),
                                               p_char->getValueAttribute().getInitialLength(),
                                               p_char->getValueAttribute().getMaxLength(),
