@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef _BTLE_H_
-#define _BTLE_H_
+#ifndef _BTLE_SECURITY_H_
+#define _BTLE_SECURITY_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/**
+ * Enable Nordic's Device Manager, which brings in functionality from the
+ * stack's Security Manager. The Security Manager implements the actual
+ * cryptographic algorithms and protocol exchanges that allow two devices to
+ * securely exchange data and privately detect each other.
+ *
+ * @return BLE_ERROR_NONE on success.
+ */
+ble_error_t btle_initializeSecurity();
 
-#include "common/common.h"
-
-#include "ble_srv_common.h"
-#include "ble.h"
-
-error_t     btle_init(void);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif // ifndef _BTLE_H_
+#endif /* _BTLE_SECURITY_H_ */
