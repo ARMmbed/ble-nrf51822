@@ -42,8 +42,6 @@ void            app_error_handler(uint32_t error_code, uint32_t line_num, const 
 
 static void btle_handler(ble_evt_t *p_ble_evt);
 
-ret_code_t dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t event_result);
-
 static void sys_evt_dispatch(uint32_t sys_evt)
 {
     pstorage_sys_event_handler(sys_evt);
@@ -95,77 +93,6 @@ error_t btle_init(void)
     btle_gap_init();
 
     return ERROR_NONE;
-}
-
-ble_error_t
-btle_initializeSecurity()
-{
-    if (pstorage_init() != NRF_SUCCESS) {
-        return BLE_ERROR_UNSPECIFIED;
-    }
-
-    dm_init_param_t dm_init_param = {
-        .clear_persistent_data = false /* Set to true in case the module should clear all persistent data. */
-    };
-    if (dm_init(&dm_init_param) != NRF_SUCCESS) {
-        return BLE_ERROR_UNSPECIFIED;
-    }
-
-    uint8_t applicationInstance;
-    const dm_application_param_t dm_param = {
-        .evt_handler  = dm_handler,
-        .service_type = DM_PROTOCOL_CNTXT_GATT_CLI_ID,
-        .sec_param    = {
-            .bond          = 1,            /**< Perform bonding. */
-            .mitm          = 1,            /**< Man In The Middle protection required. */
-            .io_caps       = BLE_GAP_IO_CAPS_NONE, /**< IO capabilities, see @ref BLE_GAP_IO_CAPS. */
-            .oob           = 0,            /**< Out Of Band data available. */
-            .min_key_size  = 16,           /**< Minimum encryption key size in octets between 7 and 16. If 0 then not applicable in this instance. */
-            .max_key_size  = 16,           /**< Maximum encryption key size in octets between min_key_size and 16. */
-            .kdist_periph  = {
-              .enc  = 1,                     /**< Long Term Key and Master Identification. */
-              .id   = 1,                     /**< Identity Resolving Key and Identity Address Information. */
-              .sign = 1,                     /**< Connection Signature Resolving Key. */
-            },                             /**< Key distribution bitmap: keys that the peripheral device will distribute. */
-        }
-    };
-
-    ret_code_t rc;
-    if ((rc = dm_register(&applicationInstance, &dm_param)) != NRF_SUCCESS) {
-        switch (rc) {
-            case NRF_ERROR_INVALID_STATE:
-                return BLE_ERROR_INVALID_STATE;
-            case NRF_ERROR_NO_MEM:
-                return BLE_ERROR_NO_MEM;
-            default:
-                return BLE_ERROR_UNSPECIFIED;
-        }
-    }
-
-    return BLE_ERROR_NONE;
-}
-
-ret_code_t
-dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t event_result)
-{
-    switch (p_event->event_id) {
-        case DM_EVT_SECURITY_SETUP: /* started */
-            nRF51Gap::getInstance().processSecuritySetupStartedEvent(p_event->event_param.p_gap_param->conn_handle);
-            break;
-        case DM_EVT_SECURITY_SETUP_COMPLETE:
-            nRF51Gap::getInstance().processSecuritySetupCompletedEvent(p_event->event_param.p_gap_param->conn_handle);
-            break;
-        case DM_EVT_LINK_SECURED:
-            nRF51Gap::getInstance().processLinkSecuredEvent(p_event->event_param.p_gap_param->conn_handle);
-            break;
-        case DM_EVT_DEVICE_CONTEXT_STORED:
-            nRF51Gap::getInstance().processSecurityContextStoredEvent(p_event->event_param.p_gap_param->conn_handle);
-            break;
-        default:
-            break;
-    }
-
-    return NRF_SUCCESS;
 }
 
 static void btle_handler(ble_evt_t *p_ble_evt)
