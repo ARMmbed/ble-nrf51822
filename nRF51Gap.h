@@ -55,7 +55,7 @@ public:
     virtual ble_error_t stopAdvertising(void);
     virtual ble_error_t disconnect(DisconnectionReason_t reason);
 
-    virtual ble_error_t deleteAllBondedDevices(void) {return btle_deleteAllStoredDevices();}
+    virtual ble_error_t purgeAllBondingState(void) {return btle_purgeAllBondingState();}
     virtual ble_error_t getLinkSecurity(Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
         return btle_getLinkSecurity(connectionHandle, securityStatusP);
     }

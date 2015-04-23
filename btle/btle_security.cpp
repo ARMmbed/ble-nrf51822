@@ -71,7 +71,7 @@ btle_initializeSecurity()
 }
 
 ble_error_t
-btle_deleteAllStoredDevices(void)
+btle_purgeAllBondingState(void)
 {
     ret_code_t rc;
     if ((rc = dm_device_delete_all(&applicationInstance)) == NRF_SUCCESS) {
