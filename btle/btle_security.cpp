@@ -94,6 +94,7 @@ btle_getLinkSecurity(Gap::Handle_t connectionHandle, Gap::LinkSecurityStatus_t *
     ret_code_t rc;
     dm_handle_t dmHandle;
     if ((rc = dm_handle_get(connectionHandle, &dmHandle)) != NRF_SUCCESS) {
+        printf("dm_handle_get failed with %u\r\n", rc);
         if (rc == NRF_ERROR_NOT_FOUND) {
             return BLE_ERROR_INVALID_PARAM;
         } else {
@@ -102,6 +103,7 @@ btle_getLinkSecurity(Gap::Handle_t connectionHandle, Gap::LinkSecurityStatus_t *
     }
 
     if ((rc = dm_security_status_req(&dmHandle, reinterpret_cast<dm_security_status_t *>(securityStatusP))) != NRF_SUCCESS) {
+        printf("security status request failed\r\n");
         switch (rc) {
             case NRF_ERROR_INVALID_STATE:
                 return BLE_ERROR_INVALID_STATE;
