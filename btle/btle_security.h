@@ -37,7 +37,6 @@ ble_error_t btle_initializeSecurity();
  *
  * @return BLE_SUCCESS Or appropriate error code indicating reason for failure.
  */
-
 ble_error_t btle_getLinkSecurity(Gap::Handle_t connectionHandle, Gap::LinkSecurityStatus_t *securityStatusP);
 
 /**
