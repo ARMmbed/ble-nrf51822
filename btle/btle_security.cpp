@@ -91,8 +91,8 @@ btle_purgeAllBondingState(void)
 ble_error_t
 btle_getLinkSecurity(Gap::Handle_t connectionHandle, Gap::LinkSecurityStatus_t *securityStatusP)
 {
-    dm_handle_t dmHandle;
     ret_code_t rc;
+    dm_handle_t dmHandle;
     if ((rc = dm_handle_get(connectionHandle, &dmHandle)) != NRF_SUCCESS) {
         if (rc == NRF_ERROR_NOT_FOUND) {
             return BLE_ERROR_INVALID_PARAM;
