@@ -47,6 +47,6 @@ ble_error_t btle_getLinkSecurity(Gap::Handle_t connectionHandle, Gap::LinkSecuri
  * @retval BLE_ERROR_INVALID_STATE    If the API is called without module initialization and/or
  *                                    application registration.
  */
-ble_error_t btle_deleteAllStoredDevices(void);
+ble_error_t btle_purgeAllBondingState(void);
 
 #endif /* _BTLE_SECURITY_H_ */
