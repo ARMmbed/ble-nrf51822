@@ -203,6 +203,8 @@ error_t custom_add_in_characteristic(uint16_t    service_handle,
                                      uint8_t    *p_data,
                                      uint16_t    min_length,
                                      uint16_t    max_length,
+                                     const uint8_t *userDescriptionDescriptorValuePtr,
+                                     uint16_t    userDescriptionDescriptorValueLen,
                                      bool        readAuthorization,
                                      bool        writeAuthorization,
                                      ble_gatts_char_handles_t *p_char_handle)
@@ -226,6 +228,11 @@ error_t custom_add_in_characteristic(uint16_t    service_handle,
     char_md.char_props = char_props;
     char_md.p_cccd_md  =
         (char_props.notify || char_props.indicate) ? &cccd_md : NULL;
+    if ((userDescriptionDescriptorValueLen > 0) && (userDescriptionDescriptorValuePtr != NULL)) {
+        char_md.p_char_user_desc        = const_cast<uint8_t *>(userDescriptionDescriptorValuePtr);
+        char_md.char_user_desc_max_size = userDescriptionDescriptorValueLen;
+        char_md.char_user_desc_size     = userDescriptionDescriptorValueLen;
+    }
 
     /* Attribute declaration */
     ble_gatts_attr_md_t attr_md = {0};

@@ -36,6 +36,8 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
                                      uint8_t                  *p_data,
                                      uint16_t                  min_length,
                                      uint16_t                  max_length,
+                                     const uint8_t            *userDescriptionDescriptorValuePtr,
+                                     uint16_t                  userDescriptionDescriptorValueLen,
                                      bool                      readAuthorization,
                                      bool                      writeAuthorization,
                                      ble_gatts_char_handles_t *p_char_handle);

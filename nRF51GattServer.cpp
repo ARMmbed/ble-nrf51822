@@ -69,6 +69,19 @@ ble_error_t nRF51GattServer::addService(GattService &service)
 
         nordicUUID = custom_convert_to_nordic_uuid(p_char->getValueAttribute().getUUID());
 
+        /* The user-description descriptor is a special case which needs to be
+         * handled at the time of adding the characteristic. The following block
+         * is meant to discover its presence. */
+        const uint8_t *userDescriptionDescriptorValuePtr = NULL;
+        uint16_t userDescriptionDescriptorValueLen = 0;
+        for (uint8_t j = 0; j < p_char->getDescriptorCount(); j++) {
+            GattAttribute *p_desc = p_char->getDescriptor(j);
+            if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC) {
+                userDescriptionDescriptorValuePtr = p_desc->getValuePtr();
+                userDescriptionDescriptorValueLen = p_desc->getLength();
+            }
+        }
+
         ASSERT ( ERROR_NONE ==
                  custom_add_in_characteristic(BLE_GATT_HANDLE_INVALID,
                                               &nordicUUID,
@@ -76,6 +89,8 @@ ble_error_t nRF51GattServer::addService(GattService &service)
                                               p_char->getValueAttribute().getValuePtr(),
                                               p_char->getValueAttribute().getInitialLength(),
                                               p_char->getValueAttribute().getMaxLength(),
+                                              userDescriptionDescriptorValuePtr,
+                                              userDescriptionDescriptorValueLen,
                                               p_char->isReadAuthorizationEnabled(),
                                               p_char->isWriteAuthorizationEnabled(),
                                               &nrfCharacteristicHandles[characteristicCount]),
@@ -91,6 +106,10 @@ ble_error_t nRF51GattServer::addService(GattService &service)
         /* ToDo: Make sure we don't overflow the array */
         for (uint8_t j = 0; j < p_char->getDescriptorCount(); j++) {
             GattAttribute *p_desc = p_char->getDescriptor(j);
+            /* skip the user-description-descriptor here; this has already been handled when adding the characteristic (above). */
+            if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC) {
+                continue;
+            }
 
             nordicUUID = custom_convert_to_nordic_uuid(p_desc->getUUID());
 
