@@ -90,18 +90,18 @@ ble_error_t nRF51GattServer::addService(GattService &service)
         /* Add optional descriptors if any */
         /* ToDo: Make sure we don't overflow the array */
         for (uint8_t j = 0; j < p_char->getDescriptorCount(); j++) {
-             GattAttribute *p_desc = p_char->getDescriptor(j);
+            GattAttribute *p_desc = p_char->getDescriptor(j);
 
-             nordicUUID = custom_convert_to_nordic_uuid(p_desc->getUUID());
+            nordicUUID = custom_convert_to_nordic_uuid(p_desc->getUUID());
 
-             ASSERT ( ERROR_NONE ==
-                      custom_add_in_descriptor(BLE_GATT_HANDLE_INVALID,
-                                               &nordicUUID,
-                                               p_desc->getValuePtr(),
-                                               p_desc->getInitialLength(),
-                                               p_desc->getMaxLength(),
-                                               &nrfDescriptorHandles[descriptorCount]),
-                 BLE_ERROR_PARAM_OUT_OF_RANGE );
+            ASSERT(ERROR_NONE ==
+                   custom_add_in_descriptor(BLE_GATT_HANDLE_INVALID,
+                                            &nordicUUID,
+                                            p_desc->getValuePtr(),
+                                            p_desc->getInitialLength(),
+                                            p_desc->getMaxLength(),
+                                            &nrfDescriptorHandles[descriptorCount]),
+                BLE_ERROR_PARAM_OUT_OF_RANGE);
 
             uint16_t descHandle = descriptorCount;
             p_descriptors[descriptorCount++] = p_desc;
