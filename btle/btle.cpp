@@ -163,6 +163,24 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             // BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION));
             break;
 
+        case BLE_GAP_EVT_ADV_REPORT: {
+            const ble_gap_evt_adv_report_t *advReport = &p_ble_evt->evt.gap_evt.params.adv_report;
+            printf("GAP ADV Report [%02x %02x %02x %02x %02x %02x]\r\n",
+                advReport->peer_addr.addr[0], advReport->peer_addr.addr[1], advReport->peer_addr.addr[2],
+                advReport->peer_addr.addr[3], advReport->peer_addr.addr[4], advReport->peer_addr.addr[5]);
+        }
+            // typedef struct
+            // {
+            //   ble_gap_addr_t peer_addr;                     /**< Bluetooth address of the peer device. */
+            //   int8_t         rssi;                          /**< Received Signal Strength Indication in dBm. */
+            //   uint8_t        scan_rsp : 1;                  /**< If 1, the report corresponds to a scan response and the type field may be ignored. */
+            //   uint8_t        type     : 2;                  /**< See @ref BLE_GAP_ADV_TYPES. Only valid if the scan_rsp field is 0. */
+            //   uint8_t        dlen     : 5;                  /**< Advertising or scan response data length. */
+            //   uint8_t        data[BLE_GAP_ADV_MAX_SIZE];    /**< Advertising or scan response data. */
+            // } ble_gap_evt_adv_report_t;
+            // .peer_addr
+            break;
+
         default:
             break;
     }
