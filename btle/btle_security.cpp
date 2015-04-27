@@ -26,6 +26,12 @@ static ret_code_t dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_ev
 ble_error_t
 btle_initializeSecurity()
 {
+    /* guard against multiple initializations */
+    static bool initialized = false;
+    if (initialized) {
+        return BLE_ERROR_NONE;
+    }
+
     if (pstorage_init() != NRF_SUCCESS) {
         return BLE_ERROR_UNSPECIFIED;
     }
@@ -67,6 +73,7 @@ btle_initializeSecurity()
         }
     }
 
+    initialized = true;
     return BLE_ERROR_NONE;
 }
 
