@@ -97,6 +97,14 @@ public:
         return BLE_ERROR_NONE;
     }
 
+    virtual ble_error_t stopScanning(void) {
+        if (sd_ble_gap_scan_stop() == NRF_SUCCESS) {
+            return BLE_ERROR_NONE;
+        }
+
+        return BLE_STACK_BUSY;
+    }
+
 private:
     uint16_t m_connectionHandle;
     nRF51Gap() {
