@@ -56,18 +56,18 @@ btle_initializeSecurity()
     };
 
     ret_code_t rc;
-    if ((rc = dm_register(&applicationInstance, &dm_param)) == NRF_SUCCESS) {
-        return BLE_ERROR_NONE;
+    if ((rc = dm_register(&applicationInstance, &dm_param)) != NRF_SUCCESS) {
+        switch (rc) {
+            case NRF_ERROR_INVALID_STATE:
+                return BLE_ERROR_INVALID_STATE;
+            case NRF_ERROR_NO_MEM:
+                return BLE_ERROR_NO_MEM;
+            default:
+                return BLE_ERROR_UNSPECIFIED;
+        }
     }
 
-    switch (rc) {
-        case NRF_ERROR_INVALID_STATE:
-            return BLE_ERROR_INVALID_STATE;
-        case NRF_ERROR_NO_MEM:
-            return BLE_ERROR_NO_MEM;
-        default:
-            return BLE_ERROR_UNSPECIFIED;
-    }
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t
