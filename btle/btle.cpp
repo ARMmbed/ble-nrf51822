@@ -107,6 +107,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
     /* Custom event handler */
     switch (p_ble_evt->header.evt_id) {
         case BLE_GAP_EVT_CONNECTED: {
+            printf("received BLE_GAP_EVT_CONNECTED\r\n");
             Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
             nRF51Gap::getInstance().setConnectionHandle(handle);
             const Gap::ConnectionParams_t *params = reinterpret_cast<Gap::ConnectionParams_t *>(&(p_ble_evt->evt.gap_evt.params.connected.conn_params));
