@@ -129,8 +129,10 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 
         discoveryStatus.currSrvInd++;
     }
-    printf("services discover returned %u\r\n",
-        sd_ble_gattc_primary_services_discover(p_ble_evt->evt.gattc_evt.conn_handle,
-                                               p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[discoveryStatus.currSrvInd -1].handle_range.end_handle,
-                                               NULL));
+    if (discoveryStatus.srvCount > 0) {
+        printf("services discover returned %u\r\n",
+            sd_ble_gattc_primary_services_discover(p_ble_evt->evt.gattc_evt.conn_handle,
+                                                   p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[discoveryStatus.currSrvInd -1].handle_range.end_handle,
+                                                   NULL));
+    }
 }
