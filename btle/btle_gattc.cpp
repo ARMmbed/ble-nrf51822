@@ -27,12 +27,6 @@
  *        the discovery process.
  */
 struct DiscoveredService {
-    ShortUUIDBytes_t         uuid;                                           /**< UUID of the service. */
-    // uint8_t                  char_count;                                         /**< Number of characteristics present in the service. */
-    // ble_db_discovery_char_t  charateristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];  /**< Array of information related to the characteristics present in the service. */
-    Gap::Handle_t startHandle;    /**< Service Handle Range. */
-    Gap::Handle_t endHandle;      /**< Service Handle Range. */
-
     DiscoveredService() {
         /* empty */
     }
@@ -45,6 +39,12 @@ struct DiscoveredService {
         startHandle = start;
         endHandle   = end;
     }
+
+    ShortUUIDBytes_t         uuid;                                           /**< UUID of the service. */
+    // uint8_t                  char_count;                                         /**< Number of characteristics present in the service. */
+    // ble_db_discovery_char_t  charateristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];  /**< Array of information related to the characteristics present in the service. */
+    Gap::Handle_t startHandle;    /**< Service Handle Range. */
+    Gap::Handle_t endHandle;      /**< Service Handle Range. */
 };
 
 struct ble_db_discovery_t {
