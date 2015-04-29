@@ -67,6 +67,10 @@ void launchServiceDiscovery(Gap::Handle_t connectionHandle)
     printf("launch service discovery returned %u\r\n", sd_ble_gattc_primary_services_discover(connectionHandle, SRV_DISC_START_HANDLE, NULL));
 }
 
+void launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle) {
+    /* TODO */
+}
+
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 {
     switch (p_ble_evt->header.evt_id) {
