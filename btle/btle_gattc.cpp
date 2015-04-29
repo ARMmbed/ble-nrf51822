@@ -54,7 +54,7 @@ typedef struct
     uint8_t                srvCount;                           /**< Number of services at the peers GATT database.*/
     // uint8_t                currCharInd;                       /**< Index of the current characteristic being discovered. This is intended for internal use during service discovery.*/
     uint8_t                currSrvInd;                        /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
-    bool                   discoveryInProgress;               /**< Variable to indicate if there is a service discovery in progress. */
+    bool                   serviceDiscoveryInProgress; /**< Variable to indicate if there is a service discovery in progress. */
 } ble_db_discovery_t;
 
 static ble_db_discovery_t  discoveryStatus;
@@ -62,7 +62,7 @@ static ble_db_discovery_t  discoveryStatus;
 void launchServiceDiscovery(Gap::Handle_t connectionHandle)
 {
     // printf("connectionHandle %u\r\n", connectionHandle);
-    discoveryStatus.discoveryInProgress = true;
+    discoveryStatus.serviceDiscoveryInProgress = true;
     printf("launch service discovery returned %u\r\n", sd_ble_gattc_primary_services_discover(connectionHandle, SRV_DISC_START_HANDLE, NULL));
 }
 
@@ -87,13 +87,13 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                 }
 
                 case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND: {
-                    discoveryStatus.discoveryInProgress = false;
+                    discoveryStatus.serviceDiscoveryInProgress = false;
                     printf("end of service discovery\r\n");
                     break;
                 }
 
                 default: {
-                    discoveryStatus.discoveryInProgress = false;
+                    discoveryStatus.serviceDiscoveryInProgress = false;
                     printf("gatt failure status: %u\r\n", p_ble_evt->evt.gattc_evt.gatt_status);
                     break;
                 }
@@ -110,7 +110,7 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
         }
     }
 
-    if (!discoveryStatus.discoveryInProgress) {
+    if (!discoveryStatus.serviceDiscoveryInProgress) {
         return;
     }
 
