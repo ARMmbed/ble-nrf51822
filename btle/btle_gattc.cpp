@@ -53,7 +53,8 @@ struct ble_db_discovery_t {
     uint8_t                srvCount;                   /**< Number of services at the peers GATT database.*/
     // uint8_t                currCharInd;             /**< Index of the current characteristic being discovered. This is intended for internal use during service discovery.*/
     uint8_t                currSrvInd;                 /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
-    bool                   serviceDiscoveryInProgress; /**< Variable to indicate if there is a service discovery in progress. */
+    bool                   serviceDiscoveryInProgress;
+    bool                   characteristicDiscoveryInProgress;
 };
 
 static ble_db_discovery_t  discoveryStatus;
@@ -61,7 +62,8 @@ static ble_db_discovery_t  discoveryStatus;
 void launchServiceDiscovery(Gap::Handle_t connectionHandle)
 {
     // printf("connectionHandle %u\r\n", connectionHandle);
-    discoveryStatus.serviceDiscoveryInProgress = true;
+    discoveryStatus.serviceDiscoveryInProgress        = true;
+    discoveryStatus.characteristicDiscoveryInProgress = false;
     printf("launch service discovery returned %u\r\n", sd_ble_gattc_primary_services_discover(connectionHandle, SRV_DISC_START_HANDLE, NULL));
 }
 
