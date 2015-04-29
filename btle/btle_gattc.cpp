@@ -109,11 +109,7 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
         }
     }
 
-    if (!discoveryStatus.serviceDiscoveryInProgress) {
-        return;
-    }
-
-    while (discoveryStatus.currSrvInd < discoveryStatus.srvCount) {
+    while (discoveryStatus.serviceDiscoveryInProgress && (discoveryStatus.currSrvInd < discoveryStatus.srvCount)) {
         printf("%x [%u %u]\r\n",
             p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[discoveryStatus.currSrvInd].uuid.uuid,
             p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[discoveryStatus.currSrvInd].handle_range.start_handle,
@@ -128,7 +124,7 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 
         discoveryStatus.currSrvInd++;
     }
-    if (discoveryStatus.srvCount > 0) {
+    if (discoveryStatus.serviceDiscoveryInProgress && (discoveryStatus.srvCount > 0)) {
         printf("services discover returned %u\r\n",
             sd_ble_gattc_primary_services_discover(p_ble_evt->evt.gattc_evt.conn_handle,
                                                    p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[discoveryStatus.currSrvInd -1].handle_range.end_handle,
