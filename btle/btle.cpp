@@ -24,6 +24,7 @@
 #include "ble_conn_params.h"
 
 #include "btle_gap.h"
+#include "btle_gattc.h"
 #include "btle_advertising.h"
 #include "custom/custom_helper.h"
 
@@ -104,6 +105,8 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 
     dm_ble_evt_handler(p_ble_evt);
 
+    bleGattcEventHandler(p_ble_evt);
+
     /* Custom event handler */
     switch (p_ble_evt->header.evt_id) {
         case BLE_GAP_EVT_CONNECTED: {
@@ -171,52 +174,6 @@ static void btle_handler(ble_evt_t *p_ble_evt)
                                                                static_cast<Gap::AdvertisementType_t>(advReport->type),
                                                                advReport->dlen,
                                                                advReport->data);
-            break;
-        }
-
-        case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
-            switch (p_ble_evt->evt.gattc_evt.gatt_status) {
-                case BLE_GATT_STATUS_SUCCESS: {
-                    printf("count of primary services: %u; status code %u\r\n",
-                        p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.count, p_ble_evt->evt.gattc_evt.gatt_status);
-
-                    unsigned index;
-                    for (index = 0; index < p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.count; index++) {
-                        printf("%x [%u %u]\r\n",
-                            p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[index].uuid.uuid,
-                            p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[index].handle_range.start_handle,
-                            p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[index].handle_range.end_handle);
-
-                        ble_gattc_handle_range_t handleRange = {
-                            .start_handle = p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[index].handle_range.start_handle,
-                            .end_handle   = p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[index].handle_range.end_handle
-                        };
-                        printf("characteristics_discover returned %u\r\n",
-                               sd_ble_gattc_characteristics_discover(p_ble_evt->evt.gattc_evt.conn_handle, &handleRange));
-                    }
-                    printf("services discover returned %u\r\n",
-                        sd_ble_gattc_primary_services_discover(p_ble_evt->evt.gattc_evt.conn_handle,
-                                                               p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[index -1].handle_range.end_handle,
-                                                               NULL));
-                        break;
-                }
-                case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND: {
-                    printf("end of service discovery\r\n");
-                    break;
-                }
-                default: {
-                    printf("gatt failure status: %u\r\n", p_ble_evt->evt.gattc_evt.gatt_status);
-                    break;
-                }
-            }
-            break;
-
-        case BLE_GATTC_EVT_CHAR_DISC_RSP: {
-            switch (p_ble_evt->evt.gattc_evt.gatt_status) {
-                default:
-                    printf("gatt failure status: %u\r\n", p_ble_evt->evt.gattc_evt.gatt_status);
-                    break;
-            }
             break;
         }
 
