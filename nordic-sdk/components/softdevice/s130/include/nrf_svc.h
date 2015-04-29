@@ -56,7 +56,7 @@
         "bx r14" : : "I" ((uint32_t)number) : "r0" \
     ); \
   }    \
-  _Pragma("GCC diagnostic pop") \
+  _Pragma("GCC diagnostic pop")
 #elif defined (__ICCARM__)
 #define PRAGMA(x) _Pragma(#x)
 #define SVCALL(number, return_type, signature) \
