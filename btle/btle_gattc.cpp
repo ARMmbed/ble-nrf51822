@@ -51,7 +51,7 @@ struct ble_db_discovery_t {
     DiscoveredService services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered. This is intended for internal use during service discovery.*/
     uint16_t               connHandle;                 /**< Connection handle as provided by the SoftDevice. */
     uint8_t                srvCount;                   /**< Number of services at the peers GATT database.*/
-    // uint8_t                currCharInd;             /**< Index of the current characteristic being discovered. This is intended for internal use during service discovery.*/
+    uint8_t                currCharInd;             /**< Index of the current characteristic being discovered. This is intended for internal use during service discovery.*/
     uint8_t                currSrvInd;                 /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
     bool                   serviceDiscoveryInProgress;
     bool                   characteristicDiscoveryInProgress;
@@ -71,7 +71,11 @@ void launchServiceDiscovery(Gap::Handle_t connectionHandle)
 }
 
 void launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle) {
-    /* TODO */
+    discoveryStatus.characteristicDiscoveryInProgress = true;
+    discoveryStatus.serviceDiscoveryInProgress        = false;
+
+    discoveryStatus.connHandle                        = connectionHandle;
+    discoveryStatus.currCharInd                       = 0;
 }
 
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
