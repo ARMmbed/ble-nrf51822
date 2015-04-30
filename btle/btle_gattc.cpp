@@ -47,7 +47,7 @@ struct DiscoveredService {
     Gap::Handle_t endHandle;      /**< Service Handle Range. */
 };
 
-struct ble_db_discovery_t {
+struct DiscoveryStatus_t {
     DiscoveredService services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
                                                              *  This is intended for internal use during service discovery. */
 
@@ -60,7 +60,7 @@ struct ble_db_discovery_t {
     bool     characteristicDiscoveryInProgress;
 };
 
-static ble_db_discovery_t  discoveryStatus;
+static DiscoveryStatus_t discoveryStatus;
 
 void launchServiceDiscovery(Gap::Handle_t connectionHandle)
 {
