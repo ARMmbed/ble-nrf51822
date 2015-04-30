@@ -61,7 +61,10 @@ static ble_db_discovery_t  discoveryStatus;
 
 void launchServiceDiscovery(Gap::Handle_t connectionHandle)
 {
-    // printf("connectionHandle %u\r\n", connectionHandle);
+    discoveryStatus.connHandle                        = connectionHandle;
+    discoveryStatus.srvCount                          = 0;
+    discoveryStatus.currSrvInd                        = 0;
+
     discoveryStatus.serviceDiscoveryInProgress        = true;
     discoveryStatus.characteristicDiscoveryInProgress = false;
     printf("launch service discovery returned %u\r\n", sd_ble_gattc_primary_services_discover(connectionHandle, SRV_DISC_START_HANDLE, NULL));
