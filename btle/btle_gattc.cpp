@@ -78,7 +78,7 @@ struct DiscoveryStatus_t {
     void terminateCharacteristicDiscovery(void) {
         characteristicDiscoveryInProgress = false;
         serviceDiscoveryInProgress        = true;
-        currSrvInd++;
+        currSrvInd++; /* Progress service index to keep discovery alive. */
     }
 
     void resetDiscoveredServices(void) {
