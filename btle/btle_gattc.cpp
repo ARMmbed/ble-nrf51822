@@ -45,6 +45,28 @@ struct DiscoveredService {
     Gap::Handle_t    endHandle;   /**< Service Handle Range. */
 };
 
+/**@brief Structure for holding information about the service and the characteristics found during
+ *        the discovery process.
+ */
+struct DiscoveredCharacteristic {
+    DiscoveredCharacteristic() {
+        /* empty */
+    }
+    DiscoveredCharacteristic(ShortUUIDBytes_t uuidIn, Gap::Handle_t start, Gap::Handle_t end) {
+        setup(uuidIn, start, end);
+    }
+
+    void setup(ShortUUIDBytes_t uuidIn, Gap::Handle_t start, Gap::Handle_t end) {
+        uuid        = uuidIn;
+        startHandle = start;
+        endHandle   = end;
+    }
+
+    ShortUUIDBytes_t uuid;        /**< UUID of the service. */
+    Gap::Handle_t    startHandle; /**< Service Handle Range. */
+    Gap::Handle_t    endHandle;   /**< Service Handle Range. */
+};
+
 struct DiscoveryStatus_t {
     DiscoveredService services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
                                                              *  This is intended for internal use during service discovery. */
