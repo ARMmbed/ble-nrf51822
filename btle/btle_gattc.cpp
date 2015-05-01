@@ -100,6 +100,12 @@ void launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t
 
     discoveryStatus.connHandle                        = connectionHandle;
     discoveryStatus.currCharInd                       = 0;
+
+    ble_gattc_handle_range_t handleRange = {
+        .start_handle = startHandle,
+        .end_handle   = endHandle
+    };
+    printf("launch characteristic discovery returned %u\r\n", sd_ble_gattc_characteristics_discover(connectionHandle, &handleRange));
 }
 
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
