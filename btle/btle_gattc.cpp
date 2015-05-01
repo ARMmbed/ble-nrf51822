@@ -184,7 +184,6 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
         case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
             switch (p_ble_evt->evt.gattc_evt.gatt_status) {
                 case BLE_GATT_STATUS_SUCCESS: {
-                    printf("count of primary services: %u\r\n", p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.count);
                     discoveryStatus.connHandle = p_ble_evt->evt.gattc_evt.conn_handle;
                     discoveryStatus.currSrvInd = 0;
                     discoveryStatus.srvCount   = p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.count;
@@ -214,7 +213,6 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
         case BLE_GATTC_EVT_CHAR_DISC_RSP: {
             switch (p_ble_evt->evt.gattc_evt.gatt_status) {
                 case BLE_GATT_STATUS_SUCCESS: {
-                    // printf("count of characteristics: %u\r\n", p_ble_evt->evt.gattc_evt.params.char_disc_rsp.count);
                     discoveryStatus.currCharInd = 0;
                     discoveryStatus.charCount   = p_ble_evt->evt.gattc_evt.params.char_disc_rsp.count;
 
