@@ -105,6 +105,47 @@ struct DiscoveryStatus {
         serviceDiscoveryInProgress        = false;
     }
 
+    void progressCharacteristicDiscovery() {
+        while (characteristicDiscoveryInProgress && (currCharInd < charCount)) {
+            printf("%x [%u]\r\n",
+                characteristics[currCharInd].uuid,
+                characteristics[currCharInd].valueHandle);
+            currCharInd++;
+        }
+
+        if (characteristicDiscoveryInProgress) {
+            Gap::Handle_t startHandle = characteristics[currCharInd - 1].valueHandle + 1;
+            Gap::Handle_t endHandle   = services[currSrvInd].endHandle;
+
+            if (startHandle < endHandle) {
+                ble_gattc_handle_range_t handleRange = {
+                    .start_handle = startHandle,
+                    .end_handle   = endHandle
+                };
+                printf("char discovery returned %u\r\n", sd_ble_gattc_characteristics_discover(connHandle, &handleRange));
+            } else {
+               terminateCharacteristicDiscovery();
+            }
+        }
+    }
+
+    void progressServiceDiscovery() {
+        while (serviceDiscoveryInProgress && (currSrvInd < srvCount)) {
+            printf("%x [%u %u]\r\n",
+                services[currSrvInd].uuid,
+                services[currSrvInd].startHandle,
+                services[currSrvInd].endHandle);
+
+            launchCharacteristicDiscovery(connHandle, services[currSrvInd].startHandle, services[currSrvInd].endHandle);
+        }
+        if (serviceDiscoveryInProgress && (srvCount > 0) && (currSrvInd > 0)) {
+            Gap::Handle_t endHandle = services[currSrvInd - 1].endHandle;
+            resetDiscoveredServices();
+            printf("services discover returned %u\r\n",
+                sd_ble_gattc_primary_services_discover(connHandle, endHandle, NULL));
+        }
+    }
+
     DiscoveredService        services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
                                                                    *  This is intended for internal use during service discovery. */
     DiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
@@ -201,42 +242,6 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
         }
     }
 
-    while (discoveryStatus.characteristicDiscoveryInProgress && (discoveryStatus.currCharInd < discoveryStatus.charCount)) {
-        printf("%x [%u]\r\n",
-            discoveryStatus.characteristics[discoveryStatus.currCharInd].uuid,
-            discoveryStatus.characteristics[discoveryStatus.currCharInd].valueHandle);
-        discoveryStatus.currCharInd++;
-    }
-
-    if (discoveryStatus.characteristicDiscoveryInProgress) {
-        Gap::Handle_t startHandle = discoveryStatus.characteristics[discoveryStatus.currCharInd - 1].valueHandle + 1;
-        Gap::Handle_t endHandle   = discoveryStatus.services[discoveryStatus.currSrvInd].endHandle;
-
-        if (startHandle < endHandle) {
-            ble_gattc_handle_range_t handleRange = {
-                .start_handle = startHandle,
-                .end_handle   = endHandle
-            };
-            printf("char discovery returned %u\r\n", sd_ble_gattc_characteristics_discover(discoveryStatus.connHandle, &handleRange));
-        } else {
-           discoveryStatus.terminateCharacteristicDiscovery();
-        }
-    }
-
-    while (discoveryStatus.serviceDiscoveryInProgress && (discoveryStatus.currSrvInd < discoveryStatus.srvCount)) {
-        printf("%x [%u %u]\r\n",
-            discoveryStatus.services[discoveryStatus.currSrvInd].uuid,
-            discoveryStatus.services[discoveryStatus.currSrvInd].startHandle,
-            discoveryStatus.services[discoveryStatus.currSrvInd].endHandle);
-
-        launchCharacteristicDiscovery(discoveryStatus.connHandle,
-            discoveryStatus.services[discoveryStatus.currSrvInd].startHandle,
-            discoveryStatus.services[discoveryStatus.currSrvInd].endHandle);
-    }
-    if (discoveryStatus.serviceDiscoveryInProgress && (discoveryStatus.srvCount > 0) && (discoveryStatus.currSrvInd > 0)) {
-        Gap::Handle_t endHandle = discoveryStatus.services[discoveryStatus.currSrvInd - 1].endHandle;
-        discoveryStatus.resetDiscoveredServices();
-        printf("services discover returned %u\r\n",
-            sd_ble_gattc_primary_services_discover(discoveryStatus.connHandle, endHandle, NULL));
-    }
+    discoveryStatus.progressCharacteristicDiscovery();
+    discoveryStatus.progressServiceDiscovery();
 }
