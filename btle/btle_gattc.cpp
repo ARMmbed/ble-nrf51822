@@ -47,17 +47,26 @@ struct DiscoveredService {
  */
 struct DiscoveredCharacteristic {
     struct Properties_t {
+        static const uint8_t BROADCAST_PROPERTY_MASK         = 0x01;
+        static const uint8_t READ_PROPERTY_MASK              = 0x02;
+        static const uint8_t WRITE_WO_RESPONSE_PROPERTY_MASK = 0x04;
+        static const uint8_t WRITE_PROPERTY_MASK             = 0x08;
+        static const uint8_t NOTIFY_PROPERTY_MASK            = 0x10;
+        static const uint8_t INDICATE_PROPERTY_MASK          = 0x20;
+        static const uint8_t AUTH_SIGNED_PROPERTY_MASK       = 0x40;
+
         Properties_t() : broadcast(0), read(0), write_wo_resp(0), write(0), notify(0), indicate(0), auth_signed_wr(0) {
             /* empty */
         }
+
         Properties_t(uint8_t props) :
-            broadcast(props & 0x01),
-            read(props & 0x02),
-            write_wo_resp(props & 0x04),
-            write(props & 0x08),
-            notify(props & 0x10),
-            indicate(props & 0x20),
-            auth_signed_wr(props & 0x40) {
+            broadcast(props & BROADCAST_PROPERTY_MASK),
+            read(props & READ_PROPERTY_MASK),
+            write_wo_resp(props & WRITE_WO_RESPONSE_PROPERTY_MASK),
+            write(props & WRITE_PROPERTY_MASK),
+            notify(props & NOTIFY_PROPERTY_MASK),
+            indicate(props & INDICATE_PROPERTY_MASK),
+            auth_signed_wr(props & AUTH_SIGNED_PROPERTY_MASK) {
             /* empty*/
         }
 
