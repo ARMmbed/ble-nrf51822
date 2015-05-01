@@ -55,8 +55,8 @@ struct DiscoveredCharacteristic {
 
     ShortUUIDBytes_t      uuid;
     ble_gatt_char_props_t props;
-    Gap::Handle_t         declHandle; /**< Service Handle Range. */
-    Gap::Handle_t         valueHandle;   /**< Service Handle Range. */
+    Gap::Handle_t         declHandle;
+    Gap::Handle_t         valueHandle;
 };
 
 struct DiscoveryStatus {
