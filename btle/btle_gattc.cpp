@@ -73,7 +73,7 @@ struct DiscoveredCharacteristic {
     Gap::Handle_t         valueHandle;   /**< Service Handle Range. */
 };
 
-struct DiscoveryStatus_t {
+struct DiscoveryStatus {
     void terminateServiceDiscovery(void) {
         serviceDiscoveryInProgress = false;
         printf("end of service discovery\r\n");
@@ -119,7 +119,7 @@ struct DiscoveryStatus_t {
     bool     characteristicDiscoveryInProgress;
 };
 
-static DiscoveryStatus_t discoveryStatus;
+static DiscoveryStatus discoveryStatus;
 
 void launchServiceDiscovery(Gap::Handle_t connectionHandle)
 {
