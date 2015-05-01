@@ -40,11 +40,9 @@ struct DiscoveredService {
         endHandle   = end;
     }
 
-    ShortUUIDBytes_t         uuid;                                           /**< UUID of the service. */
-    // uint8_t                  char_count;                                         /**< Number of characteristics present in the service. */
-    // ble_db_discovery_char_t  charateristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];  /**< Array of information related to the characteristics present in the service. */
-    Gap::Handle_t startHandle;    /**< Service Handle Range. */
-    Gap::Handle_t endHandle;      /**< Service Handle Range. */
+    ShortUUIDBytes_t uuid;        /**< UUID of the service. */
+    Gap::Handle_t    startHandle; /**< Service Handle Range. */
+    Gap::Handle_t    endHandle;   /**< Service Handle Range. */
 };
 
 struct DiscoveryStatus_t {
