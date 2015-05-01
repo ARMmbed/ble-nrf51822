@@ -31,13 +31,6 @@ void launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t
  *        the discovery process.
  */
 struct DiscoveredService {
-    DiscoveredService() {
-        /* empty */
-    }
-    DiscoveredService(ShortUUIDBytes_t uuidIn, Gap::Handle_t start, Gap::Handle_t end) {
-        setup(uuidIn, start, end);
-    }
-
     void setup(ShortUUIDBytes_t uuidIn, Gap::Handle_t start, Gap::Handle_t end) {
         uuid        = uuidIn;
         startHandle = start;
@@ -53,13 +46,6 @@ struct DiscoveredService {
  *        the discovery process.
  */
 struct DiscoveredCharacteristic {
-    DiscoveredCharacteristic() {
-        /* empty */
-    }
-    DiscoveredCharacteristic(ShortUUIDBytes_t uuidIn, ble_gatt_char_props_t props, Gap::Handle_t declHandle, Gap::Handle_t valueHandle) {
-        setup(uuidIn, props, declHandle, valueHandle);
-    }
-
     void setup(ShortUUIDBytes_t uuidIn, ble_gatt_char_props_t propsIn, Gap::Handle_t declHandleIn, Gap::Handle_t valueHandleIn) {
         uuid        = uuidIn;
         props       = propsIn;
