@@ -72,21 +72,27 @@ struct DiscoveryStatus {
     }
 
     void resetDiscoveredServices(void) {
+        srvCount   = 0;
+        currSrvInd = 0;
         memset(services, 0, sizeof(DiscoveredService) * BLE_DB_DISCOVERY_MAX_SRV);
+    }
+
+    void resetDiscoveredCharacteristics(void) {
+        charCount   = 0;
+        currCharInd = 0;
+        memset(characteristics, 0, sizeof(DiscoveredCharacteristic) * BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV);
     }
 
     void serviceDiscoveryStarted(Gap::Handle_t connectionHandle) {
         connHandle                        = connectionHandle;
-        srvCount                          = 0;
-        currSrvInd                        = 0;
+        resetDiscoveredServices();
         serviceDiscoveryInProgress        = true;
         characteristicDiscoveryInProgress = false;
     }
 
     void characteristicDiscoveryStarted(Gap::Handle_t connectionHandle) {
         connHandle                        = connectionHandle;
-        charCount                         = 0;
-        currCharInd                       = 0;
+        resetDiscoveredCharacteristics();
         characteristicDiscoveryInProgress = true;
         serviceDiscoveryInProgress        = false;
     }
@@ -125,6 +131,7 @@ struct DiscoveryStatus {
         if (characteristicDiscoveryInProgress) {
             Gap::Handle_t startHandle = characteristics[currCharInd - 1].valueHandle + 1;
             Gap::Handle_t endHandle   = services[currSrvInd].endHandle;
+            resetDiscoveredCharacteristics();
 
             if (startHandle < endHandle) {
                 ble_gattc_handle_range_t handleRange = {
@@ -150,6 +157,7 @@ struct DiscoveryStatus {
         if (serviceDiscoveryInProgress && (srvCount > 0) && (currSrvInd > 0)) {
             Gap::Handle_t endHandle = services[currSrvInd - 1].endHandle;
             resetDiscoveredServices();
+
             printf("services discover returned %u\r\n",
                 sd_ble_gattc_primary_services_discover(connHandle, endHandle, NULL));
         }
