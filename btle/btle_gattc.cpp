@@ -175,31 +175,14 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 
                     unsigned charIndex = 0;
                     for (; charIndex < discoveryStatus.charCount; charIndex++) {
-                        printf("%x [%u]\r\n", p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].uuid.uuid,
-                               p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].handle_value);
-
                         discoveryStatus.characteristics[charIndex].
                             setup(p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].uuid.uuid,
                                   p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].char_props,
                                   p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].handle_decl,
                                   p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].handle_value);
                     }
-
-                    Gap::Handle_t startHandle = p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex - 1].handle_value + 1;
-                    Gap::Handle_t endHandle   = discoveryStatus.services[discoveryStatus.currSrvInd].endHandle;
-
-                    if (startHandle < endHandle) {
-                        ble_gattc_handle_range_t handleRange = {
-                            .start_handle = startHandle,
-                            .end_handle   = endHandle
-                        };
-                        printf("restarting char discovery from %u to %u\r\n", handleRange.start_handle, handleRange.end_handle);
-                        printf("char discovery returned %u\r\n", sd_ble_gattc_characteristics_discover(p_ble_evt->evt.gattc_evt.conn_handle, &handleRange));
-                        break;
-                    }
+                    break;
                 }
-
-                /* NOTE: fallthrough */
 
                 case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND: {
                     discoveryStatus.terminateCharacteristicDiscovery();
@@ -211,6 +194,29 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                     break;
             }
             break;
+        }
+    }
+
+    while (discoveryStatus.characteristicDiscoveryInProgress && (discoveryStatus.currCharInd < discoveryStatus.charCount)) {
+        printf("%x [%u]\r\n",
+            discoveryStatus.characteristics[discoveryStatus.currCharInd].uuid,
+            discoveryStatus.characteristics[discoveryStatus.currCharInd].valueHandle);
+        discoveryStatus.currCharInd++;
+    }
+
+    if (discoveryStatus.characteristicDiscoveryInProgress) {
+        Gap::Handle_t startHandle = discoveryStatus.characteristics[discoveryStatus.currCharInd - 1].valueHandle + 1;
+        Gap::Handle_t endHandle   = discoveryStatus.services[discoveryStatus.currSrvInd].endHandle;
+
+        if (startHandle < endHandle) {
+            ble_gattc_handle_range_t handleRange = {
+                .start_handle = startHandle,
+                .end_handle   = endHandle
+            };
+            printf("restarting char discovery from %u to %u\r\n", handleRange.start_handle, handleRange.end_handle);
+            printf("char discovery returned %u\r\n", sd_ble_gattc_characteristics_discover(discoveryStatus.connHandle, &handleRange));
+        } else {
+           discoveryStatus.terminateCharacteristicDiscovery();
         }
     }
 
