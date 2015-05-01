@@ -205,15 +205,10 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                     break;
                 }
 
-                case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND: {
+                case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND:
+                default:
                     discoveryStatus.terminateServiceDiscovery();
                     break;
-                }
-
-                default: {
-                    discoveryStatus.serviceDiscoveryInProgress = false;
-                    break;
-                }
             }
             break;
 
@@ -224,12 +219,9 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                     break;
                 }
 
-                case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND: {
-                    discoveryStatus.terminateCharacteristicDiscovery();
-                    break;
-                }
-
+                case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND:
                 default:
+                    discoveryStatus.terminateCharacteristicDiscovery();
                     break;
             }
             break;
