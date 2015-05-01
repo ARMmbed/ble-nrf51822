@@ -20,7 +20,7 @@
 #define BLE_DB_DISCOVERY_MAX_SRV          4  /**< Maximum number of services supported by this module. This also indicates the maximum number of users allowed to be registered to this module. (one user per service). */
 #define BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV 4  /**< Maximum number of characteristics per service supported by this module. */
 
-#define SRV_DISC_START_HANDLE  0x0001                    /**< The start handle value used during service discovery. */
+#define SRV_DISC_START_HANDLE             0x0001 /**< The start handle value used during service discovery. */
 
 
 void launchServiceDiscovery(Gap::Handle_t connectionHandle);
