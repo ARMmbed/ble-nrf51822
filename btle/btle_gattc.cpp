@@ -101,6 +101,11 @@ struct DiscoveryStatus {
         currSrvInd = 0;
         srvCount   = response->count;
 
+        /* Account for the limitation on the number of discovered services we can handle at a time. */
+        if (srvCount > BLE_DB_DISCOVERY_MAX_SRV) {
+            srvCount = BLE_DB_DISCOVERY_MAX_SRV;
+        }
+
         for (unsigned serviceIndex = 0; serviceIndex < srvCount; serviceIndex++) {
             services[serviceIndex].setup(response->services[serviceIndex].uuid.uuid,
                                          response->services[serviceIndex].handle_range.start_handle,
@@ -111,6 +116,11 @@ struct DiscoveryStatus {
     void setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response) {
         currCharInd = 0;
         charCount   = response->count;
+
+        /* Account for the limitation on the number of discovered characteristics we can handle at a time. */
+        if (charCount > BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV) {
+            charCount = BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV;
+        }
 
         for (unsigned charIndex = 0; charIndex < charCount; charIndex++) {
             characteristics[charIndex].setup(response->chars[charIndex].uuid.uuid,
