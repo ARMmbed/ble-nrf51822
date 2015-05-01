@@ -122,9 +122,9 @@ struct DiscoveryStatus {
 
     void progressCharacteristicDiscovery() {
         while (characteristicDiscoveryInProgress && (currCharInd < charCount)) {
-            printf("%x [%u]\r\n",
-                characteristics[currCharInd].uuid,
-                characteristics[currCharInd].valueHandle);
+            /* THIS IS WHERE THE CALLBACK WILL GO */
+            printf("%x [%u]\r\n", characteristics[currCharInd].uuid, characteristics[currCharInd].valueHandle);
+
             currCharInd++;
         }
 
@@ -147,19 +147,20 @@ struct DiscoveryStatus {
 
     void progressServiceDiscovery() {
         while (serviceDiscoveryInProgress && (currSrvInd < srvCount)) {
-            printf("%x [%u %u]\r\n",
-                services[currSrvInd].uuid,
-                services[currSrvInd].startHandle,
-                services[currSrvInd].endHandle);
+            /* THIS IS WHERE THE CALLBACK WILL GO */
+            printf("%x [%u %u]\r\n", services[currSrvInd].uuid, services[currSrvInd].startHandle, services[currSrvInd].endHandle);
 
-            launchCharacteristicDiscovery(connHandle, services[currSrvInd].startHandle, services[currSrvInd].endHandle);
+            if (true) { /* characteristic discovery is optional. */
+                launchCharacteristicDiscovery(connHandle, services[currSrvInd].startHandle, services[currSrvInd].endHandle);
+            } else {
+                currSrvInd++; /* Progress service index to keep discovery alive. */
+            }
         }
         if (serviceDiscoveryInProgress && (srvCount > 0) && (currSrvInd > 0)) {
             Gap::Handle_t endHandle = services[currSrvInd - 1].endHandle;
             resetDiscoveredServices();
 
-            printf("services discover returned %u\r\n",
-                sd_ble_gattc_primary_services_discover(connHandle, endHandle, NULL));
+            printf("services discover returned %u\r\n", sd_ble_gattc_primary_services_discover(connHandle, endHandle, NULL));
         }
     }
 
