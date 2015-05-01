@@ -52,19 +52,21 @@ struct DiscoveredCharacteristic {
     DiscoveredCharacteristic() {
         /* empty */
     }
-    DiscoveredCharacteristic(ShortUUIDBytes_t uuidIn, Gap::Handle_t start, Gap::Handle_t end) {
-        setup(uuidIn, start, end);
+    DiscoveredCharacteristic(ShortUUIDBytes_t uuidIn, ble_gatt_char_props_t props, Gap::Handle_t declHandle, Gap::Handle_t valueHandle) {
+        setup(uuidIn, props, declHandle, valueHandle);
     }
 
-    void setup(ShortUUIDBytes_t uuidIn, Gap::Handle_t start, Gap::Handle_t end) {
+    void setup(ShortUUIDBytes_t uuidIn, ble_gatt_char_props_t propsIn, Gap::Handle_t declHandleIn, Gap::Handle_t valueHandleIn) {
         uuid        = uuidIn;
-        startHandle = start;
-        endHandle   = end;
+        props       = propsIn;
+        declHandle  = declHandleIn;
+        valueHandle = valueHandleIn;
     }
 
-    ShortUUIDBytes_t uuid;        /**< UUID of the service. */
-    Gap::Handle_t    startHandle; /**< Service Handle Range. */
-    Gap::Handle_t    endHandle;   /**< Service Handle Range. */
+    ShortUUIDBytes_t      uuid;
+    ble_gatt_char_props_t props;
+    Gap::Handle_t         declHandle; /**< Service Handle Range. */
+    Gap::Handle_t         valueHandle;   /**< Service Handle Range. */
 };
 
 struct DiscoveryStatus_t {
