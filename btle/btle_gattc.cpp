@@ -213,7 +213,6 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                 .start_handle = startHandle,
                 .end_handle   = endHandle
             };
-            printf("restarting char discovery from %u to %u\r\n", handleRange.start_handle, handleRange.end_handle);
             printf("char discovery returned %u\r\n", sd_ble_gattc_characteristics_discover(discoveryStatus.connHandle, &handleRange));
         } else {
            discoveryStatus.terminateCharacteristicDiscovery();
