@@ -46,17 +46,41 @@ struct DiscoveredService {
  *        the discovery process.
  */
 struct DiscoveredCharacteristic {
-    void setup(ShortUUIDBytes_t uuidIn, ble_gatt_char_props_t propsIn, Gap::Handle_t declHandleIn, Gap::Handle_t valueHandleIn) {
+    struct Properties_t {
+        Properties_t() : broadcast(0), read(0), write_wo_resp(0), write(0), notify(0), indicate(0), auth_signed_wr(0) {
+            /* empty */
+        }
+        Properties_t(uint8_t props) :
+            broadcast(props & 0x01),
+            read(props & 0x02),
+            write_wo_resp(props & 0x04),
+            write(props & 0x08),
+            notify(props & 0x10),
+            indicate(props & 0x20),
+            auth_signed_wr(props & 0x40) {
+            /* empty*/
+        }
+
+        uint8_t broadcast       :1; /**< Broadcasting of the value permitted. */
+        uint8_t read            :1; /**< Reading the value permitted. */
+        uint8_t write_wo_resp   :1; /**< Writing the value with Write Command permitted. */
+        uint8_t write           :1; /**< Writing the value with Write Request permitted. */
+        uint8_t notify          :1; /**< Notications of the value permitted. */
+        uint8_t indicate        :1; /**< Indications of the value permitted. */
+        uint8_t auth_signed_wr  :1; /**< Writing the value with Signed Write Command permitted. */
+    };
+
+    void setup(ShortUUIDBytes_t uuidIn, Properties_t propsIn, Gap::Handle_t declHandleIn, Gap::Handle_t valueHandleIn) {
         uuid        = uuidIn;
         props       = propsIn;
         declHandle  = declHandleIn;
         valueHandle = valueHandleIn;
     }
 
-    ShortUUIDBytes_t      uuid;
-    ble_gatt_char_props_t props;
-    Gap::Handle_t         declHandle;
-    Gap::Handle_t         valueHandle;
+    ShortUUIDBytes_t uuid;
+    Properties_t     props;
+    Gap::Handle_t    declHandle;
+    Gap::Handle_t    valueHandle;
 };
 
 struct DiscoveryStatus {
@@ -124,7 +148,7 @@ struct DiscoveryStatus {
 
         for (unsigned charIndex = 0; charIndex < charCount; charIndex++) {
             characteristics[charIndex].setup(response->chars[charIndex].uuid.uuid,
-                                             response->chars[charIndex].char_props,
+                                             *(const uint8_t *)(&response->chars[charIndex].char_props),
                                              response->chars[charIndex].handle_decl,
                                              response->chars[charIndex].handle_value);
         }
