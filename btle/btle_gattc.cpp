@@ -212,7 +212,6 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 
                 default: {
                     discoveryStatus.serviceDiscoveryInProgress = false;
-                    printf("gatt failure status: %u\r\n", p_ble_evt->evt.gattc_evt.gatt_status);
                     break;
                 }
             }
@@ -231,7 +230,6 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                 }
 
                 default:
-                    printf("char response: gatt failure status: %u\r\n", p_ble_evt->evt.gattc_evt.gatt_status);
                     break;
             }
             break;
