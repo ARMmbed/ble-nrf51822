@@ -23,6 +23,10 @@
 #define SRV_DISC_START_HANDLE  0x0001                    /**< The start handle value used during service discovery. */
 
 
+void launchServiceDiscovery(Gap::Handle_t connectionHandle);
+void launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle);
+
+
 /**@brief Structure for holding information about the service and the characteristics found during
  *        the discovery process.
  */
