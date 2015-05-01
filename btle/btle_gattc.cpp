@@ -151,8 +151,6 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 
                     unsigned charIndex = 0;
                     for (; charIndex < discoveryStatus.charCount; charIndex++) {
-                        // printf("<service index %u>[%u %u]\r\n", discoveryStatus.currSrvInd,
-                        //     discoveryStatus.services[discoveryStatus.currSrvInd].startHandle, discoveryStatus.services[discoveryStatus.currSrvInd].endHandle);
                         printf("%x [%u]\r\n", p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].uuid.uuid,
                                 p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].handle_value);
                         // discoveryStatus.characteristics[charIndex].
@@ -181,14 +179,6 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                     discoveryStatus.characteristicDiscoveryInProgress = false;
                     discoveryStatus.serviceDiscoveryInProgress        = true;
                     discoveryStatus.currSrvInd++;
-                    // if (discoveryStatus.currSrvInd < discoveryStatus.srvCount) {
-                    //     printf("end of characteristic discovery for this service; moving to service index %u [%u %u]\r\n",
-                    //         discoveryStatus.currSrvInd,
-                    //         discoveryStatus.services[discoveryStatus.currSrvInd].startHandle,
-                    //         discoveryStatus.services[discoveryStatus.currSrvInd].endHandle);
-                    // } else {
-                    //     printf("end of characteristic discovery for this service\r\n");
-                    // }
                     break;
                 }
 
