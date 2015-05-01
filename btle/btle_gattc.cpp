@@ -101,8 +101,9 @@ struct DiscoveryStatus_t {
         serviceDiscoveryInProgress        = false;
     }
 
-    DiscoveredService services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
-                                                             *  This is intended for internal use during service discovery. */
+    DiscoveredService        services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
+                                                                   *  This is intended for internal use during service discovery. */
+    DiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
 
     uint16_t connHandle;  /**< Connection handle as provided by the SoftDevice. */
     uint8_t  currSrvInd;  /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
