@@ -105,6 +105,29 @@ struct DiscoveryStatus {
         serviceDiscoveryInProgress        = false;
     }
 
+    void setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response) {
+        currSrvInd = 0;
+        srvCount   = response->count;
+
+        for (unsigned serviceIndex = 0; serviceIndex < srvCount; serviceIndex++) {
+            services[serviceIndex].setup(response->services[serviceIndex].uuid.uuid,
+                                         response->services[serviceIndex].handle_range.start_handle,
+                                         response->services[serviceIndex].handle_range.end_handle);
+        }
+    }
+
+    void setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response) {
+        currCharInd = 0;
+        charCount   = response->count;
+
+        for (unsigned charIndex = 0; charIndex < charCount; charIndex++) {
+            characteristics[charIndex].setup(response->chars[charIndex].uuid.uuid,
+                                             response->chars[charIndex].char_props,
+                                             response->chars[charIndex].handle_decl,
+                                             response->chars[charIndex].handle_value);
+        }
+    }
+
     void progressCharacteristicDiscovery() {
         while (characteristicDiscoveryInProgress && (currCharInd < charCount)) {
             printf("%x [%u]\r\n",
@@ -184,16 +207,7 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
         case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
             switch (p_ble_evt->evt.gattc_evt.gatt_status) {
                 case BLE_GATT_STATUS_SUCCESS: {
-                    discoveryStatus.connHandle = p_ble_evt->evt.gattc_evt.conn_handle;
-                    discoveryStatus.currSrvInd = 0;
-                    discoveryStatus.srvCount   = p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.count;
-
-                    for (unsigned serviceIndex = 0; serviceIndex < discoveryStatus.srvCount; serviceIndex++) {
-                        discoveryStatus.services[serviceIndex].
-                            setup(p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[serviceIndex].uuid.uuid,
-                                  p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[serviceIndex].handle_range.start_handle,
-                                  p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[serviceIndex].handle_range.end_handle);
-                    }
+                    discoveryStatus.setupDiscoveredServices(&p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp);
                     break;
                 }
 
@@ -213,17 +227,7 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
         case BLE_GATTC_EVT_CHAR_DISC_RSP: {
             switch (p_ble_evt->evt.gattc_evt.gatt_status) {
                 case BLE_GATT_STATUS_SUCCESS: {
-                    discoveryStatus.currCharInd = 0;
-                    discoveryStatus.charCount   = p_ble_evt->evt.gattc_evt.params.char_disc_rsp.count;
-
-                    unsigned charIndex = 0;
-                    for (; charIndex < discoveryStatus.charCount; charIndex++) {
-                        discoveryStatus.characteristics[charIndex].
-                            setup(p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].uuid.uuid,
-                                  p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].char_props,
-                                  p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].handle_decl,
-                                  p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].handle_value);
-                    }
+                    discoveryStatus.setupDiscoveredCharacteristics(&p_ble_evt->evt.gattc_evt.params.char_disc_rsp);
                     break;
                 }
 
