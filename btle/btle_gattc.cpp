@@ -235,10 +235,9 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
     switch (p_ble_evt->header.evt_id) {
         case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
             switch (p_ble_evt->evt.gattc_evt.gatt_status) {
-                case BLE_GATT_STATUS_SUCCESS: {
+                case BLE_GATT_STATUS_SUCCESS:
                     discoveryStatus.setupDiscoveredServices(&p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp);
                     break;
-                }
 
                 case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND:
                 default:
@@ -247,12 +246,11 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
             }
             break;
 
-        case BLE_GATTC_EVT_CHAR_DISC_RSP: {
+        case BLE_GATTC_EVT_CHAR_DISC_RSP:
             switch (p_ble_evt->evt.gattc_evt.gatt_status) {
-                case BLE_GATT_STATUS_SUCCESS: {
+                case BLE_GATT_STATUS_SUCCESS:
                     discoveryStatus.setupDiscoveredCharacteristics(&p_ble_evt->evt.gattc_evt.params.char_disc_rsp);
                     break;
-                }
 
                 case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND:
                 default:
@@ -260,7 +258,6 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                     break;
             }
             break;
-        }
     }
 
     discoveryStatus.progressCharacteristicDiscovery();
