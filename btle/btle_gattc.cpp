@@ -50,9 +50,10 @@ struct DiscoveryStatus_t {
                                                              *  This is intended for internal use during service discovery. */
 
     uint16_t connHandle;  /**< Connection handle as provided by the SoftDevice. */
+    uint8_t  currSrvInd;  /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
     uint8_t  srvCount;    /**< Number of services at the peers GATT database.*/
     uint8_t  currCharInd; /**< Index of the current characteristic being discovered. This is intended for internal use during service discovery.*/
-    uint8_t  currSrvInd;  /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
+    uint8_t  charCount;    /**< Number of characteristics within the service.*/
 
     bool     serviceDiscoveryInProgress;
     bool     characteristicDiscoveryInProgress;
