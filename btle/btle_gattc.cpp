@@ -177,10 +177,12 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                     for (; charIndex < discoveryStatus.charCount; charIndex++) {
                         printf("%x [%u]\r\n", p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].uuid.uuid,
                                p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].handle_value);
-                        // discoveryStatus.characteristics[charIndex].
-                        //     setup(p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[charIndex].uuid.uuid,
-                        //           p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[charIndex].handle_range.start_handle,
-                        //           p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[charIndex].handle_range.end_handle);
+
+                        discoveryStatus.characteristics[charIndex].
+                            setup(p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].uuid.uuid,
+                                  p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].char_props,
+                                  p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].handle_decl,
+                                  p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex].handle_value);
                     }
 
                     Gap::Handle_t startHandle = p_ble_evt->evt.gattc_evt.params.char_disc_rsp.chars[charIndex - 1].handle_value + 1;
