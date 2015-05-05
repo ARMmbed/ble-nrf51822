@@ -23,7 +23,6 @@
 #define SRV_DISC_START_HANDLE             0x0001 /**< The start handle value used during service discovery. */
 
 
-void launchServiceDiscovery(Gap::Handle_t connectionHandle);
 void launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle);
 
 
@@ -223,10 +222,26 @@ struct DiscoveryStatus {
 
 static DiscoveryStatus discoveryStatus;
 
-void launchServiceDiscovery(Gap::Handle_t connectionHandle)
+ble_error_t launchServiceDiscovery(Gap::Handle_t connectionHandle)
 {
     discoveryStatus.serviceDiscoveryStarted(connectionHandle);
-    printf("launch service discovery returned %u\r\n", sd_ble_gattc_primary_services_discover(connectionHandle, SRV_DISC_START_HANDLE, NULL));
+
+    uint32_t rc;
+    if ((rc = sd_ble_gattc_primary_services_discover(connectionHandle, SRV_DISC_START_HANDLE, NULL)) != NRF_SUCCESS) {
+        discoveryStatus.terminateServiceDiscovery();
+        switch (rc) {
+            case NRF_ERROR_INVALID_PARAM:
+            case BLE_ERROR_INVALID_CONN_HANDLE:
+                return BLE_ERROR_INVALID_PARAM;
+            case NRF_ERROR_BUSY:
+                return BLE_STACK_BUSY;
+            default:
+            case NRF_ERROR_INVALID_STATE:
+                return BLE_ERROR_INVALID_STATE;
+        }
+    }
+
+    return BLE_ERROR_NONE;
 }
 
 void launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle) {
