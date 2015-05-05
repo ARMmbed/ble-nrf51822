@@ -21,6 +21,8 @@
 #include "Gap.h"
 
 ble_error_t launchServiceDiscovery(Gap::Handle_t connectionHandle);
+ble_error_t launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle);
+
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
 
 #endif // ifndef _BTLE_GATTC_H_

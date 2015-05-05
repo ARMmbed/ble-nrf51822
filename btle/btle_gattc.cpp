@@ -23,9 +23,6 @@
 #define SRV_DISC_START_HANDLE             0x0001 /**< The start handle value used during service discovery. */
 
 
-void launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle);
-
-
 /**@brief Structure for holding information about the service and the characteristics found during
  *        the discovery process.
  */
@@ -244,14 +241,29 @@ ble_error_t launchServiceDiscovery(Gap::Handle_t connectionHandle)
     return BLE_ERROR_NONE;
 }
 
-void launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle) {
+ble_error_t launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle) {
     discoveryStatus.characteristicDiscoveryStarted(connectionHandle);
 
     ble_gattc_handle_range_t handleRange = {
         .start_handle = startHandle,
         .end_handle   = endHandle
     };
-    printf("launch characteristic discovery returned %u\r\n", sd_ble_gattc_characteristics_discover(connectionHandle, &handleRange));
+    uint32_t rc;
+    if ((rc = sd_ble_gattc_characteristics_discover(connectionHandle, &handleRange)) != NRF_SUCCESS) {
+        discoveryStatus.terminateCharacteristicDiscovery();
+        switch (rc) {
+            case BLE_ERROR_INVALID_CONN_HANDLE:
+            case NRF_ERROR_INVALID_ADDR:
+                return BLE_ERROR_INVALID_PARAM;
+            case NRF_ERROR_BUSY:
+                return BLE_STACK_BUSY;
+            default:
+            case NRF_ERROR_INVALID_STATE:
+                return BLE_ERROR_INVALID_STATE;
+        }
+    }
+
+    return BLE_ERROR_NONE;
 }
 
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
