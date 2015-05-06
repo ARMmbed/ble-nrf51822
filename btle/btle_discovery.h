@@ -116,17 +116,39 @@ public:
         printf("end of service discovery\r\n");
     }
 
+    void terminateCharacteristicDiscovery(void) {
+        cDiscoveryActive = false;
+        sDiscoveryActive = true;
+        serviceIndex++; /* Progress service index to keep discovery alive. */
+    }
+
     void resetDiscoveredServices(void) {
         numServices  = 0;
         serviceIndex = 0;
         memset(services, 0, sizeof(DiscoveredService) * BLE_DB_DISCOVERY_MAX_SRV);
     }
 
+protected:
+    void resetDiscoveredCharacteristics(void) {
+        numCharacteristics  = 0;
+        characteristicIndex = 0;
+        memset(characteristics, 0, sizeof(DiscoveredCharacteristic) * BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV);
+    }
+
+public:
     void serviceDiscoveryStarted(Gap::Handle_t connectionHandle) {
         connHandle       = connectionHandle;
         resetDiscoveredServices();
         sDiscoveryActive = true;
         cDiscoveryActive = false;
+    }
+
+protected:
+    void characteristicDiscoveryStarted(Gap::Handle_t connectionHandle) {
+        connHandle       = connectionHandle;
+        resetDiscoveredCharacteristics();
+        cDiscoveryActive = true;
+        sDiscoveryActive = false;
     }
 
 protected:
@@ -156,26 +178,6 @@ public:
 
 public:
     ble_error_t launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle);
-
-    void terminateCharacteristicDiscovery(void) {
-        cDiscoveryActive = false;
-        sDiscoveryActive = true;
-        serviceIndex++; /* Progress service index to keep discovery alive. */
-    }
-
-private:
-    void characteristicDiscoveryStarted(Gap::Handle_t connectionHandle) {
-        connHandle       = connectionHandle;
-        resetDiscoveredCharacteristics();
-        cDiscoveryActive = true;
-        sDiscoveryActive = false;
-    }
-
-    void resetDiscoveredCharacteristics(void) {
-        numCharacteristics  = 0;
-        characteristicIndex = 0;
-        memset(characteristics, 0, sizeof(DiscoveredCharacteristic) * BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV);
-    }
 
 public:
     void progressCharacteristicDiscovery() {
