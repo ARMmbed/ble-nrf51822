@@ -201,8 +201,7 @@ protected:
         /* empty */
     }
 
-public:
-
+protected:
     DiscoveredService        services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
                                                                    *  This is intended for internal use during service discovery. */
     DiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
