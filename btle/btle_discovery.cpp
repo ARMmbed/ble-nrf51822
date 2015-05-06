@@ -151,8 +151,9 @@ void
 NordicServiceDiscovery::progressServiceDiscovery(void)
 {
     while (sDiscoveryActive && (serviceIndex < numServices)) {
-        /* THIS IS WHERE THE CALLBACK WILL GO */
-        printf("%x [%u %u]\r\n", services[serviceIndex].uuid, services[serviceIndex].startHandle, services[serviceIndex].endHandle);
+        if (serviceCallback) {
+            serviceCallback(services[serviceIndex]);
+        }
 
         if (true) { /* characteristic discovery is optional. */
             launchCharacteristicDiscovery(connHandle, services[serviceIndex].startHandle, services[serviceIndex].endHandle);
