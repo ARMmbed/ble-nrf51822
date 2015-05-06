@@ -17,11 +17,12 @@
 #ifndef _BTLE_DISCOVERY_H_
 #define _BTLE_DISCOVERY_H_
 
-#include "blecommon.h"
+#include <stdio.h>
+#include "ble.h"
 #include "UUID.h"
 #include "Gap.h"
-#include "ble_gattc.h"
-#include <stdio.h>
+
+void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
 
 /**@brief Structure for holding information about the service and the characteristics found during
  *        the discovery process.

@@ -24,7 +24,6 @@
 #include "ble_conn_params.h"
 
 #include "btle_gap.h"
-#include "btle_gattc.h"
 #include "btle_advertising.h"
 #include "custom/custom_helper.h"
 
@@ -37,6 +36,7 @@
 #include "device_manager.h"
 
 #include "ble_hci.h"
+#include "btle_discovery.h"
 
 extern "C" void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
 void            app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name);

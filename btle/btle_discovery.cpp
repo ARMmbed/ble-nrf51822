@@ -20,7 +20,6 @@
 #include "nrf_error.h"
 #include "btle_discovery.h"
 #include "ble_err.h"
-#include "btle_gattc.h"
 
 static NordicServiceDiscovery discoverySingleton;
 ServiceDiscovery *ServiceDiscovery::getSingleton(void) {
