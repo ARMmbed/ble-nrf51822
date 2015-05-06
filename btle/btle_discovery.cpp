@@ -48,6 +48,19 @@ ServiceDiscovery::launch(Gap::Handle_t connectionHandle, ServiceCallback_t sc, C
     return BLE_ERROR_NONE;
 }
 
+ble_error_t
+ServiceDiscovery::launch(Gap::Handle_t            connectionHandle,
+                         UUID                     matchingServiceUUIDIn,
+                         ServiceCallback_t        sc,
+                         UUID                     matchingCharacteristicUUIDIn,
+                         CharacteristicCallback_t cc)
+{
+    discoverySingleton.matchingServiceUUID        = matchingServiceUUIDIn;
+    discoverySingleton.matchingCharacteristicUUID = matchingCharacteristicUUIDIn;
+
+    return launch(connectionHandle, sc, cc);
+}
+
 void
 ServiceDiscovery::terminate(void)
 {
