@@ -27,6 +27,8 @@ ble_error_t
 ServiceDiscovery::launch(Gap::Handle_t connectionHandle, ServiceCallback_t sc, CharacteristicCallback_t cc)
 {
     discoverySingleton.serviceDiscoveryStarted(connectionHandle);
+    discoverySingleton.serviceCallback        = sc;
+    discoverySingleton.characteristicCallback = cc;
 
     uint32_t rc;
     if ((rc = sd_ble_gattc_primary_services_discover(connectionHandle, NordicServiceDiscovery::SRV_DISC_START_HANDLE, NULL)) != NRF_SUCCESS) {
