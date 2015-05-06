@@ -5,12 +5,6 @@
 #include "btle_discovery.h"
 #include "ble_err.h"
 
-ServiceDiscovery *ServiceDiscovery::getSingleton(void) {
-    static ServiceDiscovery discoverySingleton;
-
-    return &discoverySingleton;
-}
-
 ble_error_t
 ServiceDiscovery::launch(Gap::Handle_t connectionHandle, ServiceCallback_t sc, CharacteristicCallback_t cc)
 {
@@ -62,7 +56,7 @@ ble_error_t ServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connec
 }
 
 void
-ServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response)
+NordicServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response)
 {
     currSrvInd = 0;
     srvCount   = response->count;
@@ -80,7 +74,7 @@ ServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp
 }
 
 void
-ServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response)
+NordicServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response)
 {
     currCharInd = 0;
     charCount   = response->count;

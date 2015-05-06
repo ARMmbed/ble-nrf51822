@@ -18,20 +18,23 @@
 #include "UUID.h"
 #include "btle_discovery.h"
 
+static NordicServiceDiscovery discoverySingleton;
+ServiceDiscovery *ServiceDiscovery::getSingleton(void) {
+    return &discoverySingleton;
+}
+
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 {
-    ServiceDiscovery *singleton = ServiceDiscovery::getSingleton();
-
     switch (p_ble_evt->header.evt_id) {
         case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
             switch (p_ble_evt->evt.gattc_evt.gatt_status) {
                 case BLE_GATT_STATUS_SUCCESS:
-                    singleton->setupDiscoveredServices(&p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp);
+                    discoverySingleton.setupDiscoveredServices(&p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp);
                     break;
 
                 case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND:
                 default:
-                    singleton->terminate();
+                    discoverySingleton.terminate();
                     break;
             }
             break;
@@ -39,17 +42,17 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
         case BLE_GATTC_EVT_CHAR_DISC_RSP:
             switch (p_ble_evt->evt.gattc_evt.gatt_status) {
                 case BLE_GATT_STATUS_SUCCESS:
-                    singleton->setupDiscoveredCharacteristics(&p_ble_evt->evt.gattc_evt.params.char_disc_rsp);
+                    discoverySingleton.setupDiscoveredCharacteristics(&p_ble_evt->evt.gattc_evt.params.char_disc_rsp);
                     break;
 
                 case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND:
                 default:
-                    singleton->terminateCharacteristicDiscovery();
+                    discoverySingleton.terminateCharacteristicDiscovery();
                     break;
             }
             break;
     }
 
-    singleton->progressCharacteristicDiscovery();
-    singleton->progressServiceDiscovery();
+    discoverySingleton.progressCharacteristicDiscovery();
+    discoverySingleton.progressServiceDiscovery();
 }

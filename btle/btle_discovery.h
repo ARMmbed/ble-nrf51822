@@ -137,9 +137,6 @@ public:
         memset(characteristics, 0, sizeof(DiscoveredCharacteristic) * BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV);
     }
 
-    void setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response);
-    void setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response);
-
     void progressCharacteristicDiscovery() {
         while (characteristicDiscoveryInProgress && (currCharInd < charCount)) {
             /* THIS IS WHERE THE CALLBACK WILL GO */
@@ -199,7 +196,7 @@ private:
         serviceDiscoveryInProgress        = false;
     }
 
-private:
+protected:
     ServiceDiscovery() {
         /* empty */
     }
@@ -218,6 +215,12 @@ public:
 
     bool     serviceDiscoveryInProgress;
     bool     characteristicDiscoveryInProgress;
+};
+
+class NordicServiceDiscovery : public ServiceDiscovery {
+public:
+    void setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response);
+    void setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response);
 };
 
 #endif /*_BTLE_DISCOVERY_H_*/
