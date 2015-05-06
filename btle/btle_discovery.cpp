@@ -124,8 +124,9 @@ void
 NordicServiceDiscovery::progressCharacteristicDiscovery(void)
 {
     while (cDiscoveryActive && (characteristicIndex < numCharacteristics)) {
-        /* THIS IS WHERE THE CALLBACK WILL GO */
-        printf("%x [%u]\r\n", characteristics[characteristicIndex].uuid, characteristics[characteristicIndex].valueHandle);
+        if (characteristicCallback) {
+            characteristicCallback(characteristics[characteristicIndex]);
+        }
 
         characteristicIndex++;
     }
@@ -155,7 +156,7 @@ NordicServiceDiscovery::progressServiceDiscovery(void)
             serviceCallback(services[serviceIndex]);
         }
 
-        if (true) { /* characteristic discovery is optional. */
+        if (characteristicCallback) { /* characteristic discovery is optional. */
             launchCharacteristicDiscovery(connHandle, services[serviceIndex].startHandle, services[serviceIndex].endHandle);
         } else {
             serviceIndex++; /* Progress service index to keep discovery alive. */
