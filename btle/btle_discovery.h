@@ -112,7 +112,8 @@ protected:
     CharacteristicCallback_t characteristicCallback;
 };
 
-class NordicServiceDiscovery : public ServiceDiscovery {
+class NordicServiceDiscovery : public ServiceDiscovery
+{
 public:
     static const unsigned BLE_DB_DISCOVERY_MAX_SRV          = 4;      /**< Maximum number of services we can retain information for after a single discovery. */
     static const unsigned BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV = 4;      /**< Maximum number of characteristics per service we can retain information for. */
