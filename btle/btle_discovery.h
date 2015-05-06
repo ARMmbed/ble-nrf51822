@@ -110,9 +110,6 @@ public:
 
     static ServiceDiscovery *getSingleton(void);
 
-private:
-    ble_error_t launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle);
-
 public:
     void terminate(void) {
         sDiscoveryActive = false;
@@ -137,6 +134,50 @@ public:
         memset(characteristics, 0, sizeof(DiscoveredCharacteristic) * BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV);
     }
 
+    void serviceDiscoveryStarted(Gap::Handle_t connectionHandle) {
+        connHandle       = connectionHandle;
+        resetDiscoveredServices();
+        sDiscoveryActive = true;
+        cDiscoveryActive = false;
+    }
+
+protected:
+    void characteristicDiscoveryStarted(Gap::Handle_t connectionHandle) {
+        connHandle       = connectionHandle;
+        resetDiscoveredCharacteristics();
+        cDiscoveryActive = true;
+        sDiscoveryActive = false;
+    }
+
+protected:
+    ServiceDiscovery() {
+        /* empty */
+    }
+
+protected:
+    DiscoveredService        services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
+                                                                   *  This is intended for internal use during service discovery. */
+    DiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
+
+    uint16_t connHandle;          /**< Connection handle as provided by the SoftDevice. */
+    uint8_t  serviceIndex;        /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
+    uint8_t  numServices;         /**< Number of services at the peers GATT database.*/
+    uint8_t  characteristicIndex; /**< Index of the current characteristic being discovered. This is intended for internal use during service discovery.*/
+    uint8_t  numCharacteristics;  /**< Number of characteristics within the service.*/
+
+    bool     sDiscoveryActive;
+    bool     cDiscoveryActive;
+};
+
+class NordicServiceDiscovery : public ServiceDiscovery {
+public:
+    void setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response);
+    void setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response);
+
+private:
+    ble_error_t launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle);
+
+public:
     void progressCharacteristicDiscovery() {
         while (cDiscoveryActive && (characteristicIndex < numCharacteristics)) {
             /* THIS IS WHERE THE CALLBACK WILL GO */
@@ -181,45 +222,6 @@ public:
         }
     }
 
-    void serviceDiscoveryStarted(Gap::Handle_t connectionHandle) {
-        connHandle       = connectionHandle;
-        resetDiscoveredServices();
-        sDiscoveryActive = true;
-        cDiscoveryActive = false;
-    }
-
-private:
-    void characteristicDiscoveryStarted(Gap::Handle_t connectionHandle) {
-        connHandle       = connectionHandle;
-        resetDiscoveredCharacteristics();
-        cDiscoveryActive = true;
-        sDiscoveryActive = false;
-    }
-
-protected:
-    ServiceDiscovery() {
-        /* empty */
-    }
-
-protected:
-    DiscoveredService        services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
-                                                                   *  This is intended for internal use during service discovery. */
-    DiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
-
-    uint16_t connHandle;          /**< Connection handle as provided by the SoftDevice. */
-    uint8_t  serviceIndex;        /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
-    uint8_t  numServices;         /**< Number of services at the peers GATT database.*/
-    uint8_t  characteristicIndex; /**< Index of the current characteristic being discovered. This is intended for internal use during service discovery.*/
-    uint8_t  numCharacteristics;  /**< Number of characteristics within the service.*/
-
-    bool     sDiscoveryActive;
-    bool     cDiscoveryActive;
-};
-
-class NordicServiceDiscovery : public ServiceDiscovery {
-public:
-    void setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response);
-    void setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response);
 };
 
 #endif /*_BTLE_DISCOVERY_H_*/

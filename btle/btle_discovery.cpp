@@ -1,15 +1,37 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2006-2013 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "blecommon.h"
 #include "UUID.h"
 #include "Gap.h"
 #include "nrf_error.h"
 #include "btle_discovery.h"
 #include "ble_err.h"
+#include "btle_gattc.h"
+
+static NordicServiceDiscovery discoverySingleton;
+ServiceDiscovery *ServiceDiscovery::getSingleton(void) {
+    return &discoverySingleton;
+}
 
 ble_error_t
 ServiceDiscovery::launch(Gap::Handle_t connectionHandle, ServiceCallback_t sc, CharacteristicCallback_t cc)
 {
     ServiceDiscovery *singleton = getSingleton();
-    singleton->serviceDiscoveryStarted(connectionHandle);
+    discoverySingleton.serviceDiscoveryStarted(connectionHandle);
 
     uint32_t rc;
     if ((rc = sd_ble_gattc_primary_services_discover(connectionHandle, SRV_DISC_START_HANDLE, NULL)) != NRF_SUCCESS) {
@@ -29,9 +51,9 @@ ServiceDiscovery::launch(Gap::Handle_t connectionHandle, ServiceCallback_t sc, C
     return BLE_ERROR_NONE;
 }
 
-ble_error_t ServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle) {
-    ServiceDiscovery *singleton = getSingleton();
-    singleton->characteristicDiscoveryStarted(connectionHandle);
+ble_error_t
+NordicServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle) {
+    discoverySingleton.characteristicDiscoveryStarted(connectionHandle);
 
     ble_gattc_handle_range_t handleRange = {
         .start_handle = startHandle,
@@ -39,7 +61,7 @@ ble_error_t ServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connec
     };
     uint32_t rc;
     if ((rc = sd_ble_gattc_characteristics_discover(connectionHandle, &handleRange)) != NRF_SUCCESS) {
-        singleton->terminateCharacteristicDiscovery();
+        discoverySingleton.terminateCharacteristicDiscovery();
         switch (rc) {
             case BLE_ERROR_INVALID_CONN_HANDLE:
             case NRF_ERROR_INVALID_ADDR:
@@ -90,4 +112,38 @@ NordicServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_
                                          response->chars[charIndex].handle_decl,
                                          response->chars[charIndex].handle_value);
     }
+}
+
+void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
+{
+    switch (p_ble_evt->header.evt_id) {
+        case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
+            switch (p_ble_evt->evt.gattc_evt.gatt_status) {
+                case BLE_GATT_STATUS_SUCCESS:
+                    discoverySingleton.setupDiscoveredServices(&p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp);
+                    break;
+
+                case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND:
+                default:
+                    discoverySingleton.terminate();
+                    break;
+            }
+            break;
+
+        case BLE_GATTC_EVT_CHAR_DISC_RSP:
+            switch (p_ble_evt->evt.gattc_evt.gatt_status) {
+                case BLE_GATT_STATUS_SUCCESS:
+                    discoverySingleton.setupDiscoveredCharacteristics(&p_ble_evt->evt.gattc_evt.params.char_disc_rsp);
+                    break;
+
+                case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND:
+                default:
+                    discoverySingleton.terminateCharacteristicDiscovery();
+                    break;
+            }
+            break;
+    }
+
+    discoverySingleton.progressCharacteristicDiscovery();
+    discoverySingleton.progressServiceDiscovery();
 }
