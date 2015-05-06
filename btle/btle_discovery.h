@@ -167,50 +167,10 @@ protected:
 public:
     ble_error_t launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle);
 
-public:
-    void progressCharacteristicDiscovery() {
-        while (cDiscoveryActive && (characteristicIndex < numCharacteristics)) {
-            /* THIS IS WHERE THE CALLBACK WILL GO */
-            printf("%x [%u]\r\n", characteristics[characteristicIndex].uuid, characteristics[characteristicIndex].valueHandle);
-
-            characteristicIndex++;
-        }
-
-        if (cDiscoveryActive) {
-            Gap::Handle_t startHandle = characteristics[characteristicIndex - 1].valueHandle + 1;
-            Gap::Handle_t endHandle   = services[serviceIndex].endHandle;
-            resetDiscoveredCharacteristics();
-
-            if (startHandle < endHandle) {
-                ble_gattc_handle_range_t handleRange = {
-                    .start_handle = startHandle,
-                    .end_handle   = endHandle
-                };
-                printf("char discovery returned %u\r\n", sd_ble_gattc_characteristics_discover(connHandle, &handleRange));
-            } else {
-               terminateCharacteristicDiscovery();
-            }
-        }
-    }
-
-    void progressServiceDiscovery() {
-        while (sDiscoveryActive && (serviceIndex < numServices)) {
-            /* THIS IS WHERE THE CALLBACK WILL GO */
-            printf("%x [%u %u]\r\n", services[serviceIndex].uuid, services[serviceIndex].startHandle, services[serviceIndex].endHandle);
-
-            if (true) { /* characteristic discovery is optional. */
-                launchCharacteristicDiscovery(connHandle, services[serviceIndex].startHandle, services[serviceIndex].endHandle);
-            } else {
-                serviceIndex++; /* Progress service index to keep discovery alive. */
-            }
-        }
-        if (sDiscoveryActive && (numServices > 0) && (serviceIndex > 0)) {
-            Gap::Handle_t endHandle = services[serviceIndex - 1].endHandle;
-            resetDiscoveredServices();
-
-            printf("services discover returned %u\r\n", sd_ble_gattc_primary_services_discover(connHandle, endHandle, NULL));
-        }
-    }
+private:
+    friend void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
+    void progressCharacteristicDiscovery(void);
+    void progressServiceDiscovery(void);
 
 private:
     uint8_t  serviceIndex;        /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
