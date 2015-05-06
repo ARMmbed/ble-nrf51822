@@ -22,19 +22,15 @@
 #include "ble_err.h"
 
 static NordicServiceDiscovery discoverySingleton;
-ServiceDiscovery *ServiceDiscovery::getSingleton(void) {
-    return &discoverySingleton;
-}
 
 ble_error_t
 ServiceDiscovery::launch(Gap::Handle_t connectionHandle, ServiceCallback_t sc, CharacteristicCallback_t cc)
 {
-    ServiceDiscovery *singleton = getSingleton();
     discoverySingleton.serviceDiscoveryStarted(connectionHandle);
 
     uint32_t rc;
-    if ((rc = sd_ble_gattc_primary_services_discover(connectionHandle, SRV_DISC_START_HANDLE, NULL)) != NRF_SUCCESS) {
-        singleton->terminate();
+    if ((rc = sd_ble_gattc_primary_services_discover(connectionHandle, NordicServiceDiscovery::SRV_DISC_START_HANDLE, NULL)) != NRF_SUCCESS) {
+        discoverySingleton.terminate();
         switch (rc) {
             case NRF_ERROR_INVALID_PARAM:
             case BLE_ERROR_INVALID_CONN_HANDLE:
@@ -48,6 +44,12 @@ ServiceDiscovery::launch(Gap::Handle_t connectionHandle, ServiceCallback_t sc, C
     }
 
     return BLE_ERROR_NONE;
+}
+
+void
+ServiceDiscovery::terminate(void)
+{
+    discoverySingleton.terminateServiceDiscovery();
 }
 
 ble_error_t

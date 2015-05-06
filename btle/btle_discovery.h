@@ -91,10 +91,6 @@ struct DiscoveredCharacteristic {
 
 class ServiceDiscovery {
 public:
-    static const unsigned BLE_DB_DISCOVERY_MAX_SRV          = 4;      /**< Maximum number of services we can retain information for after a single discovery. */
-    static const unsigned BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV = 4;      /**< Maximum number of characteristics per service we can retain information for. */
-    static const uint16_t SRV_DISC_START_HANDLE             = 0x0001; /**< The start handle value used during service discovery. */
-
     typedef void (*ServiceCallback_t)(void);
     typedef void (*CharacteristicCallback_t)(void);
 
@@ -108,11 +104,27 @@ public:
                               UUID                     matchingCharacteristicUUID = ShortUUIDBytes_t(BLE_UUID_UNKNOWN),
                               CharacteristicCallback_t cc = NULL);
 
-    static ServiceDiscovery *getSingleton(void);
+    static void        terminate(void);
+
+protected:
+    Gap::Handle_t            connHandle; /**< Connection handle as provided by the SoftDevice. */
+    ServiceCallback_t        serviceCallback;
+    CharacteristicCallback_t characteristicCallback;
+};
+
+class NordicServiceDiscovery : public ServiceDiscovery {
+public:
+    static const unsigned BLE_DB_DISCOVERY_MAX_SRV          = 4;      /**< Maximum number of services we can retain information for after a single discovery. */
+    static const unsigned BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV = 4;      /**< Maximum number of characteristics per service we can retain information for. */
+    static const uint16_t SRV_DISC_START_HANDLE             = 0x0001; /**< The start handle value used during service discovery. */
 
 public:
-    void terminate(void) {
+    void setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response);
+    void setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response);
+
+    void terminateServiceDiscovery(void) {
         sDiscoveryActive = false;
+        cDiscoveryActive = false;
         printf("end of service discovery\r\n");
     }
 
@@ -150,31 +162,6 @@ protected:
         cDiscoveryActive = true;
         sDiscoveryActive = false;
     }
-
-protected:
-    ServiceDiscovery() {
-        /* empty */
-    }
-
-protected:
-    DiscoveredService        services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
-                                                                   *  This is intended for internal use during service discovery. */
-    DiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
-
-    uint16_t connHandle;          /**< Connection handle as provided by the SoftDevice. */
-    uint8_t  serviceIndex;        /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
-    uint8_t  numServices;         /**< Number of services at the peers GATT database.*/
-    uint8_t  characteristicIndex; /**< Index of the current characteristic being discovered. This is intended for internal use during service discovery.*/
-    uint8_t  numCharacteristics;  /**< Number of characteristics within the service.*/
-
-    bool     sDiscoveryActive;
-    bool     cDiscoveryActive;
-};
-
-class NordicServiceDiscovery : public ServiceDiscovery {
-public:
-    void setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response);
-    void setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response);
 
 public:
     ble_error_t launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle);
@@ -224,6 +211,18 @@ public:
         }
     }
 
+private:
+    uint8_t  serviceIndex;        /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
+    uint8_t  numServices;         /**< Number of services at the peers GATT database.*/
+    uint8_t  characteristicIndex; /**< Index of the current characteristic being discovered. This is intended for internal use during service discovery.*/
+    uint8_t  numCharacteristics;  /**< Number of characteristics within the service.*/
+
+    bool     sDiscoveryActive;
+    bool     cDiscoveryActive;
+
+    DiscoveredService        services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
+                                                                   *  This is intended for internal use during service discovery. */
+    DiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
 };
 
 #endif /*_BTLE_DISCOVERY_H_*/
