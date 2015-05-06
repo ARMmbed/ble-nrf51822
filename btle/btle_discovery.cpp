@@ -154,7 +154,9 @@ NordicServiceDiscovery::progressCharacteristicDiscovery(void)
                 .start_handle = startHandle,
                 .end_handle   = endHandle
             };
-            printf("char discovery returned %u\r\n", sd_ble_gattc_characteristics_discover(connHandle, &handleRange));
+            if (sd_ble_gattc_characteristics_discover(connHandle, &handleRange) != NRF_SUCCESS) {
+                terminateCharacteristicDiscovery();
+            }
         } else {
            terminateCharacteristicDiscovery();
         }
@@ -179,7 +181,9 @@ NordicServiceDiscovery::progressServiceDiscovery(void)
         Gap::Handle_t endHandle = services[serviceIndex - 1].endHandle;
         resetDiscoveredServices();
 
-        printf("services discover returned %u\r\n", sd_ble_gattc_primary_services_discover(connHandle, endHandle, NULL));
+        if (sd_ble_gattc_primary_services_discover(connHandle, endHandle, NULL) != NRF_SUCCESS) {
+            terminateServiceDiscovery();
+        }
     }
 }
 
