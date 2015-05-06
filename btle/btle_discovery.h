@@ -23,72 +23,73 @@
 
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
 
-/**@brief Structure for holding information about the service and the characteristics found during
- *        the discovery process.
- */
-struct DiscoveredService {
-    void setup(ShortUUIDBytes_t uuidIn, Gap::Handle_t start, Gap::Handle_t end) {
-        uuid        = uuidIn;
-        startHandle = start;
-        endHandle   = end;
-    }
-
-    ShortUUIDBytes_t uuid;        /**< UUID of the service.  */
-    Gap::Handle_t    startHandle; /**< Service Handle Range. */
-    Gap::Handle_t    endHandle;   /**< Service Handle Range. */
-};
-
-/**@brief Structure for holding information about the service and the characteristics found during
- *        the discovery process.
- */
-struct DiscoveredCharacteristic {
-    struct Properties_t {
-        static const uint8_t BROADCAST_PROPERTY_MASK         = 0x01;
-        static const uint8_t READ_PROPERTY_MASK              = 0x02;
-        static const uint8_t WRITE_WO_RESPONSE_PROPERTY_MASK = 0x04;
-        static const uint8_t WRITE_PROPERTY_MASK             = 0x08;
-        static const uint8_t NOTIFY_PROPERTY_MASK            = 0x10;
-        static const uint8_t INDICATE_PROPERTY_MASK          = 0x20;
-        static const uint8_t AUTH_SIGNED_PROPERTY_MASK       = 0x40;
-
-        Properties_t() : broadcast(0), read(0), write_wo_resp(0), write(0), notify(0), indicate(0), auth_signed_wr(0) {
-            /* empty */
+class ServiceDiscovery {
+public:
+    /**@brief Structure for holding information about the service and the characteristics found during
+     *        the discovery process.
+     */
+    struct DiscoveredService {
+        void setup(ShortUUIDBytes_t uuidIn, Gap::Handle_t start, Gap::Handle_t end) {
+            uuid        = uuidIn;
+            startHandle = start;
+            endHandle   = end;
         }
 
-        Properties_t(uint8_t props) :
-            broadcast(props & BROADCAST_PROPERTY_MASK),
-            read(props & READ_PROPERTY_MASK),
-            write_wo_resp(props & WRITE_WO_RESPONSE_PROPERTY_MASK),
-            write(props & WRITE_PROPERTY_MASK),
-            notify(props & NOTIFY_PROPERTY_MASK),
-            indicate(props & INDICATE_PROPERTY_MASK),
-            auth_signed_wr(props & AUTH_SIGNED_PROPERTY_MASK) {
-            /* empty*/
-        }
-
-        uint8_t broadcast       :1; /**< Broadcasting of the value permitted. */
-        uint8_t read            :1; /**< Reading the value permitted. */
-        uint8_t write_wo_resp   :1; /**< Writing the value with Write Command permitted. */
-        uint8_t write           :1; /**< Writing the value with Write Request permitted. */
-        uint8_t notify          :1; /**< Notications of the value permitted. */
-        uint8_t indicate        :1; /**< Indications of the value permitted. */
-        uint8_t auth_signed_wr  :1; /**< Writing the value with Signed Write Command permitted. */
+        ShortUUIDBytes_t uuid;        /**< UUID of the service.  */
+        Gap::Handle_t    startHandle; /**< Service Handle Range. */
+        Gap::Handle_t    endHandle;   /**< Service Handle Range. */
     };
 
-    void setup(ShortUUIDBytes_t uuidIn, Properties_t propsIn, Gap::Handle_t declHandleIn, Gap::Handle_t valueHandleIn) {
-        uuid        = uuidIn;
-        props       = propsIn;
-        declHandle  = declHandleIn;
-        valueHandle = valueHandleIn;
-    }
+    /**@brief Structure for holding information about the service and the characteristics found during
+     *        the discovery process.
+     */
+    struct DiscoveredCharacteristic {
+        struct Properties_t {
+            static const uint8_t BROADCAST_PROPERTY_MASK         = 0x01;
+            static const uint8_t READ_PROPERTY_MASK              = 0x02;
+            static const uint8_t WRITE_WO_RESPONSE_PROPERTY_MASK = 0x04;
+            static const uint8_t WRITE_PROPERTY_MASK             = 0x08;
+            static const uint8_t NOTIFY_PROPERTY_MASK            = 0x10;
+            static const uint8_t INDICATE_PROPERTY_MASK          = 0x20;
+            static const uint8_t AUTH_SIGNED_PROPERTY_MASK       = 0x40;
 
-    ShortUUIDBytes_t uuid;
-    Properties_t     props;
-    Gap::Handle_t    declHandle;
-    Gap::Handle_t    valueHandle;
-};
+            Properties_t() : broadcast(0), read(0), write_wo_resp(0), write(0), notify(0), indicate(0), auth_signed_wr(0) {
+                /* empty */
+            }
 
-class ServiceDiscovery {
+            Properties_t(uint8_t props) :
+                broadcast(props & BROADCAST_PROPERTY_MASK),
+                read(props & READ_PROPERTY_MASK),
+                write_wo_resp(props & WRITE_WO_RESPONSE_PROPERTY_MASK),
+                write(props & WRITE_PROPERTY_MASK),
+                notify(props & NOTIFY_PROPERTY_MASK),
+                indicate(props & INDICATE_PROPERTY_MASK),
+                auth_signed_wr(props & AUTH_SIGNED_PROPERTY_MASK) {
+                /* empty*/
+            }
+
+            uint8_t broadcast       :1; /**< Broadcasting of the value permitted. */
+            uint8_t read            :1; /**< Reading the value permitted. */
+            uint8_t write_wo_resp   :1; /**< Writing the value with Write Command permitted. */
+            uint8_t write           :1; /**< Writing the value with Write Request permitted. */
+            uint8_t notify          :1; /**< Notications of the value permitted. */
+            uint8_t indicate        :1; /**< Indications of the value permitted. */
+            uint8_t auth_signed_wr  :1; /**< Writing the value with Signed Write Command permitted. */
+        };
+
+        void setup(ShortUUIDBytes_t uuidIn, Properties_t propsIn, Gap::Handle_t declHandleIn, Gap::Handle_t valueHandleIn) {
+            uuid        = uuidIn;
+            props       = propsIn;
+            declHandle  = declHandleIn;
+            valueHandle = valueHandleIn;
+        }
+
+        ShortUUIDBytes_t uuid;
+        Properties_t     props;
+        Gap::Handle_t    declHandle;
+        Gap::Handle_t    valueHandle;
+    };
+
 public:
     typedef void (*ServiceCallback_t)(const DiscoveredService &);
     typedef void (*CharacteristicCallback_t)(const DiscoveredCharacteristic &);
