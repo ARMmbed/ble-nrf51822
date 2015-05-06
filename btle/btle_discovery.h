@@ -116,9 +116,14 @@ protected:
 class NordicServiceDiscovery : public ServiceDiscovery
 {
 public:
+    static const uint16_t SRV_DISC_START_HANDLE             = 0x0001; /**< The start handle value used during service discovery. */
+
+private:
     static const unsigned BLE_DB_DISCOVERY_MAX_SRV          = 4;      /**< Maximum number of services we can retain information for after a single discovery. */
     static const unsigned BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV = 4;      /**< Maximum number of characteristics per service we can retain information for. */
-    static const uint16_t SRV_DISC_START_HANDLE             = 0x0001; /**< The start handle value used during service discovery. */
+
+public:
+    ble_error_t launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle);
 
 public:
     void setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response);
@@ -135,13 +140,13 @@ public:
         serviceIndex++; /* Progress service index to keep discovery alive. */
     }
 
+private:
     void resetDiscoveredServices(void) {
         numServices  = 0;
         serviceIndex = 0;
         memset(services, 0, sizeof(DiscoveredService) * BLE_DB_DISCOVERY_MAX_SRV);
     }
 
-protected:
     void resetDiscoveredCharacteristics(void) {
         numCharacteristics  = 0;
         characteristicIndex = 0;
@@ -156,16 +161,13 @@ public:
         cDiscoveryActive = false;
     }
 
-protected:
+private:
     void characteristicDiscoveryStarted(Gap::Handle_t connectionHandle) {
         connHandle       = connectionHandle;
         resetDiscoveredCharacteristics();
         cDiscoveryActive = true;
         sDiscoveryActive = false;
     }
-
-public:
-    ble_error_t launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle);
 
 private:
     friend void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
