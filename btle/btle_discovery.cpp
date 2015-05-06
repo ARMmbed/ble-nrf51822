@@ -55,7 +55,10 @@ ServiceDiscovery::terminate(void)
 }
 
 ble_error_t
-NordicServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle) {
+NordicServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHandle,
+                                                      Gap::Handle_t startHandle,
+                                                      Gap::Handle_t endHandle)
+{
     discoverySingleton.characteristicDiscoveryStarted(connectionHandle);
 
     ble_gattc_handle_range_t handleRange = {

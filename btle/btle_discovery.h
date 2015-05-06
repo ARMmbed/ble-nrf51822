@@ -34,7 +34,7 @@ struct DiscoveredService {
         endHandle   = end;
     }
 
-    ShortUUIDBytes_t uuid;        /**< UUID of the service. */
+    ShortUUIDBytes_t uuid;        /**< UUID of the service.  */
     Gap::Handle_t    startHandle; /**< Service Handle Range. */
     Gap::Handle_t    endHandle;   /**< Service Handle Range. */
 };
