@@ -90,10 +90,9 @@ struct DiscoveredCharacteristic {
 
 class ServiceDiscovery {
 public:
-    static const unsigned BLE_DB_DISCOVERY_MAX_SRV           = 4;  /**< Maximum number of services supported by this module. This also indicates the maximum number of users allowed to be registered to this module. (one user per service). */
-    static const unsigned BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV  = 4;  /**< Maximum number of characteristics per service supported by this module. */
-
-    static const uint16_t SRV_DISC_START_HANDLE              = 0x0001; /**< The start handle value used during service discovery. */
+    static const unsigned BLE_DB_DISCOVERY_MAX_SRV          = 4;      /**< Maximum number of services we can retain information for after a single discovery. */
+    static const unsigned BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV = 4;      /**< Maximum number of characteristics per service we can retain information for. */
+    static const uint16_t SRV_DISC_START_HANDLE             = 0x0001; /**< The start handle value used during service discovery. */
 
     typedef void (*ServiceCallback_t)(void);
     typedef void (*CharacteristicCallback_t)(void);
