@@ -99,16 +99,18 @@ public:
                               ServiceCallback_t        sc,
                               CharacteristicCallback_t cc = NULL);
     static ble_error_t launch(Gap::Handle_t            connectionHandle,
-                              UUID                     matchingServiceUUID,
+                              UUID                     matchingServiceUUIDIn,
                               ServiceCallback_t        sc,
-                              UUID                     matchingCharacteristicUUID = ShortUUIDBytes_t(BLE_UUID_UNKNOWN),
+                              UUID                     matchingCharacteristicUUIDIn = ShortUUIDBytes_t(BLE_UUID_UNKNOWN),
                               CharacteristicCallback_t cc = NULL);
 
     static void        terminate(void);
 
 protected:
     Gap::Handle_t            connHandle; /**< Connection handle as provided by the SoftDevice. */
+    UUID                     matchingServiceUUID;
     ServiceCallback_t        serviceCallback;
+    UUID                     matchingCharacteristicUUID;
     CharacteristicCallback_t characteristicCallback;
 };
 
