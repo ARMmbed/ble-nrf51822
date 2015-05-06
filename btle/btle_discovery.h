@@ -91,8 +91,8 @@ struct DiscoveredCharacteristic {
 
 class ServiceDiscovery {
 public:
-    typedef void (*ServiceCallback_t)(void);
-    typedef void (*CharacteristicCallback_t)(void);
+    typedef void (*ServiceCallback_t)(const DiscoveredService &);
+    typedef void (*CharacteristicCallback_t)(const DiscoveredCharacteristic &);
 
 public:
     static ble_error_t launch(Gap::Handle_t            connectionHandle,
