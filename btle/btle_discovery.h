@@ -17,7 +17,6 @@
 #ifndef _BTLE_DISCOVERY_H_
 #define _BTLE_DISCOVERY_H_
 
-#include <stdio.h>
 #include "ble.h"
 #include "UUID.h"
 #include "Gap.h"
@@ -128,7 +127,6 @@ public:
     void terminateServiceDiscovery(void) {
         sDiscoveryActive = false;
         cDiscoveryActive = false;
-        printf("end of service discovery\r\n");
     }
 
     void terminateCharacteristicDiscovery(void) {
