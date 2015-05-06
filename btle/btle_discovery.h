@@ -68,13 +68,13 @@ public:
                 /* empty*/
             }
 
-            uint8_t broadcast       :1; /**< Broadcasting of the value permitted. */
-            uint8_t read            :1; /**< Reading the value permitted. */
-            uint8_t write_wo_resp   :1; /**< Writing the value with Write Command permitted. */
-            uint8_t write           :1; /**< Writing the value with Write Request permitted. */
-            uint8_t notify          :1; /**< Notications of the value permitted. */
-            uint8_t indicate        :1; /**< Indications of the value permitted. */
-            uint8_t auth_signed_wr  :1; /**< Writing the value with Signed Write Command permitted. */
+            uint8_t broadcast      :1; /**< Broadcasting of the value permitted. */
+            uint8_t read           :1; /**< Reading the value permitted. */
+            uint8_t write_wo_resp  :1; /**< Writing the value with Write Command permitted. */
+            uint8_t write          :1; /**< Writing the value with Write Request permitted. */
+            uint8_t notify         :1; /**< Notications of the value permitted. */
+            uint8_t indicate       :1; /**< Indications of the value permitted. */
+            uint8_t auth_signed_wr :1; /**< Writing the value with Signed Write Command permitted. */
         };
 
         void setup(ShortUUIDBytes_t uuidIn, Properties_t propsIn, Gap::Handle_t declHandleIn, Gap::Handle_t valueHandleIn) {
