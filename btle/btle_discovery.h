@@ -115,39 +115,39 @@ private:
 
 public:
     void terminate(void) {
-        serviceDiscoveryInProgress = false;
+        sDiscoveryActive = false;
         printf("end of service discovery\r\n");
     }
 
     void terminateCharacteristicDiscovery(void) {
-        characteristicDiscoveryInProgress = false;
-        serviceDiscoveryInProgress        = true;
-        currSrvInd++; /* Progress service index to keep discovery alive. */
+        cDiscoveryActive = false;
+        sDiscoveryActive = true;
+        serviceIndex++; /* Progress service index to keep discovery alive. */
     }
 
     void resetDiscoveredServices(void) {
-        srvCount   = 0;
-        currSrvInd = 0;
+        numServices  = 0;
+        serviceIndex = 0;
         memset(services, 0, sizeof(DiscoveredService) * BLE_DB_DISCOVERY_MAX_SRV);
     }
 
     void resetDiscoveredCharacteristics(void) {
-        charCount   = 0;
-        currCharInd = 0;
+        numCharacteristics  = 0;
+        characteristicIndex = 0;
         memset(characteristics, 0, sizeof(DiscoveredCharacteristic) * BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV);
     }
 
     void progressCharacteristicDiscovery() {
-        while (characteristicDiscoveryInProgress && (currCharInd < charCount)) {
+        while (cDiscoveryActive && (characteristicIndex < numCharacteristics)) {
             /* THIS IS WHERE THE CALLBACK WILL GO */
-            printf("%x [%u]\r\n", characteristics[currCharInd].uuid, characteristics[currCharInd].valueHandle);
+            printf("%x [%u]\r\n", characteristics[characteristicIndex].uuid, characteristics[characteristicIndex].valueHandle);
 
-            currCharInd++;
+            characteristicIndex++;
         }
 
-        if (characteristicDiscoveryInProgress) {
-            Gap::Handle_t startHandle = characteristics[currCharInd - 1].valueHandle + 1;
-            Gap::Handle_t endHandle   = services[currSrvInd].endHandle;
+        if (cDiscoveryActive) {
+            Gap::Handle_t startHandle = characteristics[characteristicIndex - 1].valueHandle + 1;
+            Gap::Handle_t endHandle   = services[serviceIndex].endHandle;
             resetDiscoveredCharacteristics();
 
             if (startHandle < endHandle) {
@@ -163,18 +163,18 @@ public:
     }
 
     void progressServiceDiscovery() {
-        while (serviceDiscoveryInProgress && (currSrvInd < srvCount)) {
+        while (sDiscoveryActive && (serviceIndex < numServices)) {
             /* THIS IS WHERE THE CALLBACK WILL GO */
-            printf("%x [%u %u]\r\n", services[currSrvInd].uuid, services[currSrvInd].startHandle, services[currSrvInd].endHandle);
+            printf("%x [%u %u]\r\n", services[serviceIndex].uuid, services[serviceIndex].startHandle, services[serviceIndex].endHandle);
 
             if (true) { /* characteristic discovery is optional. */
-                launchCharacteristicDiscovery(connHandle, services[currSrvInd].startHandle, services[currSrvInd].endHandle);
+                launchCharacteristicDiscovery(connHandle, services[serviceIndex].startHandle, services[serviceIndex].endHandle);
             } else {
-                currSrvInd++; /* Progress service index to keep discovery alive. */
+                serviceIndex++; /* Progress service index to keep discovery alive. */
             }
         }
-        if (serviceDiscoveryInProgress && (srvCount > 0) && (currSrvInd > 0)) {
-            Gap::Handle_t endHandle = services[currSrvInd - 1].endHandle;
+        if (sDiscoveryActive && (numServices > 0) && (serviceIndex > 0)) {
+            Gap::Handle_t endHandle = services[serviceIndex - 1].endHandle;
             resetDiscoveredServices();
 
             printf("services discover returned %u\r\n", sd_ble_gattc_primary_services_discover(connHandle, endHandle, NULL));
@@ -182,18 +182,18 @@ public:
     }
 
     void serviceDiscoveryStarted(Gap::Handle_t connectionHandle) {
-        connHandle                        = connectionHandle;
+        connHandle       = connectionHandle;
         resetDiscoveredServices();
-        serviceDiscoveryInProgress        = true;
-        characteristicDiscoveryInProgress = false;
+        sDiscoveryActive = true;
+        cDiscoveryActive = false;
     }
 
 private:
     void characteristicDiscoveryStarted(Gap::Handle_t connectionHandle) {
-        connHandle                        = connectionHandle;
+        connHandle       = connectionHandle;
         resetDiscoveredCharacteristics();
-        characteristicDiscoveryInProgress = true;
-        serviceDiscoveryInProgress        = false;
+        cDiscoveryActive = true;
+        sDiscoveryActive = false;
     }
 
 protected:
@@ -206,14 +206,14 @@ protected:
                                                                    *  This is intended for internal use during service discovery. */
     DiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
 
-    uint16_t connHandle;  /**< Connection handle as provided by the SoftDevice. */
-    uint8_t  currSrvInd;  /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
-    uint8_t  srvCount;    /**< Number of services at the peers GATT database.*/
-    uint8_t  currCharInd; /**< Index of the current characteristic being discovered. This is intended for internal use during service discovery.*/
-    uint8_t  charCount;    /**< Number of characteristics within the service.*/
+    uint16_t connHandle;          /**< Connection handle as provided by the SoftDevice. */
+    uint8_t  serviceIndex;        /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
+    uint8_t  numServices;         /**< Number of services at the peers GATT database.*/
+    uint8_t  characteristicIndex; /**< Index of the current characteristic being discovered. This is intended for internal use during service discovery.*/
+    uint8_t  numCharacteristics;  /**< Number of characteristics within the service.*/
 
-    bool     serviceDiscoveryInProgress;
-    bool     characteristicDiscoveryInProgress;
+    bool     sDiscoveryActive;
+    bool     cDiscoveryActive;
 };
 
 class NordicServiceDiscovery : public ServiceDiscovery {

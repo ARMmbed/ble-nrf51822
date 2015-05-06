@@ -58,15 +58,15 @@ ble_error_t ServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connec
 void
 NordicServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response)
 {
-    currSrvInd = 0;
-    srvCount   = response->count;
+    serviceIndex = 0;
+    numServices  = response->count;
 
     /* Account for the limitation on the number of discovered services we can handle at a time. */
-    if (srvCount > BLE_DB_DISCOVERY_MAX_SRV) {
-        srvCount = BLE_DB_DISCOVERY_MAX_SRV;
+    if (numServices > BLE_DB_DISCOVERY_MAX_SRV) {
+        numServices = BLE_DB_DISCOVERY_MAX_SRV;
     }
 
-    for (unsigned serviceIndex = 0; serviceIndex < srvCount; serviceIndex++) {
+    for (unsigned serviceIndex = 0; serviceIndex < numServices; serviceIndex++) {
         services[serviceIndex].setup(response->services[serviceIndex].uuid.uuid,
                                      response->services[serviceIndex].handle_range.start_handle,
                                      response->services[serviceIndex].handle_range.end_handle);
@@ -76,15 +76,15 @@ NordicServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_di
 void
 NordicServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response)
 {
-    currCharInd = 0;
-    charCount   = response->count;
+    characteristicIndex = 0;
+    numCharacteristics  = response->count;
 
     /* Account for the limitation on the number of discovered characteristics we can handle at a time. */
-    if (charCount > BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV) {
-        charCount = BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV;
+    if (numCharacteristics > BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV) {
+        numCharacteristics = BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV;
     }
 
-    for (unsigned charIndex = 0; charIndex < charCount; charIndex++) {
+    for (unsigned charIndex = 0; charIndex < numCharacteristics; charIndex++) {
         characteristics[charIndex].setup(response->chars[charIndex].uuid.uuid,
                                          *(const uint8_t *)(&response->chars[charIndex].char_props),
                                          response->chars[charIndex].handle_decl,
