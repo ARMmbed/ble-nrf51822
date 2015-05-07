@@ -24,7 +24,7 @@ static dm_application_instance_t applicationInstance;
 static ret_code_t dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t event_result);
 
 ble_error_t
-btle_initializeSecurity()
+btle_initializeSecurity(bool enableBonding, bool requireMITM, Gap::SecurityIOCapabilities_t iocaps, const Gap::Passkey_t passkey)
 {
     /* guard against multiple initializations */
     static bool initialized = false;
@@ -34,6 +34,25 @@ btle_initializeSecurity()
 
     if (pstorage_init() != NRF_SUCCESS) {
         return BLE_ERROR_UNSPECIFIED;
+    }
+
+    ret_code_t rc;
+    if (passkey) {
+        ble_opt_t opts;
+        opts.gap_opt.passkey.p_passkey = const_cast<uint8_t *>(passkey);
+        if ((rc = sd_ble_opt_set(BLE_GAP_OPT_PASSKEY, &opts)) != NRF_SUCCESS) {
+            switch (rc) {
+                case BLE_ERROR_INVALID_CONN_HANDLE:
+                case NRF_ERROR_INVALID_ADDR:
+                case NRF_ERROR_INVALID_PARAM:
+                default:
+                    return BLE_ERROR_INVALID_PARAM;
+                case NRF_ERROR_INVALID_STATE:
+                    return BLE_ERROR_INVALID_STATE;
+                case NRF_ERROR_BUSY:
+                    return BLE_STACK_BUSY;
+            }
+        }
     }
 
     dm_init_param_t dm_init_param = {
@@ -47,9 +66,9 @@ btle_initializeSecurity()
         .evt_handler  = dm_handler,
         .service_type = DM_PROTOCOL_CNTXT_GATT_CLI_ID,
         .sec_param    = {
-            .bond          = 1,            /**< Perform bonding. */
-            .mitm          = 1,            /**< Man In The Middle protection required. */
-            .io_caps       = BLE_GAP_IO_CAPS_NONE, /**< IO capabilities, see @ref BLE_GAP_IO_CAPS. */
+            .bond          = enableBonding,/**< Perform bonding. */
+            .mitm          = requireMITM,  /**< Man In The Middle protection required. */
+            .io_caps       = iocaps,       /**< IO capabilities, see @ref BLE_GAP_IO_CAPS. */
             .oob           = 0,            /**< Out Of Band data available. */
             .min_key_size  = 16,           /**< Minimum encryption key size in octets between 7 and 16. If 0 then not applicable in this instance. */
             .max_key_size  = 16,           /**< Maximum encryption key size in octets between min_key_size and 16. */
@@ -61,7 +80,6 @@ btle_initializeSecurity()
         }
     };
 
-    ret_code_t rc;
     if ((rc = dm_register(&applicationInstance, &dm_param)) != NRF_SUCCESS) {
         switch (rc) {
             case NRF_ERROR_INVALID_STATE:

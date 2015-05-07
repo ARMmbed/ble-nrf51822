@@ -25,9 +25,19 @@
  * cryptographic algorithms and protocol exchanges that allow two devices to
  * securely exchange data and privately detect each other.
  *
+ * @param[in]  enableBonding Allow for bonding.
+ * @param[in]  requireMITM   Require protection for man-in-the-middle attacks.
+ * @param[in]  iocaps        To specify IO capabilities of this peripheral,
+ *                           such as availability of a display or keyboard to
+ *                           support out-of-band exchanges of security data.
+ * @param[in]  passkey       To specify a static passkey.
+ *
  * @return BLE_ERROR_NONE on success.
  */
-ble_error_t btle_initializeSecurity();
+ble_error_t btle_initializeSecurity(bool                          enableBonding = true,
+                                    bool                          requireMITM   = true,
+                                    Gap::SecurityIOCapabilities_t iocaps        = Gap::IO_CAPS_NONE,
+                                    const Gap::Passkey_t          passkey       = NULL);
 
 /**
  * Get the security status of a link.
