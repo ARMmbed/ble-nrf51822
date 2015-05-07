@@ -46,7 +46,12 @@ public:
     virtual ble_error_t init(void);
     virtual ble_error_t shutdown(void);
     virtual ble_error_t reset(void);
-    virtual ble_error_t initializeSecurity(void) {return btle_initializeSecurity();}
+    virtual ble_error_t initializeSecurity(bool                          enableBonding = true,
+                                           bool                          requireMITM   = true,
+                                           Gap::SecurityIOCapabilities_t iocaps        = Gap::IO_CAPS_NONE,
+                                           const Gap::Passkey_t          passkey       = NULL) {
+        return btle_initializeSecurity(enableBonding, requireMITM, iocaps, passkey);
+    }
     virtual void        waitForEvent(void);
 };
 
