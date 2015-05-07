@@ -20,7 +20,7 @@
 #include "device_manager.h"
 #include "btle_security.h"
 
-static uint8_t applicationInstance;
+static dm_application_instance_t applicationInstance;
 static ret_code_t dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t event_result);
 
 ble_error_t
