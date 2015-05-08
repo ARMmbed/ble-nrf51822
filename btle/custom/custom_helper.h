@@ -34,7 +34,7 @@ ble_uuid_t custom_convert_to_nordic_uuid(const UUID &uuid);
 error_t custom_add_in_characteristic(uint16_t                  service_handle,
                                      ble_uuid_t               *p_uuid,
                                      uint8_t                   properties,
-                                     Gap::SecurityMode_t requiredSecurity,
+                                     Gap::SecurityMode_t       requiredSecurity,
                                      uint8_t                  *p_data,
                                      uint16_t                  min_length,
                                      uint16_t                  max_length,
