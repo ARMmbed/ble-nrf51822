@@ -146,9 +146,14 @@ ret_code_t
 dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t event_result)
 {
     switch (p_event->event_id) {
-        case DM_EVT_SECURITY_SETUP: /* started */
-            nRF51Gap::getInstance().processSecuritySetupStartedEvent(p_event->event_param.p_gap_param->conn_handle);
+        case DM_EVT_SECURITY_SETUP: /* started */ {
+            const ble_gap_sec_params_t *peerParams = &p_event->event_param.p_gap_param->params.sec_params_request.peer_params;
+            nRF51Gap::getInstance().processSecurityProcedureInitiatedEvent(p_event->event_param.p_gap_param->conn_handle,
+                                                                           peerParams->bond,
+                                                                           peerParams->mitm,
+                                                                           (Gap::SecurityIOCapabilities_t)peerParams->io_caps);
             break;
+        }
         case DM_EVT_SECURITY_SETUP_COMPLETE:
             nRF51Gap::getInstance().processSecuritySetupCompletedEvent(p_event->event_param.p_gap_param->conn_handle);
             break;
