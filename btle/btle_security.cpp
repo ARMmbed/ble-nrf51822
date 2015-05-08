@@ -155,7 +155,8 @@ dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t ev
             break;
         }
         case DM_EVT_SECURITY_SETUP_COMPLETE:
-            nRF51Gap::getInstance().processSecuritySetupCompletedEvent(p_event->event_param.p_gap_param->conn_handle);
+            nRF51Gap::getInstance().processSecurityProcedureCompletedEvent(p_event->event_param.p_gap_param->conn_handle,
+                                                                           (Gap::SecurityCompletionStatus_t)(p_event->event_param.p_gap_param->params.auth_status.auth_status));
             break;
         case DM_EVT_LINK_SECURED:
             nRF51Gap::getInstance().processLinkSecuredEvent(p_event->event_param.p_gap_param->conn_handle);
