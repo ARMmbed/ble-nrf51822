@@ -146,22 +146,6 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             break;
         }
 
-        case BLE_GAP_EVT_SEC_PARAMS_REQUEST: {
-            ble_gap_sec_params_t sec_params = {0};
-
-            sec_params.bond          = 1;  /**< Perform bonding. */
-            sec_params.mitm          = CFG_BLE_SEC_PARAM_MITM;
-            sec_params.io_caps       = CFG_BLE_SEC_PARAM_IO_CAPABILITIES;
-            sec_params.oob           = CFG_BLE_SEC_PARAM_OOB;
-            sec_params.min_key_size  = CFG_BLE_SEC_PARAM_MIN_KEY_SIZE;
-            sec_params.max_key_size  = CFG_BLE_SEC_PARAM_MAX_KEY_SIZE;
-
-            ble_gap_sec_keyset_t sec_keyset = {0};
-
-            ASSERT_STATUS_RET_VOID(sd_ble_gap_sec_params_reply(nRF51Gap::getInstance().getConnectionHandle(), BLE_GAP_SEC_STATUS_SUCCESS, &sec_params, &sec_keyset));
-        }
-        break;
-
         case BLE_GAP_EVT_TIMEOUT:
             if (p_ble_evt->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISING) {
                 nRF51Gap::getInstance().processEvent(GapEvents::GAP_EVENT_TIMEOUT);
