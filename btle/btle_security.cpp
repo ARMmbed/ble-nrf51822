@@ -158,9 +158,39 @@ dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t ev
             nRF51Gap::getInstance().processSecurityProcedureCompletedEvent(p_event->event_param.p_gap_param->conn_handle,
                                                                            (Gap::SecurityCompletionStatus_t)(p_event->event_param.p_gap_param->params.auth_status.auth_status));
             break;
-        case DM_EVT_LINK_SECURED:
-            nRF51Gap::getInstance().processLinkSecuredEvent(p_event->event_param.p_gap_param->conn_handle);
+        case DM_EVT_LINK_SECURED: {
+            unsigned securityMode                    = p_event->event_param.p_gap_param->params.conn_sec_update.conn_sec.sec_mode.sm;
+            unsigned level                           = p_event->event_param.p_gap_param->params.conn_sec_update.conn_sec.sec_mode.lv;
+            Gap::SecurityMode_t resolvedSecurityMode = Gap::SECURITY_MODE_NO_ACCESS;
+            switch (securityMode) {
+                case 1:
+                    switch (level) {
+                        case 1:
+                            resolvedSecurityMode = Gap::SECURITY_MODE_ENCRYPTION_OPEN_LINK;
+                            break;
+                        case 2:
+                            resolvedSecurityMode = Gap::SECURITY_MODE_ENCRYPTION_NO_MITM;
+                            break;
+                        case 3:
+                            resolvedSecurityMode = Gap::SECURITY_MODE_ENCRYPTION_WITH_MITM;
+                            break;
+                    }
+                    break;
+                case 2:
+                    switch (level) {
+                        case 1:
+                            resolvedSecurityMode = Gap::SECURITY_MODE_SIGNED_NO_MITM;
+                            break;
+                        case 2:
+                            resolvedSecurityMode = Gap::SECURITY_MODE_SIGNED_WITH_MITM;
+                            break;
+                    }
+                    break;
+            }
+
+            nRF51Gap::getInstance().processLinkSecuredEvent(p_event->event_param.p_gap_param->conn_handle, resolvedSecurityMode);
             break;
+        }
         case DM_EVT_DEVICE_CONTEXT_STORED:
             nRF51Gap::getInstance().processSecurityContextStoredEvent(p_event->event_param.p_gap_param->conn_handle);
             break;
