@@ -146,6 +146,10 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             break;
         }
 
+        case BLE_GAP_EVT_PASSKEY_DISPLAY:
+            nRF51Gap::getInstance().processPasskeyDisplayEvent(p_ble_evt->evt.gap_evt.conn_handle, p_ble_evt->evt.gap_evt.params.passkey_display.passkey);
+            break;
+
         case BLE_GAP_EVT_TIMEOUT:
             if (p_ble_evt->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISING) {
                 nRF51Gap::getInstance().processEvent(GapEvents::GAP_EVENT_TIMEOUT);
