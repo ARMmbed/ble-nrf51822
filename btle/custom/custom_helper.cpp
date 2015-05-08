@@ -261,6 +261,8 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
             case Gap::SECURITY_MODE_SIGNED_WITH_MITM :
                 BLE_GAP_CONN_SEC_MODE_SET_SIGNED_WITH_MITM(&attr_md.read_perm);
                 break;
+            default:
+                break;
         };
     }
 
@@ -280,6 +282,8 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
                 break;
             case Gap::SECURITY_MODE_SIGNED_WITH_MITM :
                 BLE_GAP_CONN_SEC_MODE_SET_SIGNED_WITH_MITM(&attr_md.write_perm);
+                break;
+            default:
                 break;
         };
     }
