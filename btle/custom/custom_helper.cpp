@@ -200,7 +200,7 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
 error_t custom_add_in_characteristic(uint16_t                            service_handle,
                                      ble_uuid_t                         *p_uuid,
                                      uint8_t                             properties,
-                                     GattCharacteristic::SecurityMode_t  requiredSecurity,
+                                     Gap::SecurityMode_t  requiredSecurity,
                                      uint8_t                            *p_data,
                                      uint16_t                            min_length,
                                      uint16_t                            max_length,
@@ -246,19 +246,19 @@ error_t custom_add_in_characteristic(uint16_t                            service
 
     if (char_props.read || char_props.notify || char_props.indicate) {
         switch (requiredSecurity) {
-            case GattCharacteristic::SECURITY_MODE_ENCRYPTION_OPEN_LINK :
+            case Gap::SECURITY_MODE_ENCRYPTION_OPEN_LINK :
                 BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
                 break;
-            case GattCharacteristic::SECURITY_MODE_ENCRYPTION_NO_MITM :
+            case Gap::SECURITY_MODE_ENCRYPTION_NO_MITM :
                 BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&attr_md.read_perm);
                 break;
-            case GattCharacteristic::SECURITY_MODE_ENCRYPTION_WITH_MITM :
+            case Gap::SECURITY_MODE_ENCRYPTION_WITH_MITM :
                 BLE_GAP_CONN_SEC_MODE_SET_ENC_WITH_MITM(&attr_md.read_perm);
                 break;
-            case GattCharacteristic::SECURITY_MODE_SIGNED_NO_MITM :
+            case Gap::SECURITY_MODE_SIGNED_NO_MITM :
                 BLE_GAP_CONN_SEC_MODE_SET_SIGNED_NO_MITM(&attr_md.read_perm);
                 break;
-            case GattCharacteristic::SECURITY_MODE_SIGNED_WITH_MITM :
+            case Gap::SECURITY_MODE_SIGNED_WITH_MITM :
                 BLE_GAP_CONN_SEC_MODE_SET_SIGNED_WITH_MITM(&attr_md.read_perm);
                 break;
         };
@@ -266,19 +266,19 @@ error_t custom_add_in_characteristic(uint16_t                            service
 
     if (char_props.write || char_props.write_wo_resp) {
         switch (requiredSecurity) {
-            case GattCharacteristic::SECURITY_MODE_ENCRYPTION_OPEN_LINK :
+            case Gap::SECURITY_MODE_ENCRYPTION_OPEN_LINK :
                 BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
                 break;
-            case GattCharacteristic::SECURITY_MODE_ENCRYPTION_NO_MITM :
+            case Gap::SECURITY_MODE_ENCRYPTION_NO_MITM :
                 BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&attr_md.write_perm);
                 break;
-            case GattCharacteristic::SECURITY_MODE_ENCRYPTION_WITH_MITM :
+            case Gap::SECURITY_MODE_ENCRYPTION_WITH_MITM :
                 BLE_GAP_CONN_SEC_MODE_SET_ENC_WITH_MITM(&attr_md.write_perm);
                 break;
-            case GattCharacteristic::SECURITY_MODE_SIGNED_NO_MITM :
+            case Gap::SECURITY_MODE_SIGNED_NO_MITM :
                 BLE_GAP_CONN_SEC_MODE_SET_SIGNED_NO_MITM(&attr_md.write_perm);
                 break;
-            case GattCharacteristic::SECURITY_MODE_SIGNED_WITH_MITM :
+            case Gap::SECURITY_MODE_SIGNED_WITH_MITM :
                 BLE_GAP_CONN_SEC_MODE_SET_SIGNED_WITH_MITM(&attr_md.write_perm);
                 break;
         };
