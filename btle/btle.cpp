@@ -166,36 +166,17 @@ static void btle_handler(ble_evt_t *p_ble_evt)
     nRF51GattServer::getInstance().hwCallback(p_ble_evt);
 }
 
-/**************************************************************************/
-/*!
-    @brief      Callback when an error occurs inside the SoftDevice
-
-    @param[in]  line_num
-    @param[in]  p-file_name
-
-    @returns
-*/
-/**************************************************************************/
+/*! @brief      Callback when an error occurs inside the SoftDevice */
 void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name)
 {
     ASSERT(false, (void) 0);
 }
 
-/**************************************************************************/
 /*!
     @brief      Handler for general errors above the SoftDevice layer.
                 Typically we can' recover from this so we do a reset.
-
-    @param[in]  error_code
-    @param[in]  line_num
-    @param[in]  p-file_name
-
-    @returns
 */
-/**************************************************************************/
-void app_error_handler(uint32_t       error_code,
-                       uint32_t       line_num,
-                       const uint8_t *p_file_name)
+void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name)
 {
     ASSERT_STATUS_RET_VOID( error_code );
     NVIC_SystemReset();
