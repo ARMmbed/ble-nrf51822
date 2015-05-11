@@ -23,6 +23,7 @@
 #include "GapAdvertisingParams.h"
 #include "GapAdvertisingData.h"
 #include "Gap.h"
+#include "GapScanningParams.h"
 
 #include "nrf_soc.h"
 #include "ble_radio_notification.h"
