@@ -77,7 +77,7 @@ public:
         ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, onRadioNotification);
     }
 
-    virtual ble_error_t startScanning(const GapScanningParams &scanningParams, AdvertisementReportCallback_t callback) {
+    virtual ble_error_t startScan(const GapScanningParams &scanningParams, AdvertisementReportCallback_t callback) {
         if ((onAdvertisementReport = callback) != NULL) {
 
             ble_gap_scan_params_t scanParams = {
@@ -97,7 +97,7 @@ public:
         return BLE_ERROR_NONE;
     }
 
-    virtual ble_error_t stopScanning(void) {
+    virtual ble_error_t stopScan(void) {
         if (sd_ble_gap_scan_stop() == NRF_SUCCESS) {
             return BLE_ERROR_NONE;
         }
