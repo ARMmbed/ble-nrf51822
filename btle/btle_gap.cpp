@@ -97,19 +97,3 @@ static void error_callback(uint32_t nrf_error)
     ASSERT_STATUS_RET_VOID( nrf_error );
 }
 #endif // SDK_CONN_PARAMS_MODULE_ENABLE
-
-
-void
-btle_gapStartScanning(void)
-{
-    ble_gap_scan_params_t scanParams = {
-        .active      = 0,        /**< If 1, perform active scanning (scan requests). */
-        .selective   = 0,        /**< If 1, ignore unknown devices (non whitelisted). */
-        .p_whitelist = NULL,     /**< Pointer to whitelist, NULL if none is given. */
-        .interval    = 1000,     /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
-        .window      = 500,      /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
-        .timeout     = 0,        /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
-    };
-
-    sd_ble_gap_scan_start(&scanParams);
-}
