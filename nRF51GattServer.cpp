@@ -261,7 +261,7 @@ ble_error_t nRF51GattServer::updateValue(Gap::Handle_t connectionHandle, GattAtt
 /**************************************************************************/
 void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
 {
-    uint16_t                       handle_value;
+    GattAttribute::Handle_t        handle_value;
     GattServerEvents::gattEvent_t  eventType;
     const ble_gatts_evt_t         *gattsEventP = &p_ble_evt->evt.gatts_evt;
 
@@ -285,7 +285,7 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                         eventType = GattServerEvents::GATT_EVENT_UPDATES_DISABLED;
                     }
 
-                    handleEvent(eventType, i);
+                    handleEvent(eventType, handle_value);
                     return;
                 }
             }
@@ -410,7 +410,7 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                 }
 
                 default:
-                    handleEvent(eventType, i);
+                    handleEvent(eventType, handle_value);
                     break;
             }
         }
