@@ -22,7 +22,8 @@
 #include "ble.h"
 #include "GapAdvertisingParams.h"
 #include "GapAdvertisingData.h"
-#include "public/Gap.h"
+#include "Gap.h"
+#include "GapScanningParams.h"
 
 #include "nrf_soc.h"
 #include "ble_radio_notification.h"
@@ -47,9 +48,9 @@ public:
     virtual ble_error_t getAddress(addr_type_t *typeP, address_t address);
     virtual ble_error_t setAdvertisingData(const GapAdvertisingData &, const GapAdvertisingData &);
 
-    virtual uint16_t    getMinAdvertisingInterval(void) const {return GAP_DURATION_UNITS_TO_MS(BLE_GAP_ADV_INTERVAL_MIN);}
-    virtual uint16_t    getMinNonConnectableAdvertisingInterval(void) const {return GAP_DURATION_UNITS_TO_MS(BLE_GAP_ADV_NONCON_INTERVAL_MIN);}
-    virtual uint16_t    getMaxAdvertisingInterval(void) const {return GAP_DURATION_UNITS_TO_MS(BLE_GAP_ADV_INTERVAL_MAX);}
+    virtual uint16_t    getMinAdvertisingInterval(void) const {return ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_INTERVAL_MIN);}
+    virtual uint16_t    getMinNonConnectableAdvertisingInterval(void) const {return ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_NONCON_INTERVAL_MIN);}
+    virtual uint16_t    getMaxAdvertisingInterval(void) const {return ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_INTERVAL_MAX);}
 
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
     virtual ble_error_t stopAdvertising(void);
@@ -75,6 +76,34 @@ public:
     virtual void setOnRadioNotification(RadioNotificationEventCallback_t callback) {
         Gap::setOnRadioNotification(callback);
         ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, onRadioNotification);
+    }
+
+    virtual ble_error_t startScan(const GapScanningParams &scanningParams, AdvertisementReportCallback_t callback) {
+        if ((onAdvertisementReport = callback) != NULL) {
+
+            ble_gap_scan_params_t scanParams = {
+                .active      = scanningParams.getActiveScanning(), /**< If 1, perform active scanning (scan requests). */
+                .selective   = 0,    /**< If 1, ignore unknown devices (non whitelisted). */
+                .p_whitelist = NULL, /**< Pointer to whitelist, NULL if none is given. */
+                .interval    = scanningParams.getInterval(),  /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+                .window      = scanningParams.getWindow(),    /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+                .timeout     = scanningParams.getTimeout(),   /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+            };
+
+            if (sd_ble_gap_scan_start(&scanParams) != NRF_SUCCESS) {
+                return BLE_ERROR_PARAM_OUT_OF_RANGE;
+            }
+        }
+
+        return BLE_ERROR_NONE;
+    }
+
+    virtual ble_error_t stopScan(void) {
+        if (sd_ble_gap_scan_stop() == NRF_SUCCESS) {
+            return BLE_ERROR_NONE;
+        }
+
+        return BLE_STACK_BUSY;
     }
 
 private:

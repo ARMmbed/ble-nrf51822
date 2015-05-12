@@ -163,6 +163,17 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             // BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION));
             break;
 
+        case BLE_GAP_EVT_ADV_REPORT: {
+            const ble_gap_evt_adv_report_t *advReport = &p_ble_evt->evt.gap_evt.params.adv_report;
+            nRF51Gap::getInstance().processAdvertisementReport(advReport->peer_addr.addr,
+                                                               advReport->rssi,
+                                                               advReport->scan_rsp,
+                                                               static_cast<Gap::AdvertisementType_t>(advReport->type),
+                                                               advReport->dlen,
+                                                               advReport->data);
+            break;
+        }
+
         default:
             break;
     }
