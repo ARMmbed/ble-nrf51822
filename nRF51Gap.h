@@ -78,9 +78,8 @@ public:
         ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, onRadioNotification);
     }
 
-    virtual ble_error_t startScan(const GapScanningParams &scanningParams, AdvertisementReportCallback_t callback) {
-        if ((onAdvertisementReport = callback) != NULL) {
-
+    virtual ble_error_t startScan(const GapScanningParams &scanningParams, void (*callback)(const AdvertisementCallbackParams_t *params)) {
+        if (callback != NULL) {
             ble_gap_scan_params_t scanParams = {
                 .active      = scanningParams.getActiveScanning(), /**< If 1, perform active scanning (scan requests). */
                 .selective   = 0,    /**< If 1, ignore unknown devices (non whitelisted). */
@@ -93,6 +92,8 @@ public:
             if (sd_ble_gap_scan_start(&scanParams) != NRF_SUCCESS) {
                 return BLE_ERROR_PARAM_OUT_OF_RANGE;
             }
+
+            onAdvertisementReport.attach(callback);
         }
 
         return BLE_ERROR_NONE;
