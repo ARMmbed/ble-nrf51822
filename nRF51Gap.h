@@ -78,22 +78,18 @@ public:
         ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, onRadioNotification);
     }
 
-    virtual ble_error_t startScan(const GapScanningParams &scanningParams, void (*callback)(const AdvertisementCallbackParams_t *params)) {
-        if (callback != NULL) {
-            ble_gap_scan_params_t scanParams = {
-                .active      = scanningParams.getActiveScanning(), /**< If 1, perform active scanning (scan requests). */
-                .selective   = 0,    /**< If 1, ignore unknown devices (non whitelisted). */
-                .p_whitelist = NULL, /**< Pointer to whitelist, NULL if none is given. */
-                .interval    = scanningParams.getInterval(),  /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
-                .window      = scanningParams.getWindow(),    /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
-                .timeout     = scanningParams.getTimeout(),   /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
-            };
+    virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams) {
+        ble_gap_scan_params_t scanParams = {
+            .active      = scanningParams.getActiveScanning(), /**< If 1, perform active scanning (scan requests). */
+            .selective   = 0,    /**< If 1, ignore unknown devices (non whitelisted). */
+            .p_whitelist = NULL, /**< Pointer to whitelist, NULL if none is given. */
+            .interval    = scanningParams.getInterval(),  /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+            .window      = scanningParams.getWindow(),    /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+            .timeout     = scanningParams.getTimeout(),   /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+        };
 
-            if (sd_ble_gap_scan_start(&scanParams) != NRF_SUCCESS) {
-                return BLE_ERROR_PARAM_OUT_OF_RANGE;
-            }
-
-            onAdvertisementReport.attach(callback);
+        if (sd_ble_gap_scan_start(&scanParams) != NRF_SUCCESS) {
+            return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
 
         return BLE_ERROR_NONE;
