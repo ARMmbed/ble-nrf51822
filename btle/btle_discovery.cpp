@@ -145,8 +145,8 @@ NordicServiceDiscovery::progressCharacteristicDiscovery(void)
     }
 
     if (cDiscoveryActive) {
-        Gap::Handle_t startHandle = characteristics[characteristicIndex - 1].valueHandle + 1;
-        Gap::Handle_t endHandle   = services[serviceIndex].endHandle;
+        Gap::Handle_t startHandle = characteristics[characteristicIndex - 1].getValueHandle() + 1;
+        Gap::Handle_t endHandle   = services[serviceIndex].getEndHandle();
         resetDiscoveredCharacteristics();
 
         if (startHandle < endHandle) {
@@ -172,13 +172,13 @@ NordicServiceDiscovery::progressServiceDiscovery(void)
         }
 
         if (characteristicCallback) { /* characteristic discovery is optional. */
-            launchCharacteristicDiscovery(connHandle, services[serviceIndex].startHandle, services[serviceIndex].endHandle);
+            launchCharacteristicDiscovery(connHandle, services[serviceIndex].getStartHandle(), services[serviceIndex].getEndHandle());
         } else {
             serviceIndex++; /* Progress service index to keep discovery alive. */
         }
     }
     if (sDiscoveryActive && (numServices > 0) && (serviceIndex > 0)) {
-        Gap::Handle_t endHandle = services[serviceIndex - 1].endHandle;
+        Gap::Handle_t endHandle = services[serviceIndex - 1].getEndHandle();
         resetDiscoveredServices();
 
         if (sd_ble_gattc_primary_services_discover(connHandle, endHandle, NULL) != NRF_SUCCESS) {
