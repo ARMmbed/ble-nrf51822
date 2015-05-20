@@ -206,7 +206,10 @@ ble_error_t nRF51Gap::stopAdvertising(void)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF51Gap::connect(const Address_t peerAddr, Gap::AddressType_t peerAddrType, const GapScanningParams &scanParamsIn)
+ble_error_t nRF51Gap::connect(const Address_t            peerAddr,
+                              Gap::AddressType_t         peerAddrType,
+                              const GapScanningParams&   scanParamsIn,
+                              const ConnectionParams_t&  connectionParams)
 {
     ble_gap_addr_t addr;
     addr.addr_type = peerAddrType;
@@ -220,11 +223,12 @@ ble_error_t nRF51Gap::connect(const Address_t peerAddr, Gap::AddressType_t peerA
         .window      = scanParamsIn.getWindow(),   /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
         .timeout     = scanParamsIn.getTimeout(),  /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
     };
+
     ble_gap_conn_params_t connParams = {
-        .min_conn_interval = 30,
-        .max_conn_interval = 100,
-        .slave_latency     = 0,
-        .conn_sup_timeout  = 400,
+        .min_conn_interval = connectionParams.minConnectionInterval,
+        .max_conn_interval = connectionParams.maxConnectionInterval,
+        .slave_latency     = connectionParams.slaveLatency,
+        .conn_sup_timeout  = connectionParams.connectionSupervisionTimeout,
     };
 
     uint32_t rc = sd_ble_gap_connect(&addr, &scanParams, &connParams);
