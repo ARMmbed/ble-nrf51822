@@ -227,9 +227,27 @@ ble_error_t nRF51Gap::connect(const Address_t peerAddr, Gap::AddressType_t peerA
         .conn_sup_timeout  = 400,
     };
 
-    printf("connect returns with %u\r\n", sd_ble_gap_connect(&addr, &scanParams, &connParams));
-
-    return BLE_ERROR_NONE;
+    uint32_t rc = sd_ble_gap_connect(&addr, &scanParams, &connParams);
+    if (rc == NRF_SUCCESS) {
+        return BLE_ERROR_NONE;
+    }
+    switch (rc) {
+        case NRF_ERROR_INVALID_ADDR:
+            return BLE_ERROR_INVALID_PARAM;
+        case NRF_ERROR_INVALID_PARAM:
+            return BLE_ERROR_INVALID_PARAM;
+        case NRF_ERROR_INVALID_STATE:
+            return BLE_ERROR_INVALID_STATE;
+        case BLE_ERROR_GAP_INVALID_BLE_ADDR:
+            return BLE_ERROR_INVALID_PARAM;
+        case NRF_ERROR_NO_MEM:
+            return BLE_ERROR_NO_MEM;
+        case NRF_ERROR_BUSY:
+            return BLE_STACK_BUSY;
+        default:
+        case BLE_ERROR_GAP_WHITELIST_IN_USE:
+            return BLE_ERROR_UNSPECIFIED;
+    }
 }
 
 
