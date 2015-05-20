@@ -206,6 +206,33 @@ ble_error_t nRF51Gap::stopAdvertising(void)
     return BLE_ERROR_NONE;
 }
 
+ble_error_t nRF51Gap::connect(const Address_t peerAddr, Gap::AddressType_t peerAddrType, const GapScanningParams &scanParamsIn)
+{
+    ble_gap_addr_t addr;
+    addr.addr_type = peerAddrType;
+    memcpy(addr.addr, peerAddr, Gap::ADDR_LEN);
+
+    ble_gap_scan_params_t scanParams = {
+        .active      = 0,    /**< If 1, perform active scanning (scan requests). */
+        .selective   = 0,    /**< If 1, ignore unknown devices (non whitelisted). */
+        .p_whitelist = NULL, /**< Pointer to whitelist, NULL if none is given. */
+        .interval    = scanParamsIn.getInterval(), /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        .window      = scanParamsIn.getWindow(),   /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        .timeout     = scanParamsIn.getTimeout(),  /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+    };
+    ble_gap_conn_params_t connParams = {
+        .min_conn_interval = 30,
+        .max_conn_interval = 100,
+        .slave_latency     = 0,
+        .conn_sup_timeout  = 400,
+    };
+
+    printf("connect returns with %u\r\n", sd_ble_gap_connect(&addr, &scanParams, &connParams));
+
+    return BLE_ERROR_NONE;
+}
+
+
 /**************************************************************************/
 /*!
     @brief  Disconnects if we are connected to a central device
