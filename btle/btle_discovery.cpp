@@ -24,11 +24,18 @@
 static NordicServiceDiscovery discoverySingleton;
 
 ble_error_t
-ServiceDiscovery::launch(Gap::Handle_t connectionHandle, ServiceCallback_t sc, CharacteristicCallback_t cc)
+ServiceDiscovery::launch(Gap::Handle_t            connectionHandle,
+                         ServiceCallback_t        sc,
+                         CharacteristicCallback_t cc,
+                         UUID                     matchingServiceUUIDIn,
+                         UUID                     matchingCharacteristicUUIDIn)
 {
+    discoverySingleton.serviceCallback            = sc;
+    discoverySingleton.characteristicCallback     = cc;
+    discoverySingleton.matchingServiceUUID        = matchingServiceUUIDIn;
+    discoverySingleton.matchingCharacteristicUUID = matchingCharacteristicUUIDIn;
+
     discoverySingleton.serviceDiscoveryStarted(connectionHandle);
-    discoverySingleton.serviceCallback        = sc;
-    discoverySingleton.characteristicCallback = cc;
 
     uint32_t rc;
     if ((rc = sd_ble_gattc_primary_services_discover(connectionHandle, NordicServiceDiscovery::SRV_DISC_START_HANDLE, NULL)) != NRF_SUCCESS) {
@@ -46,19 +53,6 @@ ServiceDiscovery::launch(Gap::Handle_t connectionHandle, ServiceCallback_t sc, C
     }
 
     return BLE_ERROR_NONE;
-}
-
-ble_error_t
-ServiceDiscovery::launch(Gap::Handle_t            connectionHandle,
-                         UUID                     matchingServiceUUIDIn,
-                         ServiceCallback_t        sc,
-                         UUID                     matchingCharacteristicUUIDIn,
-                         CharacteristicCallback_t cc)
-{
-    discoverySingleton.matchingServiceUUID        = matchingServiceUUIDIn;
-    discoverySingleton.matchingCharacteristicUUID = matchingCharacteristicUUIDIn;
-
-    return launch(connectionHandle, sc, cc);
 }
 
 void
