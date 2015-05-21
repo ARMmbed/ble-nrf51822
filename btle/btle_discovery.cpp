@@ -171,7 +171,7 @@ NordicServiceDiscovery::progressServiceDiscovery(void)
             serviceCallback(services[serviceIndex]);
         }
 
-        if (characteristicCallback) { /* characteristic discovery is optional. */
+        if (sDiscoveryActive && characteristicCallback) { /* characteristic discovery is optional. */
             launchCharacteristicDiscovery(connHandle, services[serviceIndex].getStartHandle(), services[serviceIndex].getEndHandle());
         } else {
             serviceIndex++; /* Progress service index to keep discovery alive. */
