@@ -24,11 +24,11 @@
 static NordicServiceDiscovery discoverySingleton;
 
 ble_error_t
-ServiceDiscovery::launch(Gap::Handle_t            connectionHandle,
-                         ServiceCallback_t        sc,
-                         CharacteristicCallback_t cc,
-                         UUID                     matchingServiceUUIDIn,
-                         UUID                     matchingCharacteristicUUIDIn)
+ServiceDiscovery::launch(Gap::Handle_t             connectionHandle,
+                         ServiceCallback_t         sc,
+                         CharacteristicCallback_t  cc,
+                         const UUID               &matchingServiceUUIDIn,
+                         const UUID               &matchingCharacteristicUUIDIn)
 {
     discoverySingleton.serviceCallback            = sc;
     discoverySingleton.characteristicCallback     = cc;
