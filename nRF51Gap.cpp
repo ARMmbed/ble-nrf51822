@@ -223,7 +223,7 @@ ble_error_t nRF51Gap::connect(const Address_t           peerAddr,
         connParams.conn_sup_timeout  = connectionParams->connectionSupervisionTimeout;
     } else {
         connParams.min_conn_interval = 50;
-        connParams.max_conn_interval = 1000;
+        connParams.max_conn_interval = 250;
         connParams.slave_latency     = 0;
         connParams.conn_sup_timeout  = 600;
     }
