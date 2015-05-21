@@ -130,6 +130,7 @@ NordicServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_
 void
 NordicServiceDiscovery::progressCharacteristicDiscovery(void)
 {
+    /* Iterate through the previously discovered characteristics cached in characteristics[]. */
     while (cDiscoveryActive && (characteristicIndex < numCharacteristics)) {
         if (characteristicCallback) {
             characteristicCallback(characteristics[characteristicIndex]);
@@ -138,7 +139,9 @@ NordicServiceDiscovery::progressCharacteristicDiscovery(void)
         characteristicIndex++;
     }
 
+    /* Relaunch discovery of new characteristics beyond the last entry cached in characteristics[]. */
     if (cDiscoveryActive) {
+        /* Determine the ending handle of the last cached characteristic. */
         Gap::Handle_t startHandle = characteristics[characteristicIndex - 1].getValueHandle() + 1;
         Gap::Handle_t endHandle   = services[serviceIndex].getEndHandle();
         resetDiscoveredCharacteristics(); /* Note: resetDiscoveredCharacteristics() must come after fetching start and end Handles. */
@@ -160,6 +163,7 @@ NordicServiceDiscovery::progressCharacteristicDiscovery(void)
 void
 NordicServiceDiscovery::progressServiceDiscovery(void)
 {
+    /* Iterate through the previously discovered services cached in services[]. */
     while (sDiscoveryActive && (serviceIndex < numServices)) {
         if (serviceCallback) {
             serviceCallback(services[serviceIndex]);
@@ -171,7 +175,10 @@ NordicServiceDiscovery::progressServiceDiscovery(void)
             serviceIndex++; /* Progress service index to keep discovery alive. */
         }
     }
+
+    /* Relaunch discovery of new services beyond the last entry cached in services[]. */
     if (sDiscoveryActive && (numServices > 0) && (serviceIndex > 0)) {
+        /* Determine the ending handle of the last cached service. */
         Gap::Handle_t endHandle = services[serviceIndex - 1].getEndHandle();
         resetDiscoveredServices(); /* Note: resetDiscoveredServices() must come after fetching endHandle. */
 
