@@ -51,7 +51,7 @@ public:
 
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
     virtual ble_error_t stopAdvertising(void);
-    virtual ble_error_t connect(const Address_t, Gap::AddressType_t peerAddrType, const GapScanningParams &scanParams, const ConnectionParams_t& connectionParams);
+    virtual ble_error_t connect(const Address_t, Gap::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
     virtual ble_error_t disconnect(DisconnectionReason_t reason);
 
     virtual ble_error_t purgeAllBondingState(void) {return btle_purgeAllBondingState();}
