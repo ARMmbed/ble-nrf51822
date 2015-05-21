@@ -41,8 +41,8 @@ public:
     static nRF51Gap &getInstance();
 
     /* Functions that must be implemented from Gap */
-    virtual ble_error_t setAddress(AddressType_t  type,  const address_t address);
-    virtual ble_error_t getAddress(AddressType_t *typeP, address_t address);
+    virtual ble_error_t setAddress(AddressType_t  type,  const Address_t address);
+    virtual ble_error_t getAddress(AddressType_t *typeP, Address_t address);
     virtual ble_error_t setAdvertisingData(const GapAdvertisingData &, const GapAdvertisingData &);
 
     virtual uint16_t    getMinAdvertisingInterval(void) const {return ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_INTERVAL_MIN);}
