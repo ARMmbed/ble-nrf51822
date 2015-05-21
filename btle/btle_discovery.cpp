@@ -141,7 +141,7 @@ NordicServiceDiscovery::progressCharacteristicDiscovery(void)
     if (cDiscoveryActive) {
         Gap::Handle_t startHandle = characteristics[characteristicIndex - 1].getValueHandle() + 1;
         Gap::Handle_t endHandle   = services[serviceIndex].getEndHandle();
-        resetDiscoveredCharacteristics();
+        resetDiscoveredCharacteristics(); /* Note: resetDiscoveredCharacteristics() must come after fetching start and end Handles. */
 
         if (startHandle < endHandle) {
             ble_gattc_handle_range_t handleRange = {
@@ -173,7 +173,7 @@ NordicServiceDiscovery::progressServiceDiscovery(void)
     }
     if (sDiscoveryActive && (numServices > 0) && (serviceIndex > 0)) {
         Gap::Handle_t endHandle = services[serviceIndex - 1].getEndHandle();
-        resetDiscoveredServices();
+        resetDiscoveredServices(); /* Note: resetDiscoveredServices() must come after fetching endHandle. */
 
         if (sd_ble_gattc_primary_services_discover(connHandle, endHandle, NULL) != NRF_SUCCESS) {
             terminateServiceDiscovery();
