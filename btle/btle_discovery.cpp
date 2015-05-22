@@ -21,7 +21,7 @@
 #include "btle_discovery.h"
 #include "ble_err.h"
 
-static NordicServiceDiscovery discoverySingleton;
+static NordicServiceDiscovery sdSingleton;
 
 ble_error_t
 ServiceDiscovery::launch(Gap::Handle_t             connectionHandle,
@@ -30,16 +30,16 @@ ServiceDiscovery::launch(Gap::Handle_t             connectionHandle,
                          const UUID               &matchingServiceUUIDIn,
                          const UUID               &matchingCharacteristicUUIDIn)
 {
-    discoverySingleton.serviceCallback            = sc;
-    discoverySingleton.characteristicCallback     = cc;
-    discoverySingleton.matchingServiceUUID        = matchingServiceUUIDIn;
-    discoverySingleton.matchingCharacteristicUUID = matchingCharacteristicUUIDIn;
+    sdSingleton.serviceCallback            = sc;
+    sdSingleton.characteristicCallback     = cc;
+    sdSingleton.matchingServiceUUID        = matchingServiceUUIDIn;
+    sdSingleton.matchingCharacteristicUUID = matchingCharacteristicUUIDIn;
 
-    discoverySingleton.serviceDiscoveryStarted(connectionHandle);
+    sdSingleton.serviceDiscoveryStarted(connectionHandle);
 
     uint32_t rc;
     if ((rc = sd_ble_gattc_primary_services_discover(connectionHandle, NordicServiceDiscovery::SRV_DISC_START_HANDLE, NULL)) != NRF_SUCCESS) {
-        discoverySingleton.terminate();
+        sdSingleton.terminate();
         switch (rc) {
             case NRF_ERROR_INVALID_PARAM:
             case BLE_ERROR_INVALID_CONN_HANDLE:
@@ -58,7 +58,7 @@ ServiceDiscovery::launch(Gap::Handle_t             connectionHandle,
 void
 ServiceDiscovery::terminate(void)
 {
-    discoverySingleton.terminateServiceDiscovery();
+    sdSingleton.terminateServiceDiscovery();
 }
 
 ble_error_t
@@ -66,7 +66,7 @@ NordicServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHa
                                                       Gap::Handle_t startHandle,
                                                       Gap::Handle_t endHandle)
 {
-    discoverySingleton.characteristicDiscoveryStarted(connectionHandle);
+    sdSingleton.characteristicDiscoveryStarted(connectionHandle);
 
     ble_gattc_handle_range_t handleRange = {
         .start_handle = startHandle,
@@ -74,7 +74,7 @@ NordicServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHa
     };
     uint32_t rc;
     if ((rc = sd_ble_gattc_characteristics_discover(connectionHandle, &handleRange)) != NRF_SUCCESS) {
-        discoverySingleton.terminateCharacteristicDiscovery();
+        sdSingleton.terminateCharacteristicDiscovery();
         switch (rc) {
             case BLE_ERROR_INVALID_CONN_HANDLE:
             case NRF_ERROR_INVALID_ADDR:
@@ -199,12 +199,12 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
         case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
             switch (p_ble_evt->evt.gattc_evt.gatt_status) {
                 case BLE_GATT_STATUS_SUCCESS:
-                    discoverySingleton.setupDiscoveredServices(&p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp);
+                    sdSingleton.setupDiscoveredServices(&p_ble_evt->evt.gattc_evt.params.prim_srvc_disc_rsp);
                     break;
 
                 case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND:
                 default:
-                    discoverySingleton.terminate();
+                    sdSingleton.terminate();
                     break;
             }
             break;
@@ -212,17 +212,17 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
         case BLE_GATTC_EVT_CHAR_DISC_RSP:
             switch (p_ble_evt->evt.gattc_evt.gatt_status) {
                 case BLE_GATT_STATUS_SUCCESS:
-                    discoverySingleton.setupDiscoveredCharacteristics(&p_ble_evt->evt.gattc_evt.params.char_disc_rsp);
+                    sdSingleton.setupDiscoveredCharacteristics(&p_ble_evt->evt.gattc_evt.params.char_disc_rsp);
                     break;
 
                 case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND:
                 default:
-                    discoverySingleton.terminateCharacteristicDiscovery();
+                    sdSingleton.terminateCharacteristicDiscovery();
                     break;
             }
             break;
     }
 
-    discoverySingleton.progressCharacteristicDiscovery();
-    discoverySingleton.progressServiceDiscovery();
+    sdSingleton.progressCharacteristicDiscovery();
+    sdSingleton.progressServiceDiscovery();
 }
