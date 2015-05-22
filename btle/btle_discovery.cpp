@@ -155,7 +155,7 @@ NordicServiceDiscovery::progressCharacteristicDiscovery(void)
                 terminateCharacteristicDiscovery();
             }
         } else {
-           terminateCharacteristicDiscovery();
+            terminateCharacteristicDiscovery();
         }
     }
 }
@@ -165,14 +165,19 @@ NordicServiceDiscovery::progressServiceDiscovery(void)
 {
     /* Iterate through the previously discovered services cached in services[]. */
     while (sDiscoveryActive && (serviceIndex < numServices)) {
-        if (serviceCallback) {
-            serviceCallback(services[serviceIndex]);
-        }
+        if ((matchingServiceUUID == ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
+            (matchingServiceUUID == services[serviceIndex].getShortUUID())) {
+            if (serviceCallback) {
+                serviceCallback(services[serviceIndex]);
+            }
 
-        if (sDiscoveryActive && characteristicCallback) { /* characteristic discovery is optional. */
-            launchCharacteristicDiscovery(connHandle, services[serviceIndex].getStartHandle(), services[serviceIndex].getEndHandle());
+            if (sDiscoveryActive && characteristicCallback) {
+                launchCharacteristicDiscovery(connHandle, services[serviceIndex].getStartHandle(), services[serviceIndex].getEndHandle());
+            } else {
+                serviceIndex++;
+            }
         } else {
-            serviceIndex++; /* Progress service index to keep discovery alive. */
+            serviceIndex++;
         }
     }
 
