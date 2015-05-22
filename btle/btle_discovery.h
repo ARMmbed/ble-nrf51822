@@ -49,6 +49,10 @@ public:
         serviceIndex++; /* Progress service index to keep discovery alive. */
     }
 
+    bool isActive(void) const {
+        return (sDiscoveryActive || cDiscoveryActive);
+    }
+
 private:
     void resetDiscoveredServices(void) {
         numServices  = 0;

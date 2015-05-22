@@ -61,6 +61,12 @@ ServiceDiscovery::terminate(void)
     sdSingleton.terminateServiceDiscovery();
 }
 
+bool
+ServiceDiscovery::isActive(void)
+{
+    return sdSingleton.isActive();
+}
+
 ble_error_t
 NordicServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHandle,
                                                       Gap::Handle_t startHandle,
