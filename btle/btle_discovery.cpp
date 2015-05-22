@@ -210,8 +210,12 @@ NordicServiceDiscovery::progressServiceDiscovery(void)
         Gap::Handle_t endHandle = services[serviceIndex - 1].getEndHandle();
         resetDiscoveredServices(); /* Note: resetDiscoveredServices() must come after fetching endHandle. */
 
-        if (sd_ble_gattc_primary_services_discover(connHandle, endHandle, NULL) != NRF_SUCCESS) {
+        if (endHandle == SRV_DISC_END_HANDLE) {
             terminateServiceDiscovery();
+        } else {
+            if (sd_ble_gattc_primary_services_discover(connHandle, endHandle, NULL) != NRF_SUCCESS) {
+                terminateServiceDiscovery();
+            }
         }
     }
 }
