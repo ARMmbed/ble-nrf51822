@@ -146,8 +146,11 @@ NordicServiceDiscovery::progressCharacteristicDiscovery(void)
 {
     /* Iterate through the previously discovered characteristics cached in characteristics[]. */
     while (cDiscoveryActive && (characteristicIndex < numCharacteristics)) {
-        if (characteristicCallback) {
-            characteristicCallback(characteristics[characteristicIndex]);
+        if ((matchingCharacteristicUUID == ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
+            (matchingCharacteristicUUID == characteristics[characteristicIndex].getShortUUID())) {
+            if (characteristicCallback) {
+                characteristicCallback(characteristics[characteristicIndex]);
+            }
         }
 
         characteristicIndex++;
