@@ -39,8 +39,14 @@ public:
     void setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response);
 
     void terminateServiceDiscovery(void) {
+        bool wasActive = isActive();
+
         sDiscoveryActive = false;
         cDiscoveryActive = false;
+
+        if (wasActive && onTerminationCallback) {
+            onTerminationCallback(connHandle);
+        }
     }
 
     void terminateCharacteristicDiscovery(void) {
@@ -51,6 +57,10 @@ public:
 
     bool isActive(void) const {
         return (sDiscoveryActive || cDiscoveryActive);
+    }
+
+    void setOnTermination(TerminationCallback_t callback) {
+        onTerminationCallback = callback;
     }
 
 private:
@@ -99,6 +109,8 @@ private:
     DiscoveredService        services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
                                                                    *  This is intended for internal use during service discovery. */
     DiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
+
+    TerminationCallback_t onTerminationCallback;
 };
 
 #endif /*_BTLE_DISCOVERY_H_*/
