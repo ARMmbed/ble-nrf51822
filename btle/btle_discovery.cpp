@@ -30,6 +30,10 @@ ServiceDiscovery::launch(Gap::Handle_t             connectionHandle,
                          const UUID               &matchingServiceUUIDIn,
                          const UUID               &matchingCharacteristicUUIDIn)
 {
+    if (isActive()) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
     sdSingleton.serviceCallback            = sc;
     sdSingleton.characteristicCallback     = cc;
     sdSingleton.matchingServiceUUID        = matchingServiceUUIDIn;
