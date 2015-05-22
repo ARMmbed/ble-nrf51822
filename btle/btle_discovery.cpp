@@ -104,6 +104,8 @@ NordicServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHa
     return BLE_ERROR_NONE;
 }
 
+#include <stdio.h>
+
 void
 NordicServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response)
 {
@@ -116,6 +118,10 @@ NordicServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_di
     }
 
     for (unsigned serviceIndex = 0; serviceIndex < numServices; serviceIndex++) {
+        if (response->services[serviceIndex].uuid.type == BLE_UUID_TYPE_UNKNOWN) {
+            printf("service[0] uuid type %u\r\n", response->services[0].uuid.type);
+        }
+        // sd_ble_gattc_char_value_by_uuid_read
         services[serviceIndex].setup(response->services[serviceIndex].uuid.uuid,
                                      response->services[serviceIndex].handle_range.start_handle,
                                      response->services[serviceIndex].handle_range.end_handle);
