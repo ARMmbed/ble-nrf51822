@@ -33,6 +33,18 @@ private:
     static const unsigned BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV = 4;      /**< Maximum number of characteristics per service we can retain information for. */
 
 public:
+    NordicServiceDiscovery() : serviceIndex(0),
+                               numServices(0),
+                               characteristicIndex(0),
+                               numCharacteristics(0),
+                               state(INACTIVE),
+                               services(),
+                               characteristics(),
+                               onTerminationCallback(NULL) {
+        /* empty */
+    }
+
+public:
     ble_error_t launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle);
 
 public:
