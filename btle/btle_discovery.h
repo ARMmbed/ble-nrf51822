@@ -51,6 +51,10 @@ public:
     void setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response);
     void setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response);
 
+    void triggerServiceUUIDDiscovery(void);
+    void processDiscoverUUIDResponse(const ble_gattc_evt_char_val_by_uuid_read_rsp_t *response);
+    void removeFirstServiceNeedingUUIDDiscovery(void);
+
     void terminateServiceDiscovery(void) {
         bool wasActive = isActive();
         state = INACTIVE;
@@ -117,6 +121,7 @@ private:
         INACTIVE,
         SERVICE_DISCOVERY_ACTIVE,
         CHARACTERISTIC_DISCOVERY_ACTIVE,
+        DISCOVER_SERVICE_UUIDS,
     } state;
 
     DiscoveredService        services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
