@@ -94,14 +94,14 @@ private:
 
 public:
     void serviceDiscoveryStarted(Gap::Handle_t connectionHandle) {
-        connHandle       = connectionHandle;
+        connHandle = connectionHandle;
         resetDiscoveredServices();
         state = SERVICE_DISCOVERY_ACTIVE;
     }
 
 private:
     void characteristicDiscoveryStarted(Gap::Handle_t connectionHandle) {
-        connHandle       = connectionHandle;
+        connHandle = connectionHandle;
         resetDiscoveredCharacteristics();
         state = CHARACTERISTIC_DISCOVERY_ACTIVE;
     }
