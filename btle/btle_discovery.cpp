@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <stdio.h>
+
 #include "blecommon.h"
 #include "UUID.h"
 #include "Gap.h"
@@ -103,8 +105,6 @@ NordicServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHa
 
     return BLE_ERROR_NONE;
 }
-
-#include <stdio.h>
 
 void
 NordicServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response)
