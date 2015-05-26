@@ -152,7 +152,7 @@ NordicServiceDiscovery::progressCharacteristicDiscovery(void)
 {
     /* Iterate through the previously discovered characteristics cached in characteristics[]. */
     while (cDiscoveryActive && (characteristicIndex < numCharacteristics)) {
-        if ((matchingCharacteristicUUID == ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
+        if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
             (matchingCharacteristicUUID == characteristics[characteristicIndex].getShortUUID())) {
             if (characteristicCallback) {
                 characteristicCallback(characteristics[characteristicIndex]);
@@ -188,7 +188,7 @@ NordicServiceDiscovery::progressServiceDiscovery(void)
 {
     /* Iterate through the previously discovered services cached in services[]. */
     while (sDiscoveryActive && (serviceIndex < numServices)) {
-        if ((matchingServiceUUID == ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
+        if ((matchingServiceUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
             (matchingServiceUUID == services[serviceIndex].getShortUUID())) {
             if (serviceCallback) {
                 serviceCallback(services[serviceIndex]);

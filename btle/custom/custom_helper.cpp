@@ -23,7 +23,7 @@
  * structures involved in maintaining a local cache of 128-bit UUIDs.
  */
 typedef struct {
-    LongUUIDBytes_t uuid;
+    UUID::LongUUIDBytes_t uuid;
     uint8_t         type;
 } converted_uuid_table_entry_t;
 static const unsigned UUID_TABLE_MAX_ENTRIES = 8; /* This is the maximum number of 128-bit UUIDs with distinct bases that
@@ -38,12 +38,12 @@ converted_uuid_table_entry_t convertedUUIDTable[UUID_TABLE_MAX_ENTRIES];
  * @return               true if a match is found.
  */
 static bool
-lookupConvertedUUIDTable(const LongUUIDBytes_t uuid, uint8_t *recoveredType)
+lookupConvertedUUIDTable(const UUID::LongUUIDBytes_t uuid, uint8_t *recoveredType)
 {
     unsigned i;
     for (i = 0; i < uuidTableEntries; i++) {
         unsigned byteIndex;
-        for (byteIndex = 0; byteIndex < LENGTH_OF_LONG_UUID; byteIndex++) {
+        for (byteIndex = 0; byteIndex < UUID::LENGTH_OF_LONG_UUID; byteIndex++) {
             /* Skip bytes 2 and 3, because they contain the shortUUID (16-bit) version of the
              * long UUID; and we're comparing against the remainder. */
             if ((byteIndex == 2) || (byteIndex == 3)) {
@@ -55,7 +55,7 @@ lookupConvertedUUIDTable(const LongUUIDBytes_t uuid, uint8_t *recoveredType)
             }
         }
 
-        if (byteIndex == LENGTH_OF_LONG_UUID) {
+        if (byteIndex == UUID::LENGTH_OF_LONG_UUID) {
             *recoveredType = convertedUUIDTable[i].type;
             return true;
         }
@@ -65,13 +65,13 @@ lookupConvertedUUIDTable(const LongUUIDBytes_t uuid, uint8_t *recoveredType)
 }
 
 static void
-addToConvertedUUIDTable(const LongUUIDBytes_t uuid, uint8_t type)
+addToConvertedUUIDTable(const UUID::LongUUIDBytes_t uuid, uint8_t type)
 {
     if (uuidTableEntries == UUID_TABLE_MAX_ENTRIES) {
         return; /* recovery needed; or at least the user should be warned about this fact.*/
     }
 
-    memcpy(convertedUUIDTable[uuidTableEntries].uuid, uuid, LENGTH_OF_LONG_UUID);
+    memcpy(convertedUUIDTable[uuidTableEntries].uuid, uuid, UUID::LENGTH_OF_LONG_UUID);
     convertedUUIDTable[uuidTableEntries].uuid[2] = 0;
     convertedUUIDTable[uuidTableEntries].uuid[3] = 0;
     convertedUUIDTable[uuidTableEntries].type    = type;
@@ -149,8 +149,8 @@ uint8_t custom_add_uuid_base(uint8_t const *const p_uuid_base)
     uint8_t       uuid_type = 0;
 
     /* Reverse the bytes since ble_uuid128_t is LSB */
-    for (unsigned i = 0; i < LENGTH_OF_LONG_UUID; i++) {
-        base_uuid.uuid128[i] = p_uuid_base[LENGTH_OF_LONG_UUID - 1 - i];
+    for (unsigned i = 0; i < UUID::LENGTH_OF_LONG_UUID; i++) {
+        base_uuid.uuid128[i] = p_uuid_base[UUID::LENGTH_OF_LONG_UUID - 1 - i];
     }
 
     ASSERT_INT( ERROR_NONE, sd_ble_uuid_vs_add( &base_uuid, &uuid_type ), 0);
@@ -166,14 +166,14 @@ uint8_t custom_add_uuid_base(uint8_t const *const p_uuid_base)
 error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
                                 ble_uuid_t          *p_uuid)
 {
-    LongUUIDBytes_t uuid_base_le;
+    UUID::LongUUIDBytes_t uuid_base_le;
 
     /* Reverse the bytes since ble_uuid128_t is LSB */
-    for (uint8_t i = 0; i < LENGTH_OF_LONG_UUID; i++) {
-        uuid_base_le[i] = p_uuid_base[LENGTH_OF_LONG_UUID - 1 - i];
+    for (uint8_t i = 0; i < UUID::LENGTH_OF_LONG_UUID; i++) {
+        uuid_base_le[i] = p_uuid_base[UUID::LENGTH_OF_LONG_UUID - 1 - i];
     }
 
-    ASSERT_STATUS( sd_ble_uuid_decode(LENGTH_OF_LONG_UUID, uuid_base_le, p_uuid));
+    ASSERT_STATUS( sd_ble_uuid_decode(UUID::LENGTH_OF_LONG_UUID, uuid_base_le, p_uuid));
 
     return ERROR_NONE;
 }
