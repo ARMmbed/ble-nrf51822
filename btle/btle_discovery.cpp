@@ -151,7 +151,7 @@ void
 NordicServiceDiscovery::progressCharacteristicDiscovery(void)
 {
     /* Iterate through the previously discovered characteristics cached in characteristics[]. */
-    while (cDiscoveryActive && (characteristicIndex < numCharacteristics)) {
+    while ((state == CHARACTERISTIC_DISCOVERY_ACTIVE) && (characteristicIndex < numCharacteristics)) {
         if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
             (matchingCharacteristicUUID == characteristics[characteristicIndex].getShortUUID())) {
             if (characteristicCallback) {
@@ -163,7 +163,7 @@ NordicServiceDiscovery::progressCharacteristicDiscovery(void)
     }
 
     /* Relaunch discovery of new characteristics beyond the last entry cached in characteristics[]. */
-    if (cDiscoveryActive) {
+    if (state == CHARACTERISTIC_DISCOVERY_ACTIVE) {
         /* Determine the ending handle of the last cached characteristic. */
         Gap::Handle_t startHandle = characteristics[characteristicIndex - 1].getValueHandle() + 1;
         Gap::Handle_t endHandle   = services[serviceIndex].getEndHandle();
@@ -187,14 +187,14 @@ void
 NordicServiceDiscovery::progressServiceDiscovery(void)
 {
     /* Iterate through the previously discovered services cached in services[]. */
-    while (sDiscoveryActive && (serviceIndex < numServices)) {
+    while ((state == SERVICE_DISCOVERY_ACTIVE) && (serviceIndex < numServices)) {
         if ((matchingServiceUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
             (matchingServiceUUID == services[serviceIndex].getShortUUID())) {
             if (serviceCallback) {
                 serviceCallback(services[serviceIndex]);
             }
 
-            if (sDiscoveryActive && characteristicCallback) {
+            if ((state == SERVICE_DISCOVERY_ACTIVE) && characteristicCallback) {
                 launchCharacteristicDiscovery(connHandle, services[serviceIndex].getStartHandle(), services[serviceIndex].getEndHandle());
             } else {
                 serviceIndex++;
@@ -205,7 +205,7 @@ NordicServiceDiscovery::progressServiceDiscovery(void)
     }
 
     /* Relaunch discovery of new services beyond the last entry cached in services[]. */
-    if (sDiscoveryActive && (numServices > 0) && (serviceIndex > 0)) {
+    if ((state == SERVICE_DISCOVERY_ACTIVE) && (numServices > 0) && (serviceIndex > 0)) {
         /* Determine the ending handle of the last cached service. */
         Gap::Handle_t endHandle = services[serviceIndex - 1].getEndHandle();
         resetDiscoveredServices(); /* Note: resetDiscoveredServices() must come after fetching endHandle. */

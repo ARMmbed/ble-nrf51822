@@ -41,9 +41,7 @@ public:
 
     void terminateServiceDiscovery(void) {
         bool wasActive = isActive();
-
-        sDiscoveryActive = false;
-        cDiscoveryActive = false;
+        state = INACTIVE;
 
         if (wasActive && onTerminationCallback) {
             onTerminationCallback(connHandle);
@@ -51,13 +49,14 @@ public:
     }
 
     void terminateCharacteristicDiscovery(void) {
-        cDiscoveryActive = false;
-        sDiscoveryActive = true;
+        if (state == CHARACTERISTIC_DISCOVERY_ACTIVE) {
+            state = SERVICE_DISCOVERY_ACTIVE;
+        }
         serviceIndex++; /* Progress service index to keep discovery alive. */
     }
 
     bool isActive(void) const {
-        return (sDiscoveryActive || cDiscoveryActive);
+        return state != INACTIVE;
     }
 
     void setOnTermination(TerminationCallback_t callback) {
@@ -81,16 +80,14 @@ public:
     void serviceDiscoveryStarted(Gap::Handle_t connectionHandle) {
         connHandle       = connectionHandle;
         resetDiscoveredServices();
-        sDiscoveryActive = true;
-        cDiscoveryActive = false;
+        state = SERVICE_DISCOVERY_ACTIVE;
     }
 
 private:
     void characteristicDiscoveryStarted(Gap::Handle_t connectionHandle) {
         connHandle       = connectionHandle;
         resetDiscoveredCharacteristics();
-        cDiscoveryActive = true;
-        sDiscoveryActive = false;
+        state = CHARACTERISTIC_DISCOVERY_ACTIVE;
     }
 
 private:
@@ -104,8 +101,11 @@ private:
     uint8_t  characteristicIndex; /**< Index of the current characteristic being discovered. This is intended for internal use during service discovery.*/
     uint8_t  numCharacteristics;  /**< Number of characteristics within the service.*/
 
-    bool     sDiscoveryActive;
-    bool     cDiscoveryActive;
+    enum State_t {
+        INACTIVE,
+        SERVICE_DISCOVERY_ACTIVE,
+        CHARACTERISTIC_DISCOVERY_ACTIVE,
+    } state;
 
     DiscoveredService        services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
                                                                    *  This is intended for internal use during service discovery. */
