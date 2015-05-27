@@ -127,7 +127,7 @@ NordicServiceDiscovery::ServiceIndicesNeedingUUIDDiscovery::triggerFirst(void)
 
         /* Skip this service if we fail to launch a read for its service-declaration
          * attribute. Its UUID will remain INVALID, and it may not match any filters. */
-        removeFirst();
+        dequeue();
     }
 
     /* Switch back to service discovery upon exhausting the service-indices pending UUID discovery. */
@@ -144,20 +144,20 @@ NordicServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val
     //     printf("%02x ", response->handle_value[0].p_value[i]);
     // }
     // printf("\r\n");
+    if (state == DISCOVER_SERVICE_UUIDS) {
+        if ((response->count == 1) && (response->value_len == UUID::LENGTH_OF_LONG_UUID)) {
+            UUID::LongUUIDBytes_t uuid;
+            /* Switch longUUID bytes to MSB */
+            for (unsigned i = 0; i < UUID::LENGTH_OF_LONG_UUID; i++) {
+                uuid[i] = response->handle_value[0].p_value[UUID::LENGTH_OF_LONG_UUID - 1 - i];
+            }
 
-    if ((response->count == 1) && (response->value_len == UUID::LENGTH_OF_LONG_UUID)) {
-        UUID::LongUUIDBytes_t uuid;
-        /* Switch longUUID bytes to MSB */
-        for (unsigned i = 0; i < UUID::LENGTH_OF_LONG_UUID; i++) {
-            uuid[i] = response->handle_value[0].p_value[UUID::LENGTH_OF_LONG_UUID - 1 - i];
+            unsigned serviceIndex = serviceIndicesNeedingUUIDDiscovery.dequeue();
+            services[serviceIndex].setupLongUUID(uuid);
+
+            serviceIndicesNeedingUUIDDiscovery.triggerFirst();
         }
-
-        unsigned serviceIndex = serviceIndicesNeedingUUIDDiscovery.getFirst();
-        services[serviceIndex].setupLongUUID(uuid);
     }
-
-    serviceIndicesNeedingUUIDDiscovery.removeFirst();
-    serviceIndicesNeedingUUIDDiscovery.triggerFirst();
 }
 
 void
@@ -174,7 +174,7 @@ NordicServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_di
     serviceIndicesNeedingUUIDDiscovery.reset();
     for (unsigned serviceIndex = 0; serviceIndex < numServices; serviceIndex++) {
         if (response->services[serviceIndex].uuid.type == BLE_UUID_TYPE_UNKNOWN) {
-            serviceIndicesNeedingUUIDDiscovery.append(serviceIndex);
+            serviceIndicesNeedingUUIDDiscovery.enqueue(serviceIndex);
             services[serviceIndex].setup(response->services[serviceIndex].handle_range.start_handle,
                                          response->services[serviceIndex].handle_range.end_handle);
         } else {

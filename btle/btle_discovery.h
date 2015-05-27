@@ -128,17 +128,24 @@ private:
                 serviceIndices[index] = INVALID_SERVICE_INDEX;
             }
         }
-        void append(int serviceIndex) {
+        void enqueue(int serviceIndex) {
             serviceIndices[numIndices++] = serviceIndex;
         }
         unsigned getFirst(void) const {
             return serviceIndices[0];
         }
-        void removeFirst(void) {
-            numIndices--;
-            for (unsigned index = 0; index < numIndices; index++) {
-                serviceIndices[index] = serviceIndices[index + 1];
+        int dequeue(void) {
+            if (numIndices == 0) {
+                return INVALID_SERVICE_INDEX;
             }
+
+            unsigned valueToReturn = serviceIndices[0];
+            numIndices--;
+            for (unsigned i = 0; i < numIndices; i++) {
+                serviceIndices[i] = serviceIndices[i + 1];
+            }
+
+            return valueToReturn;
         }
         size_t getCount(void) const {
             return numIndices;
