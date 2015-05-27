@@ -131,9 +131,6 @@ private:
         void enqueue(int serviceIndex) {
             serviceIndices[numIndices++] = serviceIndex;
         }
-        unsigned getFirst(void) const {
-            return serviceIndices[0];
-        }
         int dequeue(void) {
             if (numIndices == 0) {
                 return INVALID_SERVICE_INDEX;
@@ -146,6 +143,9 @@ private:
             }
 
             return valueToReturn;
+        }
+        unsigned getFirst(void) const {
+            return serviceIndices[0];
         }
         size_t getCount(void) const {
             return numIndices;
