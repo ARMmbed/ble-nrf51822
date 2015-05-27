@@ -164,10 +164,13 @@ NordicServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_di
     for (unsigned serviceIndex = 0; serviceIndex < numServices; serviceIndex++) {
         if (response->services[serviceIndex].uuid.type == BLE_UUID_TYPE_UNKNOWN) {
             serviceIndicesNeedingUUIDDiscovery.append(serviceIndex);
+            services[serviceIndex].setup(response->services[serviceIndex].handle_range.start_handle,
+                                         response->services[serviceIndex].handle_range.end_handle);
+        } else {
+            services[serviceIndex].setup(response->services[serviceIndex].uuid.uuid,
+                                         response->services[serviceIndex].handle_range.start_handle,
+                                         response->services[serviceIndex].handle_range.end_handle);
         }
-        services[serviceIndex].setup(response->services[serviceIndex].uuid.uuid,
-                                     response->services[serviceIndex].handle_range.start_handle,
-                                     response->services[serviceIndex].handle_range.end_handle);
     }
 
     /* Trigger discovery of service UUID if necessary. */
