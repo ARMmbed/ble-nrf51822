@@ -109,10 +109,10 @@ NordicServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHa
 void
 NordicServiceDiscovery::ServiceIndicesNeedingUUIDDiscovery::triggerFirst(void)
 {
-    while (numIndices) {
+    while (numIndices) { /* loop until a call to char_value_by_uuid_read() succeeds or we run out of pending indices. */
         parentContainer->state = DISCOVER_SERVICE_UUIDS;
 
-        unsigned serviceIndex = serviceIndices[0];
+        unsigned serviceIndex = serviceIndices[0]; /* we chose to use the first index; we could just as easily have chosen the last. */
         ble_uuid_t uuid = {
             .uuid = BLE_UUID_SERVICE_PRIMARY,
             .type = BLE_UUID_TYPE_BLE,
@@ -121,14 +121,16 @@ NordicServiceDiscovery::ServiceIndicesNeedingUUIDDiscovery::triggerFirst(void)
             .start_handle = parentContainer->services[serviceIndex].getStartHandle(),
             .end_handle   = parentContainer->services[serviceIndex].getEndHandle(),
         };
-        if (sd_ble_gattc_char_value_by_uuid_read(parentContainer->connHandle, &uuid, &handleRange) != NRF_SUCCESS) {
-            removeFirst();
-            continue;
+        if (sd_ble_gattc_char_value_by_uuid_read(parentContainer->connHandle, &uuid, &handleRange) == NRF_SUCCESS) {
+            return;
         }
 
-        return;
+        /* Skip this service if we fail to launch a read for its service-declaration
+         * attribute. Its UUID will remain INVALID, and it may not match any filters. */
+        removeFirst();
     }
 
+    /* Switch back to service discovery upon exhausting the service-indices pending UUID discovery. */
     if (parentContainer->state == DISCOVER_SERVICE_UUIDS) {
         parentContainer->state = SERVICE_DISCOVERY_ACTIVE;
     }

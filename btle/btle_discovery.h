@@ -108,6 +108,10 @@ private:
     }
 
 private:
+    /**
+     * A datatype to contain service-indices for which long UUIDs need to be
+     * discovered using read_val_by_uuid().
+     */
     class ServiceIndicesNeedingUUIDDiscovery {
     public:
         ServiceIndicesNeedingUUIDDiscovery(NordicServiceDiscovery *parent) :
