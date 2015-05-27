@@ -117,7 +117,7 @@ private:
         ServiceIndicesNeedingUUIDDiscovery(NordicServiceDiscovery *parent) :
             numIndices(0),
             serviceIndices(),
-            parentContainer(parent) {
+            parentDiscoveryObject(parent) {
             /* empty */
         }
 
@@ -160,7 +160,7 @@ private:
         size_t numIndices;
         int    serviceIndices[BLE_DB_DISCOVERY_MAX_SRV];
 
-        NordicServiceDiscovery *parentContainer;
+        NordicServiceDiscovery *parentDiscoveryObject;
     };
     friend class ServiceIndicesNeedingUUIDDiscovery;
 

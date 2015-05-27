@@ -110,7 +110,7 @@ void
 NordicServiceDiscovery::ServiceIndicesNeedingUUIDDiscovery::triggerFirst(void)
 {
     while (numIndices) { /* loop until a call to char_value_by_uuid_read() succeeds or we run out of pending indices. */
-        parentContainer->state = DISCOVER_SERVICE_UUIDS;
+        parentDiscoveryObject->state = DISCOVER_SERVICE_UUIDS;
 
         unsigned serviceIndex = getFirst();
         ble_uuid_t uuid = {
@@ -118,10 +118,10 @@ NordicServiceDiscovery::ServiceIndicesNeedingUUIDDiscovery::triggerFirst(void)
             .type = BLE_UUID_TYPE_BLE,
         };
         ble_gattc_handle_range_t handleRange = {
-            .start_handle = parentContainer->services[serviceIndex].getStartHandle(),
-            .end_handle   = parentContainer->services[serviceIndex].getEndHandle(),
+            .start_handle = parentDiscoveryObject->services[serviceIndex].getStartHandle(),
+            .end_handle   = parentDiscoveryObject->services[serviceIndex].getEndHandle(),
         };
-        if (sd_ble_gattc_char_value_by_uuid_read(parentContainer->connHandle, &uuid, &handleRange) == NRF_SUCCESS) {
+        if (sd_ble_gattc_char_value_by_uuid_read(parentDiscoveryObject->connHandle, &uuid, &handleRange) == NRF_SUCCESS) {
             return;
         }
 
@@ -131,8 +131,8 @@ NordicServiceDiscovery::ServiceIndicesNeedingUUIDDiscovery::triggerFirst(void)
     }
 
     /* Switch back to service discovery upon exhausting the service-indices pending UUID discovery. */
-    if (parentContainer->state == DISCOVER_SERVICE_UUIDS) {
-        parentContainer->state = SERVICE_DISCOVERY_ACTIVE;
+    if (parentDiscoveryObject->state == DISCOVER_SERVICE_UUIDS) {
+        parentDiscoveryObject->state = SERVICE_DISCOVERY_ACTIVE;
     }
 }
 
