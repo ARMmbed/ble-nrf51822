@@ -251,7 +251,7 @@ NordicServiceDiscovery::progressServiceDiscovery(void)
     /* Iterate through the previously discovered services cached in services[]. */
     while ((state == SERVICE_DISCOVERY_ACTIVE) && (serviceIndex < numServices)) {
         if ((matchingServiceUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
-            (matchingServiceUUID == services[serviceIndex].getShortUUID())) {
+            (matchingServiceUUID == services[serviceIndex].getUUID().getShortUUID())) {
             if (serviceCallback) {
                 serviceCallback(services[serviceIndex]);
             }
