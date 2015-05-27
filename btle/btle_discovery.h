@@ -246,14 +246,14 @@ private:
         DISCOVER_CHARACTERISTIC_UUIDS,
     } state;
 
-    DiscoveredService        services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
-                                                                   *  This is intended for internal use during service discovery. */
-    DiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
+    DiscoveredService         services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
+                                                                    *  This is intended for internal use during service discovery. */
+    DiscoveredCharacteristic  characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
 
     ServiceUUIDDiscoveryQueue serviceUUIDDiscoveryQueue;
     CharUUIDDiscoveryQueue    charUUIDDiscoveryQueue;
 
-    TerminationCallback_t onTerminationCallback;
+    TerminationCallback_t     onTerminationCallback;
 };
 
 #endif /*_BTLE_DISCOVERY_H_*/
