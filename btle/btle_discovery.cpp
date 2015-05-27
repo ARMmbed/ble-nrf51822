@@ -107,7 +107,7 @@ NordicServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHa
 }
 
 void
-NordicServiceDiscovery::ServiceIndicesNeedingUUIDDiscovery::triggerFirst(void)
+NordicServiceDiscovery::ServiceUUIDDiscoveryQueue::triggerFirst(void)
 {
     while (numIndices) { /* loop until a call to char_value_by_uuid_read() succeeds or we run out of pending indices. */
         parentDiscoveryObject->state = DISCOVER_SERVICE_UUIDS;
@@ -152,10 +152,10 @@ NordicServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val
                 uuid[i] = response->handle_value[0].p_value[UUID::LENGTH_OF_LONG_UUID - 1 - i];
             }
 
-            unsigned serviceIndex = serviceIndicesNeedingUUIDDiscovery.dequeue();
+            unsigned serviceIndex = serviceUUIDDiscoveryQueue.dequeue();
             services[serviceIndex].setupLongUUID(uuid);
 
-            serviceIndicesNeedingUUIDDiscovery.triggerFirst();
+            serviceUUIDDiscoveryQueue.triggerFirst();
         }
     }
 }
@@ -171,10 +171,10 @@ NordicServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_di
         numServices = BLE_DB_DISCOVERY_MAX_SRV;
     }
 
-    serviceIndicesNeedingUUIDDiscovery.reset();
+    serviceUUIDDiscoveryQueue.reset();
     for (unsigned serviceIndex = 0; serviceIndex < numServices; serviceIndex++) {
         if (response->services[serviceIndex].uuid.type == BLE_UUID_TYPE_UNKNOWN) {
-            serviceIndicesNeedingUUIDDiscovery.enqueue(serviceIndex);
+            serviceUUIDDiscoveryQueue.enqueue(serviceIndex);
             services[serviceIndex].setup(response->services[serviceIndex].handle_range.start_handle,
                                          response->services[serviceIndex].handle_range.end_handle);
         } else {
@@ -185,8 +185,8 @@ NordicServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_di
     }
 
     /* Trigger discovery of service UUID if necessary. */
-    if (serviceIndicesNeedingUUIDDiscovery.getCount()) {
-        serviceIndicesNeedingUUIDDiscovery.triggerFirst();
+    if (serviceUUIDDiscoveryQueue.getCount()) {
+        serviceUUIDDiscoveryQueue.triggerFirst();
     }
 }
 

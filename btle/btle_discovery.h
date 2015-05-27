@@ -40,7 +40,7 @@ public:
                                state(INACTIVE),
                                services(),
                                characteristics(),
-                               serviceIndicesNeedingUUIDDiscovery(this),
+                               serviceUUIDDiscoveryQueue(this),
                                onTerminationCallback(NULL) {
         /* empty */
     }
@@ -112,9 +112,9 @@ private:
      * A datatype to contain service-indices for which long UUIDs need to be
      * discovered using read_val_by_uuid().
      */
-    class ServiceIndicesNeedingUUIDDiscovery {
+    class ServiceUUIDDiscoveryQueue {
     public:
-        ServiceIndicesNeedingUUIDDiscovery(NordicServiceDiscovery *parent) :
+        ServiceUUIDDiscoveryQueue(NordicServiceDiscovery *parent) :
             numIndices(0),
             serviceIndices(),
             parentDiscoveryObject(parent) {
@@ -165,7 +165,7 @@ private:
 
         NordicServiceDiscovery *parentDiscoveryObject;
     };
-    friend class ServiceIndicesNeedingUUIDDiscovery;
+    friend class ServiceUUIDDiscoveryQueue;
 
 private:
     friend void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
@@ -189,7 +189,7 @@ private:
                                                                    *  This is intended for internal use during service discovery. */
     DiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
 
-    ServiceIndicesNeedingUUIDDiscovery serviceIndicesNeedingUUIDDiscovery;
+    ServiceUUIDDiscoveryQueue serviceUUIDDiscoveryQueue;
 
     TerminationCallback_t onTerminationCallback;
 };
