@@ -112,7 +112,7 @@ NordicServiceDiscovery::ServiceIndicesNeedingUUIDDiscovery::triggerFirst(void)
     while (numIndices) { /* loop until a call to char_value_by_uuid_read() succeeds or we run out of pending indices. */
         parentContainer->state = DISCOVER_SERVICE_UUIDS;
 
-        unsigned serviceIndex = serviceIndices[0]; /* we chose to use the first index; we could just as easily have chosen the last. */
+        unsigned serviceIndex = getFirst();
         ble_uuid_t uuid = {
             .uuid = BLE_UUID_SERVICE_PRIMARY,
             .type = BLE_UUID_TYPE_BLE,

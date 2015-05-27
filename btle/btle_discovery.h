@@ -131,6 +131,9 @@ private:
         void append(int serviceIndex) {
             serviceIndices[numIndices++] = serviceIndex;
         }
+        unsigned getFirst(void) const {
+            return serviceIndices[0];
+        }
         void removeFirst(void) {
             numIndices--;
             for (unsigned index = 0; index < numIndices; index++) {
