@@ -25,9 +25,6 @@
 
 static NordicServiceDiscovery sdSingleton;
 
-static unsigned numServicesNeedingUUIDDiscovery;
-static int      servicesNeedingUUIDDiscovery[NordicServiceDiscovery::BLE_DB_DISCOVERY_MAX_SRV];
-
 ble_error_t
 ServiceDiscovery::launch(Gap::Handle_t             connectionHandle,
                          ServiceCallback_t         sc,
@@ -110,30 +107,30 @@ NordicServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHa
 }
 
 void
-NordicServiceDiscovery::triggerServiceUUIDDiscovery(void)
+NordicServiceDiscovery::ServiceIndicesNeedingUUIDDiscovery::triggerFirst(void)
 {
-    while (numServicesNeedingUUIDDiscovery) {
-        sdSingleton.state = DISCOVER_SERVICE_UUIDS;
+    while (numIndices) {
+        parentContainer->state = DISCOVER_SERVICE_UUIDS;
 
-        unsigned serviceIndex = servicesNeedingUUIDDiscovery[0];
+        unsigned serviceIndex = serviceIndices[0];
         ble_uuid_t uuid = {
             .uuid = BLE_UUID_SERVICE_PRIMARY,
             .type = BLE_UUID_TYPE_BLE,
         };
         ble_gattc_handle_range_t handleRange = {
-            .start_handle = services[serviceIndex].getStartHandle(),
-            .end_handle   = services[serviceIndex].getEndHandle(),
+            .start_handle = parentContainer->services[serviceIndex].getStartHandle(),
+            .end_handle   = parentContainer->services[serviceIndex].getEndHandle(),
         };
-        if (sd_ble_gattc_char_value_by_uuid_read(connHandle, &uuid, &handleRange) != NRF_SUCCESS) {
-            removeFirstServiceNeedingUUIDDiscovery();
+        if (sd_ble_gattc_char_value_by_uuid_read(parentContainer->connHandle, &uuid, &handleRange) != NRF_SUCCESS) {
+            removeFirst();
             continue;
         }
 
         return;
     }
 
-    if (sdSingleton.state == DISCOVER_SERVICE_UUIDS) {
-        sdSingleton.state = SERVICE_DISCOVERY_ACTIVE;
+    if (parentContainer->state == DISCOVER_SERVICE_UUIDS) {
+        parentContainer->state = SERVICE_DISCOVERY_ACTIVE;
     }
 }
 
@@ -146,17 +143,8 @@ NordicServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val
     }
     printf("\r\n");
 
-    removeFirstServiceNeedingUUIDDiscovery();
-    triggerServiceUUIDDiscovery();
-}
-
-void
-NordicServiceDiscovery::removeFirstServiceNeedingUUIDDiscovery(void)
-{
-    numServicesNeedingUUIDDiscovery--;
-    for (unsigned serviceIndex = 0; serviceIndex < numServicesNeedingUUIDDiscovery; serviceIndex++) {
-        servicesNeedingUUIDDiscovery[serviceIndex] = servicesNeedingUUIDDiscovery[serviceIndex + 1];
-    }
+    serviceIndicesNeedingUUIDDiscovery.removeFirst();
+    serviceIndicesNeedingUUIDDiscovery.triggerFirst();
 }
 
 void
@@ -170,13 +158,10 @@ NordicServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_di
         numServices = BLE_DB_DISCOVERY_MAX_SRV;
     }
 
-    numServicesNeedingUUIDDiscovery = 0;
-    for (unsigned serviceIndex = 0; serviceIndex < BLE_DB_DISCOVERY_MAX_SRV; serviceIndex++) {
-        servicesNeedingUUIDDiscovery[serviceIndex] = -1;
-    }
+    serviceIndicesNeedingUUIDDiscovery.reset();
     for (unsigned serviceIndex = 0; serviceIndex < numServices; serviceIndex++) {
         if (response->services[serviceIndex].uuid.type == BLE_UUID_TYPE_UNKNOWN) {
-            servicesNeedingUUIDDiscovery[numServicesNeedingUUIDDiscovery++] = serviceIndex;
+            serviceIndicesNeedingUUIDDiscovery.append(serviceIndex);
         }
         services[serviceIndex].setup(response->services[serviceIndex].uuid.uuid,
                                      response->services[serviceIndex].handle_range.start_handle,
@@ -184,8 +169,8 @@ NordicServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_di
     }
 
     /* Trigger discovery of service UUID if necessary. */
-    if (numServicesNeedingUUIDDiscovery) {
-        triggerServiceUUIDDiscovery();
+    if (serviceIndicesNeedingUUIDDiscovery.getCount()) {
+        serviceIndicesNeedingUUIDDiscovery.triggerFirst();
     }
 }
 

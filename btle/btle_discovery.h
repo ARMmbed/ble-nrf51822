@@ -40,6 +40,7 @@ public:
                                state(INACTIVE),
                                services(),
                                characteristics(),
+                               serviceIndicesNeedingUUIDDiscovery(this),
                                onTerminationCallback(NULL) {
         /* empty */
     }
@@ -107,6 +108,49 @@ private:
     }
 
 private:
+    class ServiceIndicesNeedingUUIDDiscovery {
+    public:
+        ServiceIndicesNeedingUUIDDiscovery(NordicServiceDiscovery *parent) :
+            numIndices(0),
+            serviceIndices(),
+            parentContainer(parent) {
+            /* empty */
+        }
+
+    public:
+        void reset(void) {
+            numIndices = 0;
+            for (unsigned index = 0; index < BLE_DB_DISCOVERY_MAX_SRV; index++) {
+                serviceIndices[index] = INVALID_SERVICE_INDEX;
+            }
+        }
+        void append(int serviceIndex) {
+            serviceIndices[numIndices++] = serviceIndex;
+        }
+        void removeFirst(void) {
+            numIndices--;
+            for (unsigned index = 0; index < numIndices; index++) {
+                serviceIndices[index] = serviceIndices[index + 1];
+            }
+        }
+        size_t getCount(void) const {
+            return numIndices;
+        }
+
+        void triggerFirst(void);
+
+    private:
+        static const int INVALID_SERVICE_INDEX = -1;
+
+    private:
+        size_t numIndices;
+        int    serviceIndices[BLE_DB_DISCOVERY_MAX_SRV];
+
+        NordicServiceDiscovery *parentContainer;
+    };
+    friend class ServiceIndicesNeedingUUIDDiscovery;
+
+private:
     friend void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
     void progressCharacteristicDiscovery(void);
     void progressServiceDiscovery(void);
@@ -127,6 +171,8 @@ private:
     DiscoveredService        services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
                                                                    *  This is intended for internal use during service discovery. */
     DiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
+
+    ServiceIndicesNeedingUUIDDiscovery serviceIndicesNeedingUUIDDiscovery;
 
     TerminationCallback_t onTerminationCallback;
 };
