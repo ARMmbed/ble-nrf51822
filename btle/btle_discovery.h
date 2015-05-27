@@ -22,6 +22,36 @@
 
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
 
+class nRFDiscoveredCharacteristic : public DiscoveredCharacteristic {
+public:
+    /**
+     * Initiate (or continue) a read for the value attribute, optionally at a
+     * given offset. If the Characteristic or Descriptor to be read is longer
+     * than ATT_MTU - 1, this function must be called multiple times with
+     * appropriate offset to read the complete value.
+     */
+    virtual void read(uint16_t offset = 0) {
+        /**@brief Initiate or continue a GATT Read (Long) Characteristic or Descriptor procedure.
+         *
+         * @details This function initiates or resumes a GATT Read (Long) Characteristic or Descriptor procedure. If the Characteristic or Descriptor
+         *          to be read is longer than ATT_MTU - 1, this function must be called multiple times with appropriate offset to read the
+         *          complete value.
+         *
+         * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.
+         * @param[in] handle The handle of the attribute to be read.
+         * @param[in] offset Offset into the attribute value to be read.
+         *
+         * @retval ::NRF_SUCCESS Successfully started or resumed the Read (Long) procedure.
+         * @retval ::BLE_ERROR_INVALID_CONN_HANDLE Invalid Connection Handle.
+         * @retval ::NRF_ERROR_INVALID_STATE Invalid Connection State.
+         * @retval ::NRF_ERROR_INVALID_ADDR Invalid pointer supplied.
+         * @retval ::NRF_ERROR_BUSY Client procedure already in progress.
+         */
+        // sd_ble_gattc_read()
+        // SVCALL(SD_BLE_GATTC_READ, uint32_t, sd_ble_gattc_read(uint16_t conn_handle, uint16_t handle, uint16_t offset));
+    }
+};
+
 class NordicServiceDiscovery : public ServiceDiscovery
 {
 public:
@@ -246,14 +276,14 @@ private:
         DISCOVER_CHARACTERISTIC_UUIDS,
     } state;
 
-    DiscoveredService         services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
-                                                                    *  This is intended for internal use during service discovery. */
-    DiscoveredCharacteristic  characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
+    DiscoveredService           services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
+                                                                      *  This is intended for internal use during service discovery. */
+    nRFDiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
 
-    ServiceUUIDDiscoveryQueue serviceUUIDDiscoveryQueue;
-    CharUUIDDiscoveryQueue    charUUIDDiscoveryQueue;
+    ServiceUUIDDiscoveryQueue   serviceUUIDDiscoveryQueue;
+    CharUUIDDiscoveryQueue      charUUIDDiscoveryQueue;
 
-    TerminationCallback_t     onTerminationCallback;
+    TerminationCallback_t       onTerminationCallback;
 };
 
 #endif /*_BTLE_DISCOVERY_H_*/
