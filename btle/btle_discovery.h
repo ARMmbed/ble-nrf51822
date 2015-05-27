@@ -124,8 +124,8 @@ private:
     public:
         void reset(void) {
             numIndices = 0;
-            for (unsigned index = 0; index < BLE_DB_DISCOVERY_MAX_SRV; index++) {
-                serviceIndices[index] = INVALID_SERVICE_INDEX;
+            for (unsigned i = 0; i < BLE_DB_DISCOVERY_MAX_SRV; i++) {
+                serviceIndices[i] = INVALID_INDEX;
             }
         }
         void enqueue(int serviceIndex) {
@@ -133,7 +133,7 @@ private:
         }
         int dequeue(void) {
             if (numIndices == 0) {
-                return INVALID_SERVICE_INDEX;
+                return INVALID_INDEX;
             }
 
             unsigned valueToReturn = serviceIndices[0];
@@ -157,7 +157,7 @@ private:
         void triggerFirst(void);
 
     private:
-        static const int INVALID_SERVICE_INDEX = -1;
+        static const int INVALID_INDEX = -1;
 
     private:
         size_t numIndices;
