@@ -137,13 +137,38 @@ NordicServiceDiscovery::ServiceUUIDDiscoveryQueue::triggerFirst(void)
 }
 
 void
+NordicServiceDiscovery::CharUUIDDiscoveryQueue::triggerFirst(void)
+{
+    while (numIndices) { /* loop until a call to char_value_by_uuid_read() succeeds or we run out of pending indices. */
+        parentDiscoveryObject->state = DISCOVER_CHARACTERISTIC_UUIDS;
+
+        unsigned charIndex = getFirst();
+        ble_uuid_t uuid = {
+            .uuid = BLE_UUID_CHARACTERISTIC,
+            .type = BLE_UUID_TYPE_BLE,
+        };
+        ble_gattc_handle_range_t handleRange = {
+            .start_handle = parentDiscoveryObject->characteristics[charIndex].getDeclHandle(),
+            .end_handle   = parentDiscoveryObject->characteristics[charIndex].getDeclHandle() + 1,
+        };
+        if (sd_ble_gattc_char_value_by_uuid_read(parentDiscoveryObject->connHandle, &uuid, &handleRange) == NRF_SUCCESS) {
+            return;
+        }
+
+        /* Skip this service if we fail to launch a read for its service-declaration
+         * attribute. Its UUID will remain INVALID, and it may not match any filters. */
+        dequeue();
+    }
+
+    /* Switch back to service discovery upon exhausting the service-indices pending UUID discovery. */
+    if (parentDiscoveryObject->state == DISCOVER_CHARACTERISTIC_UUIDS) {
+        parentDiscoveryObject->state = CHARACTERISTIC_DISCOVERY_ACTIVE;
+    }
+}
+
+void
 NordicServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val_by_uuid_read_rsp_t *response)
 {
-    // printf("BLE_GATTC_EVT_CHAR_VAL_BY_UUID_READ_RSP: count %u, len %u\r\n", response->count, response->value_len);
-    // for (unsigned i = 0; i < response->value_len; i++) {
-    //     printf("%02x ", response->handle_value[0].p_value[i]);
-    // }
-    // printf("\r\n");
     if (state == DISCOVER_SERVICE_UUIDS) {
         if ((response->count == 1) && (response->value_len == UUID::LENGTH_OF_LONG_UUID)) {
             UUID::LongUUIDBytes_t uuid;
@@ -156,6 +181,23 @@ NordicServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val
             services[serviceIndex].setupLongUUID(uuid);
 
             serviceUUIDDiscoveryQueue.triggerFirst();
+        } else {
+            serviceUUIDDiscoveryQueue.dequeue();
+        }
+    } else if (state == DISCOVER_CHARACTERISTIC_UUIDS) {
+        if ((response->count == 1) && (response->value_len == UUID::LENGTH_OF_LONG_UUID + 1 /* props */ + 2 /* value handle */)) {
+            UUID::LongUUIDBytes_t uuid;
+            /* Switch longUUID bytes to MSB */
+            for (unsigned i = 0; i < UUID::LENGTH_OF_LONG_UUID; i++) {
+                uuid[i] = response->handle_value[0].p_value[3 + UUID::LENGTH_OF_LONG_UUID - 1 - i];
+            }
+
+            unsigned charIndex = charUUIDDiscoveryQueue.dequeue();
+            characteristics[charIndex].setupLongUUID(uuid);
+
+            charUUIDDiscoveryQueue.triggerFirst();
+        } else {
+            charUUIDDiscoveryQueue.dequeue();
         }
     }
 }
@@ -201,11 +243,24 @@ NordicServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_
         numCharacteristics = BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV;
     }
 
+    charUUIDDiscoveryQueue.reset();
     for (unsigned charIndex = 0; charIndex < numCharacteristics; charIndex++) {
-        characteristics[charIndex].setup(response->chars[charIndex].uuid.uuid,
-                                         *(const uint8_t *)(&response->chars[charIndex].char_props),
-                                         response->chars[charIndex].handle_decl,
-                                         response->chars[charIndex].handle_value);
+        if (response->chars[charIndex].uuid.type == BLE_UUID_TYPE_UNKNOWN) {
+            charUUIDDiscoveryQueue.enqueue(charIndex);
+            characteristics[charIndex].setup(*(const uint8_t *)(&response->chars[charIndex].char_props),
+                                             response->chars[charIndex].handle_decl,
+                                             response->chars[charIndex].handle_value);
+        } else {
+            characteristics[charIndex].setup(response->chars[charIndex].uuid.uuid,
+                                             *(const uint8_t *)(&response->chars[charIndex].char_props),
+                                             response->chars[charIndex].handle_decl,
+                                             response->chars[charIndex].handle_value);
+        }
+    }
+
+    /* Trigger discovery of char UUID if necessary. */
+    if (charUUIDDiscoveryQueue.getCount()) {
+        charUUIDDiscoveryQueue.triggerFirst();
     }
 }
 

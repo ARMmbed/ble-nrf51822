@@ -41,6 +41,7 @@ public:
                                services(),
                                characteristics(),
                                serviceUUIDDiscoveryQueue(this),
+                               charUUIDDiscoveryQueue(this),
                                onTerminationCallback(NULL) {
         /* empty */
     }
@@ -167,6 +168,65 @@ private:
     };
     friend class ServiceUUIDDiscoveryQueue;
 
+    /**
+     * A datatype to contain characteristic-indices for which long UUIDs need to
+     * be discovered using read_val_by_uuid().
+     */
+    class CharUUIDDiscoveryQueue {
+    public:
+        CharUUIDDiscoveryQueue(NordicServiceDiscovery *parent) :
+            numIndices(0),
+            charIndices(),
+            parentDiscoveryObject(parent) {
+            /* empty */
+        }
+
+    public:
+        void reset(void) {
+            numIndices = 0;
+            for (unsigned i = 0; i < BLE_DB_DISCOVERY_MAX_SRV; i++) {
+                charIndices[i] = INVALID_INDEX;
+            }
+        }
+        void enqueue(int serviceIndex) {
+            charIndices[numIndices++] = serviceIndex;
+        }
+        int dequeue(void) {
+            if (numIndices == 0) {
+                return INVALID_INDEX;
+            }
+
+            unsigned valueToReturn = charIndices[0];
+            numIndices--;
+            for (unsigned i = 0; i < numIndices; i++) {
+                charIndices[i] = charIndices[i + 1];
+            }
+
+            return valueToReturn;
+        }
+        unsigned getFirst(void) const {
+            return charIndices[0];
+        }
+        size_t getCount(void) const {
+            return numIndices;
+        }
+
+        /**
+         * Trigger UUID discovery for the first of the enqueued charIndices.
+         */
+        void triggerFirst(void);
+
+    private:
+        static const int INVALID_INDEX = -1;
+
+    private:
+        size_t numIndices;
+        int    charIndices[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
+
+        NordicServiceDiscovery *parentDiscoveryObject;
+    };
+    friend class CharUUIDDiscoveryQueue;
+
 private:
     friend void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
     void progressCharacteristicDiscovery(void);
@@ -183,6 +243,7 @@ private:
         SERVICE_DISCOVERY_ACTIVE,
         CHARACTERISTIC_DISCOVERY_ACTIVE,
         DISCOVER_SERVICE_UUIDS,
+        DISCOVER_CHARACTERISTIC_UUIDS,
     } state;
 
     DiscoveredService        services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
@@ -190,6 +251,7 @@ private:
     DiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
 
     ServiceUUIDDiscoveryQueue serviceUUIDDiscoveryQueue;
+    CharUUIDDiscoveryQueue    charUUIDDiscoveryQueue;
 
     TerminationCallback_t onTerminationCallback;
 };
