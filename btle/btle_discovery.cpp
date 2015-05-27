@@ -139,11 +139,11 @@ NordicServiceDiscovery::ServiceIndicesNeedingUUIDDiscovery::triggerFirst(void)
 void
 NordicServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val_by_uuid_read_rsp_t *response)
 {
-    printf("BLE_GATTC_EVT_CHAR_VAL_BY_UUID_READ_RSP: count %u, len %u\r\n", response->count, response->value_len);
-    for (unsigned i = 0; i < response->value_len; i++) {
-        printf("%02x ", response->handle_value[0].p_value[i]);
-    }
-    printf("\r\n");
+    // printf("BLE_GATTC_EVT_CHAR_VAL_BY_UUID_READ_RSP: count %u, len %u\r\n", response->count, response->value_len);
+    // for (unsigned i = 0; i < response->value_len; i++) {
+    //     printf("%02x ", response->handle_value[0].p_value[i]);
+    // }
+    // printf("\r\n");
 
     if ((response->count == 1) && (response->value_len == UUID::LENGTH_OF_LONG_UUID)) {
         UUID::LongUUIDBytes_t uuid;
