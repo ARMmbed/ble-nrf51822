@@ -145,6 +145,17 @@ NordicServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val
     }
     printf("\r\n");
 
+    if ((response->count == 1) && (response->value_len == UUID::LENGTH_OF_LONG_UUID)) {
+        UUID::LongUUIDBytes_t uuid;
+        /* Switch longUUID bytes to MSB */
+        for (unsigned i = 0; i < UUID::LENGTH_OF_LONG_UUID; i++) {
+            uuid[i] = response->handle_value[0].p_value[UUID::LENGTH_OF_LONG_UUID - 1 - i];
+        }
+
+        unsigned serviceIndex = serviceIndicesNeedingUUIDDiscovery.getFirst();
+        services[serviceIndex].setupLongUUID(uuid);
+    }
+
     serviceIndicesNeedingUUIDDiscovery.removeFirst();
     serviceIndicesNeedingUUIDDiscovery.triggerFirst();
 }
