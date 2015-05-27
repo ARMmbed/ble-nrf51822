@@ -151,6 +151,9 @@ private:
             return numIndices;
         }
 
+        /**
+         * Trigger UUID discovery for the first of the enqueued ServiceIndices.
+         */
         void triggerFirst(void);
 
     private:
