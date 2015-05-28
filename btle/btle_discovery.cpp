@@ -24,6 +24,7 @@
 #include "ble_err.h"
 
 static NordicServiceDiscovery sdSingleton;
+DiscoveredCharacteristic::ReadCallback_t DiscoveredCharacteristic::onDataReadCallback = NULL;
 
 ble_error_t
 ServiceDiscovery::launch(Gap::Handle_t             connectionHandle,
