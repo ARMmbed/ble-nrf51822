@@ -42,8 +42,8 @@ public:
     void hwCallback(ble_evt_t *p_ble_evt);
 
 private:
-    const static unsigned BLE_TOTAL_CHARACTERISTICS = 24;
-    const static unsigned BLE_TOTAL_DESCRIPTORS     = 24;
+    const static unsigned BLE_TOTAL_CHARACTERISTICS = 20;
+    const static unsigned BLE_TOTAL_DESCRIPTORS     = 8;
 
     GattCharacteristic       *p_characteristics[BLE_TOTAL_CHARACTERISTICS];
     ble_gatts_char_handles_t  nrfCharacteristicHandles[BLE_TOTAL_CHARACTERISTICS];
