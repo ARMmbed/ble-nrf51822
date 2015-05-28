@@ -30,7 +30,7 @@ public:
      * than ATT_MTU - 1, this function must be called multiple times with
      * appropriate offset to read the complete value.
      */
-    virtual void read(uint16_t offset = 0) {
+    virtual ble_error_t read(uint16_t offset = 0) {
         /**@brief Initiate or continue a GATT Read (Long) Characteristic or Descriptor procedure.
          *
          * @details This function initiates or resumes a GATT Read (Long) Characteristic or Descriptor procedure. If the Characteristic or Descriptor
@@ -49,6 +49,7 @@ public:
          */
         // sd_ble_gattc_read()
         // SVCALL(SD_BLE_GATTC_READ, uint32_t, sd_ble_gattc_read(uint16_t conn_handle, uint16_t handle, uint16_t offset));
+        return BLE_ERROR_NONE;
     }
 };
 
