@@ -58,9 +58,19 @@ public:
      *         BLE_STACK_BUSY if some client procedure already in progress.
      */
     virtual ble_error_t read(uint16_t offset = 0) {
-        // sd_ble_gattc_read()
-        // SVCALL(SD_BLE_GATTC_READ, uint32_t, sd_ble_gattc_read(uint16_t conn_handle, uint16_t handle, uint16_t offset));
-        return BLE_ERROR_NONE;
+        uint32_t rc = sd_ble_gattc_read(connHandle, valueHandle, offset);
+        if (rc == NRF_SUCCESS) {
+            return BLE_ERROR_NONE;
+        }
+        switch (rc) {
+            case NRF_ERROR_BUSY:
+                return BLE_STACK_BUSY;
+            case BLE_ERROR_INVALID_CONN_HANDLE:
+            case NRF_ERROR_INVALID_STATE:
+            case NRF_ERROR_INVALID_ADDR:
+            default:
+                return BLE_ERROR_INVALID_STATE;
+        }
     }
 };
 
