@@ -367,13 +367,12 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                     break;
             }
             break;
-        case BLE_GATTC_EVT_CHAR_VAL_BY_UUID_READ_RSP: {
+
+        case BLE_GATTC_EVT_CHAR_VAL_BY_UUID_READ_RSP:
             if (sdSingleton.isActive()) {
                 sdSingleton.processDiscoverUUIDResponse(&p_ble_evt->evt.gattc_evt.params.char_val_by_uuid_read_rsp);
             }
-
             break;
-        }
     }
 
     sdSingleton.progressCharacteristicDiscovery();
