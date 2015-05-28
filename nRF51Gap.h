@@ -38,10 +38,7 @@
 class nRF51Gap : public Gap
 {
 public:
-    static nRF51Gap &getInstance() {
-        static nRF51Gap m_instance;
-        return m_instance;
-    }
+    static nRF51Gap &getInstance();
 
     /* Functions that must be implemented from Gap */
     virtual ble_error_t setAddress(AddressType_t  type,  const address_t address);

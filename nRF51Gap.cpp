@@ -21,6 +21,11 @@
 #include "ble_advdata.h"
 #include "ble_hci.h"
 
+nRF51Gap &nRF51Gap::getInstance() {
+    static nRF51Gap m_instance;
+    return m_instance;
+}
+
 /**************************************************************************/
 /*!
     @brief  Sets the advertising parameters and payload for the device
