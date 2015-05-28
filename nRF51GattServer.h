@@ -27,10 +27,7 @@
 class nRF51GattServer : public GattServer
 {
 public:
-    static nRF51GattServer &getInstance() {
-        static nRF51GattServer m_instance;
-        return m_instance;
-    }
+    static nRF51GattServer &getInstance();
 
     /* Functions that must be implemented from GattServer */
     virtual ble_error_t addService(GattService &);
