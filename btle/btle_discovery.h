@@ -24,6 +24,29 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
 
 class nRFDiscoveredCharacteristic : public DiscoveredCharacteristic {
 public:
+    void setup(Gap::Handle_t           connectionHandleIn,
+               Properties_t            propsIn,
+               GattAttribute::Handle_t declHandleIn,
+               GattAttribute::Handle_t valueHandleIn) {
+        connHandle  = connectionHandleIn;
+        props       = propsIn;
+        declHandle  = declHandleIn;
+        valueHandle = valueHandleIn;
+    }
+
+    void setup(Gap::Handle_t connectionHandleIn,
+               UUID::ShortUUIDBytes_t  uuidIn,
+               Properties_t            propsIn,
+               GattAttribute::Handle_t declHandleIn,
+               GattAttribute::Handle_t valueHandleIn) {
+        connHandle  = connectionHandleIn;
+        uuid        = uuidIn;
+        props       = propsIn;
+        declHandle  = declHandleIn;
+        valueHandle = valueHandleIn;
+    }
+
+public:
     /**
      * Initiate (or continue) a read for the value attribute, optionally at a
      * given offset. If the Characteristic or Descriptor to be read is longer
