@@ -86,13 +86,11 @@ private:
     void resetDiscoveredServices(void) {
         numServices  = 0;
         serviceIndex = 0;
-        memset(services, 0, sizeof(DiscoveredService) * BLE_DB_DISCOVERY_MAX_SRV);
     }
 
     void resetDiscoveredCharacteristics(void) {
         numCharacteristics  = 0;
         characteristicIndex = 0;
-        memset(characteristics, 0, sizeof(DiscoveredCharacteristic) * BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV);
     }
 
 public:
