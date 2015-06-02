@@ -378,7 +378,6 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
             break;
 
         case BLE_GATTC_EVT_READ_RSP:
-            printf("BLE_GATTC_EVT_READ_RSP\r\n");
             if (DiscoveredCharacteristic::onDataReadCallback != NULL) {
                 DiscoveredCharacteristic::ReadResponse_t response = {
                     .handle = p_ble_evt->evt.gattc_evt.params.read_rsp.handle,
