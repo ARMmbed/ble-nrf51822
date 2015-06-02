@@ -67,6 +67,52 @@ public:
                 return BLE_ERROR_INVALID_STATE;
         }
     }
+
+    /**
+     * Perform a write without response procedure.
+     *
+     * @param  length
+     *           The amount of data being written.
+     * @param  value
+     *           The bytes being written.
+     *
+     * @note    It is important to note that a write without response will
+     *          <b>consume an application buffer</b>, and will therefore
+     *          generate a onDataWritten() callback when the packet has been
+     *          transmitted. The application should ensure that the buffer is
+     *          valid until the callback.
+     *
+     * @retval BLE_ERROR_NONE Successfully started the Write procedure, else
+     *         BLE_ERROR_INVALID_STATE if some internal state about the connection is invalid, or
+     *         BLE_STACK_BUSY if some client procedure already in progress, or
+     *         BLE_ERROR_NO_MEM if there are no available buffers left to process the request.
+     */
+    virtual ble_error_t writeWoResponse(uint16_t length, const uint8_t *value) const {
+        ble_gattc_write_params_t writeParams = {
+            .write_op = BLE_GATT_OP_WRITE_CMD,
+            // .flags  = 0,
+            .handle   = valueHandle,
+            .offset   = 0,
+            .len      = length,
+            .p_value  = const_cast<uint8_t *>(value),
+        };
+
+        uint32_t rc = sd_ble_gattc_write(connHandle, &writeParams);
+        if (rc == NRF_SUCCESS) {
+            return BLE_ERROR_NONE;
+        }
+        switch (rc) {
+            case NRF_ERROR_BUSY:
+                return BLE_STACK_BUSY;
+            case BLE_ERROR_NO_TX_BUFFERS:
+                return BLE_ERROR_NO_MEM;
+            case BLE_ERROR_INVALID_CONN_HANDLE:
+            case NRF_ERROR_INVALID_STATE:
+            case NRF_ERROR_INVALID_ADDR:
+            default:
+                return BLE_ERROR_INVALID_STATE;
+        }
+    }
 };
 
 #endif /* __NRF_DISCOVERED_CHARACTERISTIC_H__ */
