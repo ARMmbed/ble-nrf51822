@@ -53,9 +53,7 @@ public:
      *         BLE_STACK_BUSY if some client procedure already in progress.
      */
     virtual ble_error_t read(uint16_t offset = 0) const {
-        printf("%s %u\r\n", __FUNCTION__, __LINE__);
         uint32_t rc = sd_ble_gattc_read(connHandle, valueHandle, offset);
-        printf("%u\r\n", rc);
         if (rc == NRF_SUCCESS) {
             return BLE_ERROR_NONE;
         }
