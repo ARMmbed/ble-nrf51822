@@ -275,7 +275,7 @@ NordicServiceDiscovery::progressCharacteristicDiscovery(void)
         if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
             (matchingCharacteristicUUID == characteristics[characteristicIndex].getShortUUID())) {
             if (characteristicCallback) {
-                characteristicCallback(characteristics[characteristicIndex]);
+                characteristicCallback(&characteristics[characteristicIndex]);
             }
         }
 
