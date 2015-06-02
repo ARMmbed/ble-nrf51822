@@ -273,7 +273,8 @@ NordicServiceDiscovery::progressCharacteristicDiscovery(void)
     /* Iterate through the previously discovered characteristics cached in characteristics[]. */
     while ((state == CHARACTERISTIC_DISCOVERY_ACTIVE) && (characteristicIndex < numCharacteristics)) {
         if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
-            (matchingCharacteristicUUID == characteristics[characteristicIndex].getShortUUID())) {
+            ((matchingCharacteristicUUID == characteristics[characteristicIndex].getShortUUID()) &&
+             (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)))) {
             if (characteristicCallback) {
                 characteristicCallback(&characteristics[characteristicIndex]);
             }
