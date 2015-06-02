@@ -311,7 +311,8 @@ NordicServiceDiscovery::progressServiceDiscovery(void)
     while ((state == SERVICE_DISCOVERY_ACTIVE) && (serviceIndex < numServices)) {
         if ((matchingServiceUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
             (matchingServiceUUID == services[serviceIndex].getUUID().getShortUUID())) {
-            if (serviceCallback) {
+
+            if (serviceCallback && (matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN))) {
                 serviceCallback(&services[serviceIndex]);
             }
 
