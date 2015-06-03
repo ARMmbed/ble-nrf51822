@@ -64,9 +64,14 @@ public:
      *
      * @return BLE_ERROR_NONE if a read has been initiated, else
      *         BLE_ERROR_INVALID_STATE if some internal state about the connection is invalid, or
-     *         BLE_STACK_BUSY if some client procedure already in progress.
+     *         BLE_STACK_BUSY if some client procedure already in progress, or
+     *         BLE_ERROR_OPERATION_NOT_PERMITTED due to the characteristic's properties.
      */
     virtual ble_error_t read(uint16_t offset = 0) const {
+        if (!props.read()) {
+            return BLE_ERROR_OPERATION_NOT_PERMITTED;
+        }
+
         uint32_t rc = sd_ble_gattc_read(connHandle, valueHandle, offset);
         if (rc == NRF_SUCCESS) {
             return BLE_ERROR_NONE;
@@ -99,9 +104,14 @@ public:
      * @retval BLE_ERROR_NONE Successfully started the Write procedure, else
      *         BLE_ERROR_INVALID_STATE if some internal state about the connection is invalid, or
      *         BLE_STACK_BUSY if some client procedure already in progress, or
-     *         BLE_ERROR_NO_MEM if there are no available buffers left to process the request.
+     *         BLE_ERROR_NO_MEM if there are no available buffers left to process the request or
+     *         BLE_ERROR_OPERATION_NOT_PERMITTED due to the characteristic's properties.
      */
     virtual ble_error_t writeWoResponse(uint16_t length, const uint8_t *value) const {
+        if (!props.writeWoResp()) {
+            return BLE_ERROR_OPERATION_NOT_PERMITTED;
+        }
+
         ble_gattc_write_params_t writeParams = {
             .write_op = BLE_GATT_OP_WRITE_CMD,
             // .flags  = 0,
