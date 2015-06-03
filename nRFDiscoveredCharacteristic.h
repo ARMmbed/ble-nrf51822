@@ -55,6 +55,7 @@ public:
         props._authSignedWrite = propsIn.auth_signed_wr;
     }
 
+#if 0
 public:
     /**
      * Initiate (or continue) a read for the value attribute, optionally at a
@@ -68,8 +69,11 @@ public:
      *         BLE_ERROR_OPERATION_NOT_PERMITTED due to the characteristic's properties.
      */
     virtual ble_error_t read(uint16_t offset = 0) const {
-        if (!props.read()) {
-            return BLE_ERROR_OPERATION_NOT_PERMITTED;
+
+        printf("in nRFDiscoveredCharacteristic::read\r\n");
+        ble_error_t err = DiscoveredCharacteristic::read(offset);
+        if (err != BLE_ERROR_NONE) {
+            return err;
         }
 
         uint32_t rc = sd_ble_gattc_read(connHandle, valueHandle, offset);
@@ -108,8 +112,9 @@ public:
      *         BLE_ERROR_OPERATION_NOT_PERMITTED due to the characteristic's properties.
      */
     virtual ble_error_t writeWoResponse(uint16_t length, const uint8_t *value) const {
-        if (!props.writeWoResp()) {
-            return BLE_ERROR_OPERATION_NOT_PERMITTED;
+        ble_error_t err = DiscoveredCharacteristic::writeWoResponse(length, value);
+        if (err != BLE_ERROR_NONE) {
+            return err;
         }
 
         ble_gattc_write_params_t writeParams = {
@@ -137,6 +142,7 @@ public:
                 return BLE_ERROR_INVALID_STATE;
         }
     }
+#endif
 };
 
 #endif /* __NRF_DISCOVERED_CHARACTERISTIC_H__ */
