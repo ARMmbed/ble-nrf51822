@@ -249,13 +249,13 @@ NordicServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_
         if (response->chars[charIndex].uuid.type == BLE_UUID_TYPE_UNKNOWN) {
             charUUIDDiscoveryQueue.enqueue(charIndex);
             characteristics[charIndex].setup(connHandle,
-                                             *(const uint8_t *)(&response->chars[charIndex].char_props),
+                                             response->chars[charIndex].char_props,
                                              response->chars[charIndex].handle_decl,
                                              response->chars[charIndex].handle_value);
         } else {
             characteristics[charIndex].setup(connHandle,
                                              response->chars[charIndex].uuid.uuid,
-                                             *(const uint8_t *)(&response->chars[charIndex].char_props),
+                                             response->chars[charIndex].char_props,
                                              response->chars[charIndex].handle_decl,
                                              response->chars[charIndex].handle_value);
         }

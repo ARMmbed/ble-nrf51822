@@ -20,25 +20,39 @@
 class nRFDiscoveredCharacteristic : public DiscoveredCharacteristic {
 public:
     void setup(Gap::Handle_t           connectionHandleIn,
-               Properties_t            propsIn,
+               ble_gatt_char_props_t   propsIn,
                GattAttribute::Handle_t declHandleIn,
                GattAttribute::Handle_t valueHandleIn) {
         connHandle  = connectionHandleIn;
-        props       = propsIn;
         declHandle  = declHandleIn;
         valueHandle = valueHandleIn;
+
+        props._broadcast       = propsIn.broadcast;
+        props._read            = propsIn.read;
+        props._writeWoResp     = propsIn.write_wo_resp;
+        props._write           = propsIn.write;
+        props._notify          = propsIn.notify;
+        props._indicate        = propsIn.indicate;
+        props._authSignedWrite = propsIn.auth_signed_wr;
     }
 
     void setup(Gap::Handle_t connectionHandleIn,
                UUID::ShortUUIDBytes_t  uuidIn,
-               Properties_t            propsIn,
+               ble_gatt_char_props_t   propsIn,
                GattAttribute::Handle_t declHandleIn,
                GattAttribute::Handle_t valueHandleIn) {
         connHandle  = connectionHandleIn;
         uuid        = uuidIn;
-        props       = propsIn;
         declHandle  = declHandleIn;
         valueHandle = valueHandleIn;
+
+        props._broadcast       = propsIn.broadcast;
+        props._read            = propsIn.read;
+        props._writeWoResp     = propsIn.write_wo_resp;
+        props._write           = propsIn.write;
+        props._notify          = propsIn.notify;
+        props._indicate        = propsIn.indicate;
+        props._authSignedWrite = propsIn.auth_signed_wr;
     }
 
 public:
