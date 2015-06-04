@@ -18,6 +18,7 @@
 #define __NRF51822_GATT_CLIENT_H__
 
 #include "GattClient.h"
+#include "nRFServiceDiscovery.h"
 
 #include "blecommon.h"
 #include "ble_err.h"
@@ -68,6 +69,9 @@ public:
 private:
     nRF51GattClient(const nRF51GattClient &);
     const nRF51GattClient& operator=(const nRF51GattClient &);
+
+private:
+    nRFServiceDiscovery discovery;
 };
 
 #endif // ifndef __NRF51822_GATT_CLIENT_H__
