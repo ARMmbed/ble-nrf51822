@@ -19,10 +19,30 @@
 
 #include "GattClient.h"
 
+#include "blecommon.h"
+#include "ble_err.h"
+#include "ble_gattc.h"
+
 class nRF51GattClient : public GattClient
 {
 public:
     static nRF51GattClient &getInstance();
+
+    virtual ble_error_t read(Gap::Handle_t connHandle, GattAttribute::Handle_t attributeHandle, uint16_t offset) const {
+        uint32_t rc = sd_ble_gattc_read(connHandle, attributeHandle, offset);
+        if (rc == NRF_SUCCESS) {
+            return BLE_ERROR_NONE;
+        }
+        switch (rc) {
+            case NRF_ERROR_BUSY:
+                return BLE_STACK_BUSY;
+            case BLE_ERROR_INVALID_CONN_HANDLE:
+            case NRF_ERROR_INVALID_STATE:
+            case NRF_ERROR_INVALID_ADDR:
+            default:
+                return BLE_ERROR_INVALID_STATE;
+        }
+    }
 
 #if 0
     /* Functions that must be implemented from GattClient */
