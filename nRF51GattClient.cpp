@@ -16,7 +16,19 @@
 
 #include "nRF51GattClient.h"
 
-nRF51GattClient &nRF51GattClient::getInstance(void) {
-    static nRF51GattClient m_instance;
-    return m_instance;
+nRF51GattClient nRFGattClientSingleton;
+
+nRF51GattClient &
+nRF51GattClient::getInstance(void) {
+    return nRFGattClientSingleton;
+}
+
+ble_error_t
+nRF51GattClient::launchServiceDiscovery(Gap::Handle_t                               connectionHandle,
+                                        ServiceDiscovery::ServiceCallback_t         sc,
+                                        ServiceDiscovery::CharacteristicCallback_t  cc,
+                                        const UUID                                 &matchingServiceUUIDIn,
+                                        const UUID                                 &matchingCharacteristicUUIDIn)
+{
+    return discovery.launch(connectionHandle, sc, cc, matchingServiceUUIDIn, matchingCharacteristicUUIDIn);
 }

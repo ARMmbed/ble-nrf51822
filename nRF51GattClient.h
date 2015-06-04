@@ -20,14 +20,84 @@
 #include "GattClient.h"
 #include "nRFServiceDiscovery.h"
 
-#include "blecommon.h"
-#include "ble_err.h"
-#include "ble_gattc.h"
-
 class nRF51GattClient : public GattClient
 {
 public:
     static nRF51GattClient &getInstance();
+
+    /**
+     * Launch service discovery. Once launched, service discovery will remain
+     * active with callbacks being issued back into the application for matching
+     * services/characteristics. isActive() can be used to determine status; and
+     * a termination callback (if setup) will be invoked at the end. Service
+     * discovery can be terminated prematurely if needed using terminate().
+     *
+     * @param  connectionHandle
+     *           Handle for the connection with the peer.
+     * @param  sc
+     *           This is the application callback for matching service. Taken as
+     *           NULL by default. Note: service discovery may still be active
+     *           when this callback is issued; calling asynchronous BLE-stack
+     *           APIs from within this application callback might cause the
+     *           stack to abort service discovery. If this becomes an issue, it
+     *           may be better to make local copy of the discoveredService and
+     *           wait for service discovery to terminate before operating on the
+     *           service.
+     * @param  cc
+     *           This is the application callback for matching characteristic.
+     *           Taken as NULL by default. Note: service discovery may still be
+     *           active when this callback is issued; calling asynchronous
+     *           BLE-stack APIs from within this application callback might cause
+     *           the stack to abort service discovery. If this becomes an issue,
+     *           it may be better to make local copy of the discoveredCharacteristic
+     *           and wait for service discovery to terminate before operating on the
+     *           characteristic.
+     * @param  matchingServiceUUID
+     *           UUID based filter for specifying a service in which the application is
+     *           interested. By default it is set as the wildcard UUID_UNKNOWN,
+     *           in which case it matches all services. If characteristic-UUID
+     *           filter (below) is set to the wildcard value, then a service
+     *           callback will be invoked for the matching service (or for every
+     *           service if the service filter is a wildcard).
+     * @param  matchingCharacteristicUUIDIn
+     *           UUID based filter for specifying characteristic in which the application
+     *           is interested. By default it is set as the wildcard UUID_UKNOWN
+     *           to match against any characteristic. If both service-UUID
+     *           filter and characteristic-UUID filter are used with non- wildcard
+     *           values, then only a single characteristic callback is
+     *           invoked for the matching characteristic.
+     *
+     * @Note     Using wildcard values for both service-UUID and characteristic-
+     *           UUID will result in complete service discovery--callbacks being
+     *           called for every service and characteristic.
+     *
+     * @return
+     *           BLE_ERROR_NONE if service discovery is launched successfully; else an appropriate error.
+     */
+    virtual ble_error_t launchServiceDiscovery(Gap::Handle_t                               connectionHandle,
+                                               ServiceDiscovery::ServiceCallback_t         sc = NULL,
+                                               ServiceDiscovery::CharacteristicCallback_t  cc = NULL,
+                                               const UUID                                 &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN),
+                                               const UUID                                 &matchingCharacteristicUUIDIn = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN));
+
+    virtual void onServiceDiscoveryTermination(ServiceDiscovery::TerminationCallback_t callback) {
+        discovery.onTermination(callback);
+    }
+
+    /**
+     * Is service-discovery currently active?
+     */
+    virtual bool isServiceDiscoveryActive(void) const {
+        return discovery.isActive();
+    }
+
+    /**
+     * Terminate an ongoing service-discovery. This should result in an
+     * invocation of the TerminationCallback if service-discovery is active.
+     */
+    virtual void terminateServiceDiscovery(void) {
+        discovery.terminate();
+    }
 
     virtual ble_error_t read(Gap::Handle_t connHandle, GattAttribute::Handle_t attributeHandle, uint16_t offset) const {
         uint32_t rc = sd_ble_gattc_read(connHandle, attributeHandle, offset);
@@ -45,26 +115,16 @@ public:
         }
     }
 
-#if 0
-    /* Functions that must be implemented from GattClient */
-    virtual ble_error_t addService(GattService &);
-    virtual ble_error_t readValue(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
-    virtual ble_error_t readValue(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
-    virtual ble_error_t updateValue(GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
-    virtual ble_error_t updateValue(Gap::Handle_t connectionHandle, GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
-    virtual ble_error_t initializeGATTDatabase(void);
-
-    /* nRF51 Functions */
-    void eventCallback(void);
-    void hwCallback(ble_evt_t *p_ble_evt);
-
-private:
-#endif
+    virtual ble_error_t write(GattClient::Command_t cmd, Gap::Handle_t connHandle, size_t length, const uint8_t *value) const {
+        return BLE_ERROR_NONE;
+    }
 
 public:
-    nRF51GattClient() {
+    nRF51GattClient() { /* need a default constructor because we've added a private copy constructor */
         /* empty */
     }
+
+    friend void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
 
 private:
     nRF51GattClient(const nRF51GattClient &);

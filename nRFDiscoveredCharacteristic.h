@@ -17,6 +17,8 @@
 #ifndef __NRF_DISCOVERED_CHARACTERISTIC_H__
 #define __NRF_DISCOVERED_CHARACTERISTIC_H__
 
+#include "ble_gatt.h"
+
 class nRFDiscoveredCharacteristic : public DiscoveredCharacteristic {
 public:
     void setup(GattClient              *gattcIn,

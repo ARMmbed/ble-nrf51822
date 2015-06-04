@@ -17,11 +17,11 @@
 #ifndef __NRF_SERVICE_DISCOVERY_H__
 #define __NRF_SERVICE_DISCOVERY_H__
 
-#include "ble.h"
 #include "ServiceDiscovery.h"
 #include "nRFDiscoveredCharacteristic.h"
 
-void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
+#include "ble.h"
+#include "ble_gattc.h"
 
 class nRFServiceDiscovery : public ServiceDiscovery
 {
@@ -35,22 +35,69 @@ public:
 
 public:
     nRFServiceDiscovery() : serviceIndex(0),
-                               numServices(0),
-                               characteristicIndex(0),
-                               numCharacteristics(0),
-                               state(INACTIVE),
-                               services(),
-                               characteristics(),
-                               serviceUUIDDiscoveryQueue(this),
-                               charUUIDDiscoveryQueue(this),
-                               onTerminationCallback(NULL) {
+                            numServices(0),
+                            characteristicIndex(0),
+                            numCharacteristics(0),
+                            state(INACTIVE),
+                            services(),
+                            characteristics(),
+                            serviceUUIDDiscoveryQueue(this),
+                            charUUIDDiscoveryQueue(this),
+                            onTerminationCallback(NULL) {
         /* empty */
     }
 
-public:
+    virtual ble_error_t launch(Gap::Handle_t                               connectionHandle,
+                               ServiceDiscovery::ServiceCallback_t         sc,
+                               ServiceDiscovery::CharacteristicCallback_t  cc,
+                               const UUID                                 &matchingServiceUUIDIn,
+                               const UUID                                 &matchingCharacteristicUUIDIn)
+    {
+        if (isActive()) {
+            return BLE_ERROR_INVALID_STATE;
+        }
+
+        serviceCallback            = sc;
+        characteristicCallback     = cc;
+        matchingServiceUUID        = matchingServiceUUIDIn;
+        matchingCharacteristicUUID = matchingCharacteristicUUIDIn;
+
+        serviceDiscoveryStarted(connectionHandle);
+
+        uint32_t rc;
+        if ((rc = sd_ble_gattc_primary_services_discover(connectionHandle, SRV_DISC_START_HANDLE, NULL)) != NRF_SUCCESS) {
+            terminate();
+            switch (rc) {
+                case NRF_ERROR_INVALID_PARAM:
+                case BLE_ERROR_INVALID_CONN_HANDLE:
+                    return BLE_ERROR_INVALID_PARAM;
+                case NRF_ERROR_BUSY:
+                    return BLE_STACK_BUSY;
+                default:
+                case NRF_ERROR_INVALID_STATE:
+                    return BLE_ERROR_INVALID_STATE;
+            }
+        }
+
+        return BLE_ERROR_NONE;
+    }
+
+    virtual bool isActive(void) const {
+        return state != INACTIVE;
+    }
+
+    virtual void terminate(void) {
+        terminateServiceDiscovery();
+    }
+
+    virtual void onTermination(ServiceDiscovery::TerminationCallback_t callback) {
+        onTerminationCallback = callback;
+    }
+
+private:
     ble_error_t launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle);
 
-public:
+private:
     void setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response);
     void setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response);
 
@@ -74,14 +121,6 @@ public:
         serviceIndex++; /* Progress service index to keep discovery alive. */
     }
 
-    bool isActive(void) const {
-        return state != INACTIVE;
-    }
-
-    void setOnTermination(TerminationCallback_t callback) {
-        onTerminationCallback = callback;
-    }
-
 private:
     void resetDiscoveredServices(void) {
         numServices  = 0;
@@ -93,7 +132,7 @@ private:
         characteristicIndex = 0;
     }
 
-public:
+private:
     void serviceDiscoveryStarted(Gap::Handle_t connectionHandle) {
         connHandle = connectionHandle;
         resetDiscoveredServices();
