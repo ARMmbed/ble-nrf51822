@@ -248,12 +248,14 @@ NordicServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_
     for (unsigned charIndex = 0; charIndex < numCharacteristics; charIndex++) {
         if (response->chars[charIndex].uuid.type == BLE_UUID_TYPE_UNKNOWN) {
             charUUIDDiscoveryQueue.enqueue(charIndex);
-            characteristics[charIndex].setup(connHandle,
+            characteristics[charIndex].setup(NULL, /* gattc FIX THIS */
+                                             connHandle,
                                              response->chars[charIndex].char_props,
                                              response->chars[charIndex].handle_decl,
                                              response->chars[charIndex].handle_value);
         } else {
-            characteristics[charIndex].setup(connHandle,
+            characteristics[charIndex].setup(NULL, /* gattc FIX THIS */
+                                             connHandle,
                                              response->chars[charIndex].uuid.uuid,
                                              response->chars[charIndex].char_props,
                                              response->chars[charIndex].handle_decl,

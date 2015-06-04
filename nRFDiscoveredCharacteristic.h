@@ -19,10 +19,12 @@
 
 class nRFDiscoveredCharacteristic : public DiscoveredCharacteristic {
 public:
-    void setup(Gap::Handle_t           connectionHandleIn,
-               ble_gatt_char_props_t   propsIn,
-               GattAttribute::Handle_t declHandleIn,
-               GattAttribute::Handle_t valueHandleIn) {
+    void setup(GattClient              *gattcIn,
+               Gap::Handle_t            connectionHandleIn,
+               ble_gatt_char_props_t    propsIn,
+               GattAttribute::Handle_t  declHandleIn,
+               GattAttribute::Handle_t  valueHandleIn) {
+        gattc       = gattcIn;
         connHandle  = connectionHandleIn;
         declHandle  = declHandleIn;
         valueHandle = valueHandleIn;
@@ -36,11 +38,13 @@ public:
         props._authSignedWrite = propsIn.auth_signed_wr;
     }
 
-    void setup(Gap::Handle_t connectionHandleIn,
-               UUID::ShortUUIDBytes_t  uuidIn,
-               ble_gatt_char_props_t   propsIn,
-               GattAttribute::Handle_t declHandleIn,
-               GattAttribute::Handle_t valueHandleIn) {
+    void setup(GattClient              *gattcIn,
+               Gap::Handle_t            connectionHandleIn,
+               UUID::ShortUUIDBytes_t   uuidIn,
+               ble_gatt_char_props_t    propsIn,
+               GattAttribute::Handle_t  declHandleIn,
+               GattAttribute::Handle_t  valueHandleIn) {
+        gattc       = gattcIn;
         connHandle  = connectionHandleIn;
         uuid        = uuidIn;
         declHandle  = declHandleIn;
