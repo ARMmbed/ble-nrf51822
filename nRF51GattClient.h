@@ -120,7 +120,7 @@ public:
     }
 
 public:
-    nRF51GattClient() { /* need a default constructor because we've added a private copy constructor */
+    nRF51GattClient() : discovery(this) {
         /* empty */
     }
 

@@ -17,49 +17,25 @@
 #ifndef __NRF_DISCOVERED_CHARACTERISTIC_H__
 #define __NRF_DISCOVERED_CHARACTERISTIC_H__
 
+#include "DiscoveredCharacteristic.h"
 #include "ble_gatt.h"
+
+class nRF51GattClient; /* forward declaration */
 
 class nRFDiscoveredCharacteristic : public DiscoveredCharacteristic {
 public:
-    void setup(GattClient              *gattcIn,
+    void setup(nRF51GattClient         *gattcIn,
                Gap::Handle_t            connectionHandleIn,
                ble_gatt_char_props_t    propsIn,
                GattAttribute::Handle_t  declHandleIn,
-               GattAttribute::Handle_t  valueHandleIn) {
-        gattc       = gattcIn;
-        connHandle  = connectionHandleIn;
-        declHandle  = declHandleIn;
-        valueHandle = valueHandleIn;
+               GattAttribute::Handle_t  valueHandleIn);
 
-        props._broadcast       = propsIn.broadcast;
-        props._read            = propsIn.read;
-        props._writeWoResp     = propsIn.write_wo_resp;
-        props._write           = propsIn.write;
-        props._notify          = propsIn.notify;
-        props._indicate        = propsIn.indicate;
-        props._authSignedWrite = propsIn.auth_signed_wr;
-    }
-
-    void setup(GattClient              *gattcIn,
+    void setup(nRF51GattClient         *gattcIn,
                Gap::Handle_t            connectionHandleIn,
                UUID::ShortUUIDBytes_t   uuidIn,
                ble_gatt_char_props_t    propsIn,
                GattAttribute::Handle_t  declHandleIn,
-               GattAttribute::Handle_t  valueHandleIn) {
-        gattc       = gattcIn;
-        connHandle  = connectionHandleIn;
-        uuid        = uuidIn;
-        declHandle  = declHandleIn;
-        valueHandle = valueHandleIn;
-
-        props._broadcast       = propsIn.broadcast;
-        props._read            = propsIn.read;
-        props._writeWoResp     = propsIn.write_wo_resp;
-        props._write           = propsIn.write;
-        props._notify          = propsIn.notify;
-        props._indicate        = propsIn.indicate;
-        props._authSignedWrite = propsIn.auth_signed_wr;
-    }
+               GattAttribute::Handle_t  valueHandleIn);
 
 #if 0
 public:

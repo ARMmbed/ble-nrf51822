@@ -56,7 +56,7 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 
         case BLE_GATTC_EVT_READ_RSP:
             if (DiscoveredCharacteristic::onDataReadCallback != NULL) {
-                DiscoveredCharacteristic::ReadResponse_t response = {
+                GattClient::ReadResponse_t response = {
                     .handle = p_ble_evt->evt.gattc_evt.params.read_rsp.handle,
                     .offset = p_ble_evt->evt.gattc_evt.params.read_rsp.offset,
                     .len    = p_ble_evt->evt.gattc_evt.params.read_rsp.len,

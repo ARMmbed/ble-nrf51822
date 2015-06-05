@@ -18,10 +18,13 @@
 #define __NRF_SERVICE_DISCOVERY_H__
 
 #include "ServiceDiscovery.h"
+#include "DiscoveredService.h"
 #include "nRFDiscoveredCharacteristic.h"
 
 #include "ble.h"
 #include "ble_gattc.h"
+
+class nRF51GattClient; /* forward declaration */
 
 class nRFServiceDiscovery : public ServiceDiscovery
 {
@@ -34,16 +37,18 @@ public:
     static const unsigned BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV = 4;      /**< Maximum number of characteristics per service we can retain information for. */
 
 public:
-    nRFServiceDiscovery() : serviceIndex(0),
-                            numServices(0),
-                            characteristicIndex(0),
-                            numCharacteristics(0),
-                            state(INACTIVE),
-                            services(),
-                            characteristics(),
-                            serviceUUIDDiscoveryQueue(this),
-                            charUUIDDiscoveryQueue(this),
-                            onTerminationCallback(NULL) {
+    nRFServiceDiscovery(nRF51GattClient *gattcIn) :
+        gattc(gattcIn),
+        serviceIndex(0),
+        numServices(0),
+        characteristicIndex(0),
+        numCharacteristics(0),
+        state(INACTIVE),
+        services(),
+        characteristics(),
+        serviceUUIDDiscoveryQueue(this),
+        charUUIDDiscoveryQueue(this),
+        onTerminationCallback(NULL) {
         /* empty */
     }
 
@@ -269,6 +274,9 @@ private:
     friend void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
     void progressCharacteristicDiscovery(void);
     void progressServiceDiscovery(void);
+
+private:
+    nRF51GattClient *gattc;
 
 private:
     uint8_t  serviceIndex;        /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/

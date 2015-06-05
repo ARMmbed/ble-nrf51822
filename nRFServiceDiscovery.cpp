@@ -91,13 +91,13 @@ nRFServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_dis
     for (unsigned charIndex = 0; charIndex < numCharacteristics; charIndex++) {
         if (response->chars[charIndex].uuid.type == BLE_UUID_TYPE_UNKNOWN) {
             charUUIDDiscoveryQueue.enqueue(charIndex);
-            characteristics[charIndex].setup(NULL, /* gattc FIX THIS */
+            characteristics[charIndex].setup(gattc,
                                              connHandle,
                                              response->chars[charIndex].char_props,
                                              response->chars[charIndex].handle_decl,
                                              response->chars[charIndex].handle_value);
         } else {
-            characteristics[charIndex].setup(NULL, /* gattc FIX THIS */
+            characteristics[charIndex].setup(gattc,
                                              connHandle,
                                              response->chars[charIndex].uuid.uuid,
                                              response->chars[charIndex].char_props,
