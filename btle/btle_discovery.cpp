@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "nRFServiceDiscovery.h"
+#include "nRF51ServiceDiscovery.h"
 #include "nRF51GattClient.h"
 
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 {
-    nRFServiceDiscovery &sdSingleton = nRF51GattClient::getInstance().discovery;
+    nRF51ServiceDiscovery &sdSingleton = nRF51GattClient::getInstance().discovery;
 
     switch (p_ble_evt->header.evt_id) {
         case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:

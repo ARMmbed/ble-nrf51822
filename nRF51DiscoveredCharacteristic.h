@@ -22,7 +22,7 @@
 
 class nRF51GattClient; /* forward declaration */
 
-class nRFDiscoveredCharacteristic : public DiscoveredCharacteristic {
+class nRF51DiscoveredCharacteristic : public DiscoveredCharacteristic {
 public:
     void setup(nRF51GattClient         *gattcIn,
                Gap::Handle_t            connectionHandleIn,

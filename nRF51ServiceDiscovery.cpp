@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#include "nRFServiceDiscovery.h"
-
+#include "nRF51ServiceDiscovery.h"
 
 ble_error_t
-nRFServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHandle,
+nRF51ServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHandle,
                                                    Gap::Handle_t startHandle,
                                                    Gap::Handle_t endHandle)
 {
@@ -47,7 +46,7 @@ nRFServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHandl
 }
 
 void
-nRFServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response)
+nRF51ServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_rsp_t *response)
 {
     serviceIndex = 0;
     numServices  = response->count;
@@ -77,7 +76,7 @@ nRFServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_disc_
 }
 
 void
-nRFServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response)
+nRF51ServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response)
 {
     characteristicIndex = 0;
     numCharacteristics  = response->count;
@@ -113,7 +112,7 @@ nRFServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_dis
 }
 
 void
-nRFServiceDiscovery::progressCharacteristicDiscovery(void)
+nRF51ServiceDiscovery::progressCharacteristicDiscovery(void)
 {
     /* Iterate through the previously discovered characteristics cached in characteristics[]. */
     while ((state == CHARACTERISTIC_DISCOVERY_ACTIVE) && (characteristicIndex < numCharacteristics)) {
@@ -150,7 +149,7 @@ nRFServiceDiscovery::progressCharacteristicDiscovery(void)
 }
 
 void
-nRFServiceDiscovery::progressServiceDiscovery(void)
+nRF51ServiceDiscovery::progressServiceDiscovery(void)
 {
     /* Iterate through the previously discovered services cached in services[]. */
     while ((state == SERVICE_DISCOVERY_ACTIVE) && (serviceIndex < numServices)) {
@@ -188,7 +187,7 @@ nRFServiceDiscovery::progressServiceDiscovery(void)
 }
 
 void
-nRFServiceDiscovery::ServiceUUIDDiscoveryQueue::triggerFirst(void)
+nRF51ServiceDiscovery::ServiceUUIDDiscoveryQueue::triggerFirst(void)
 {
     while (numIndices) { /* loop until a call to char_value_by_uuid_read() succeeds or we run out of pending indices. */
         parentDiscoveryObject->state = DISCOVER_SERVICE_UUIDS;
@@ -218,7 +217,7 @@ nRFServiceDiscovery::ServiceUUIDDiscoveryQueue::triggerFirst(void)
 }
 
 void
-nRFServiceDiscovery::CharUUIDDiscoveryQueue::triggerFirst(void)
+nRF51ServiceDiscovery::CharUUIDDiscoveryQueue::triggerFirst(void)
 {
     while (numIndices) { /* loop until a call to char_value_by_uuid_read() succeeds or we run out of pending indices. */
         parentDiscoveryObject->state = DISCOVER_CHARACTERISTIC_UUIDS;
@@ -248,7 +247,7 @@ nRFServiceDiscovery::CharUUIDDiscoveryQueue::triggerFirst(void)
 }
 
 void
-nRFServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val_by_uuid_read_rsp_t *response)
+nRF51ServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val_by_uuid_read_rsp_t *response)
 {
     if (state == DISCOVER_SERVICE_UUIDS) {
         if ((response->count == 1) && (response->value_len == UUID::LENGTH_OF_LONG_UUID)) {

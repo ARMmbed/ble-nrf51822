@@ -18,7 +18,7 @@
 #define __NRF51822_GATT_CLIENT_H__
 
 #include "GattClient.h"
-#include "nRFServiceDiscovery.h"
+#include "nRF51ServiceDiscovery.h"
 
 class nRF51GattClient : public GattClient
 {
@@ -154,7 +154,7 @@ private:
     const nRF51GattClient& operator=(const nRF51GattClient &);
 
 private:
-    nRFServiceDiscovery discovery;
+    nRF51ServiceDiscovery discovery;
 };
 
 #endif // ifndef __NRF51822_GATT_CLIENT_H__

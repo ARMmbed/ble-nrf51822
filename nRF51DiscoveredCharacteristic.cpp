@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "nRFDiscoveredCharacteristic.h"
+#include "nRF51DiscoveredCharacteristic.h"
 #include "nRF51GattClient.h"
 #include "ble_gatt.h"
 
 void
-nRFDiscoveredCharacteristic::setup(nRF51GattClient         *gattcIn,
+nRF51DiscoveredCharacteristic::setup(nRF51GattClient         *gattcIn,
                                    Gap::Handle_t            connectionHandleIn,
                                    ble_gatt_char_props_t    propsIn,
                                    GattAttribute::Handle_t  declHandleIn,
@@ -40,7 +40,7 @@ nRFDiscoveredCharacteristic::setup(nRF51GattClient         *gattcIn,
 }
 
 void
-nRFDiscoveredCharacteristic::setup(nRF51GattClient         *gattcIn,
+nRF51DiscoveredCharacteristic::setup(nRF51GattClient         *gattcIn,
                                    Gap::Handle_t            connectionHandleIn,
                                    UUID::ShortUUIDBytes_t   uuidIn,
                                    ble_gatt_char_props_t    propsIn,
