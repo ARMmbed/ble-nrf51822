@@ -115,7 +115,7 @@ public:
         }
     }
 
-    virtual ble_error_t write(GattClient::Command_t cmd, Gap::Handle_t connHandle, size_t length, const uint8_t *value) const {
+    virtual ble_error_t write(GattClient::WriteOp_t cmd, Gap::Handle_t connHandle, size_t length, const uint8_t *value) const {
         return BLE_ERROR_NONE;
     }
 
