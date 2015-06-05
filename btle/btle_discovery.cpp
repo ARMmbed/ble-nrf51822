@@ -65,6 +65,19 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                 DiscoveredCharacteristic::onDataReadCallback(&response);
             }
             break;
+
+        case BLE_GATTC_EVT_WRITE_RSP:
+            if (DiscoveredCharacteristic::onDataWriteCallback != NULL) {
+                GattWriteCallbackParams response = {
+                    .handle  = p_ble_evt->evt.gattc_evt.params.write_rsp.handle,
+                    .writeOp = (GattWriteCallbackParams::WriteOp_t)(p_ble_evt->evt.gattc_evt.params.write_rsp.write_op),
+                    .offset  = p_ble_evt->evt.gattc_evt.params.write_rsp.offset,
+                    .len     = p_ble_evt->evt.gattc_evt.params.write_rsp.len,
+                    .data    = p_ble_evt->evt.gattc_evt.params.write_rsp.data,
+                };
+                DiscoveredCharacteristic::onDataWriteCallback(&response);
+            }
+            break;
     }
 
     sdSingleton.progressCharacteristicDiscovery();

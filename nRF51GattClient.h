@@ -115,8 +115,31 @@ public:
         }
     }
 
-    virtual ble_error_t write(GattClient::WriteOp_t cmd, Gap::Handle_t connHandle, size_t length, const uint8_t *value) const {
-        return BLE_ERROR_NONE;
+    virtual ble_error_t write(GattClient::WriteOp_t cmd, Gap::Handle_t connHandle, GattAttribute::Handle_t attributeHandle, size_t length, const uint8_t *value) const {
+        ble_gattc_write_params_t writeParams = {
+            .write_op = cmd,
+            // .flags  = 0,
+            .handle   = attributeHandle,
+            .offset   = 0,
+            .len      = length,
+            .p_value  = const_cast<uint8_t *>(value),
+        };
+
+        uint32_t rc = sd_ble_gattc_write(connHandle, &writeParams);
+        if (rc == NRF_SUCCESS) {
+            return BLE_ERROR_NONE;
+        }
+        switch (rc) {
+            case NRF_ERROR_BUSY:
+                return BLE_STACK_BUSY;
+            case BLE_ERROR_NO_TX_BUFFERS:
+                return BLE_ERROR_NO_MEM;
+            case BLE_ERROR_INVALID_CONN_HANDLE:
+            case NRF_ERROR_INVALID_STATE:
+            case NRF_ERROR_INVALID_ADDR:
+            default:
+                return BLE_ERROR_INVALID_STATE;
+        }
     }
 
 public:
