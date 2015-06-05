@@ -56,11 +56,11 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 
         case BLE_GATTC_EVT_READ_RSP:
             if (DiscoveredCharacteristic::onDataReadCallback != NULL) {
-                GattCharacteristicReadCBParams response = {
-                    .charHandle = p_ble_evt->evt.gattc_evt.params.read_rsp.handle,
-                    .offset     = p_ble_evt->evt.gattc_evt.params.read_rsp.offset,
-                    .len        = p_ble_evt->evt.gattc_evt.params.read_rsp.len,
-                    .data       = p_ble_evt->evt.gattc_evt.params.read_rsp.data,
+                GattReadCallbackParams response = {
+                    .handle = p_ble_evt->evt.gattc_evt.params.read_rsp.handle,
+                    .offset = p_ble_evt->evt.gattc_evt.params.read_rsp.offset,
+                    .len    = p_ble_evt->evt.gattc_evt.params.read_rsp.len,
+                    .data   = p_ble_evt->evt.gattc_evt.params.read_rsp.data,
                 };
                 DiscoveredCharacteristic::onDataReadCallback(&response);
             }

@@ -336,22 +336,22 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
         if (nrfCharacteristicHandles[i].value_handle == handle_value) {
             switch (eventType) {
                 case GattServerEvents::GATT_EVENT_DATA_WRITTEN: {
-                    GattCharacteristicWriteCBParams cbParams = {
-                        .charHandle = i,
-                        .op     = static_cast<GattCharacteristicWriteCBParams::Type>(gattsEventP->params.write.op),
-                        .offset = gattsEventP->params.write.offset,
-                        .len    = gattsEventP->params.write.len,
-                        .data   = gattsEventP->params.write.data
+                    GattWriteCallbackParams cbParams = {
+                        .handle  = i,
+                        .writeOp = static_cast<GattWriteCallbackParams::WriteOp_t>(gattsEventP->params.write.op),
+                        .offset  = gattsEventP->params.write.offset,
+                        .len     = gattsEventP->params.write.len,
+                        .data    = gattsEventP->params.write.data
                     };
                     handleDataWrittenEvent(&cbParams);
                     break;
                 }
                 case GattServerEvents::GATT_EVENT_WRITE_AUTHORIZATION_REQ: {
-                    GattCharacteristicWriteAuthCBParams cbParams = {
-                        .charHandle = i,
-                        .offset     = gattsEventP->params.authorize_request.request.write.offset,
-                        .len        = gattsEventP->params.authorize_request.request.write.len,
-                        .data       = gattsEventP->params.authorize_request.request.write.data,
+                    GattWriteAuthCallbackParams cbParams = {
+                        .handle  = i,
+                        .offset  = gattsEventP->params.authorize_request.request.write.offset,
+                        .len     = gattsEventP->params.authorize_request.request.write.len,
+                        .data    = gattsEventP->params.authorize_request.request.write.data,
                     };
                     ble_gatts_rw_authorize_reply_params_t reply = {
                         .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
@@ -371,23 +371,23 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
                      * have done if write-authorization had not been enabled.
                      */
                     if (reply.params.write.gatt_status == BLE_GATT_STATUS_SUCCESS) {
-                        GattCharacteristicWriteCBParams cbParams = {
-                            .charHandle = i,
-                            .op         = static_cast<GattCharacteristicWriteCBParams::Type>(gattsEventP->params.authorize_request.request.write.op),
-                            .offset     = gattsEventP->params.authorize_request.request.write.offset,
-                            .len        = gattsEventP->params.authorize_request.request.write.len,
-                            .data       = gattsEventP->params.authorize_request.request.write.data,
+                        GattWriteCallbackParams cbParams = {
+                            .handle  = i,
+                            .writeOp = static_cast<GattWriteCallbackParams::WriteOp_t>(gattsEventP->params.authorize_request.request.write.op),
+                            .offset  = gattsEventP->params.authorize_request.request.write.offset,
+                            .len     = gattsEventP->params.authorize_request.request.write.len,
+                            .data    = gattsEventP->params.authorize_request.request.write.data,
                         };
                         handleDataWrittenEvent(&cbParams);
                     }
                     break;
                 }
                 case GattServerEvents::GATT_EVENT_READ_AUTHORIZATION_REQ: {
-                    GattCharacteristicReadAuthCBParams cbParams = {
-                        .charHandle = i,
-                        .offset     = gattsEventP->params.authorize_request.request.read.offset,
-                        .len        = 0,
-                        .data       = NULL
+                    GattReadAuthCallbackParams cbParams = {
+                        .handle = i,
+                        .offset = gattsEventP->params.authorize_request.request.read.offset,
+                        .len    = 0,
+                        .data   = NULL
                     };
 
                     ble_gatts_rw_authorize_reply_params_t reply = {
