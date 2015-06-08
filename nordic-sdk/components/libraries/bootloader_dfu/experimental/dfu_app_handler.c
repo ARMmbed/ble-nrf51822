@@ -25,9 +25,11 @@
 
 static void                    dfu_app_reset_prepare(void);                    /**< Forward declare of default reset handler. */
 static dfu_app_reset_prepare_t m_reset_prepare = dfu_app_reset_prepare;        /**< Callback function to application to prepare for system reset. Allows application to cleanup of service and memory prior to reset. */
+#if NEEDED
 static dfu_ble_peer_data_t     m_peer_data;                                    /**< Peer data to be used for data exchange when reseting into DFU mode. */
 static dm_handle_t             m_dm_handle;                                    /**< Device Manager handle with instance id's of current BLE connection. */
 static bool                    m_dm_handle_valid = false;                      /**< Variable indicating if the Device Manager handle is valid. */
+#endif /* NEEDED */
 
 
 /**@brief Default reset prepare handler if application hasn't registered a handler.
@@ -60,7 +62,7 @@ static void interrupts_disable(void)
     }
 }
 
-
+#if NEEDED
 /**@brief Function for providing peer information to DFU for re-establishing bonded connection in
  *        DFU mode.
  */
@@ -81,6 +83,7 @@ static void dfu_app_set_peer_data(void)
     APP_ERROR_CHECK(err_code);
 /** [DFU bond sharing] */
 }
+#endif /* NEEDED */
 
 
 /**@brief Function for preparing the reset, disabling SoftDevice and jump to the bootloader.
@@ -148,7 +151,7 @@ void dfu_app_reset_prepare_set(dfu_app_reset_prepare_t reset_prepare_func)
     m_reset_prepare = reset_prepare_func;
 }
 
-
+#if NEEDED
 void dfu_app_set_dm_handle(dm_handle_t const * p_dm_handle)
 {
     m_dm_handle_valid = false;
@@ -159,4 +162,4 @@ void dfu_app_set_dm_handle(dm_handle_t const * p_dm_handle)
         m_dm_handle_valid = true;
     }
 }
-
+#endif /* NEEDED */

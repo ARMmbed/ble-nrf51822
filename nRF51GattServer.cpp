@@ -22,6 +22,11 @@
 
 #include "nRF51Gap.h"
 
+nRF51GattServer &nRF51GattServer::getInstance(void) {
+    static nRF51GattServer m_instance;
+    return m_instance;
+}
+
 /**************************************************************************/
 /*!
     @brief  Adds a new service to the GATT table on the peripheral

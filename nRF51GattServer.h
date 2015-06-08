@@ -27,10 +27,7 @@
 class nRF51GattServer : public GattServer
 {
 public:
-    static nRF51GattServer &getInstance() {
-        static nRF51GattServer m_instance;
-        return m_instance;
-    }
+    static nRF51GattServer &getInstance();
 
     /* Functions that must be implemented from GattServer */
     virtual ble_error_t addService(GattService &);
@@ -45,8 +42,8 @@ public:
     void hwCallback(ble_evt_t *p_ble_evt);
 
 private:
-    const static unsigned BLE_TOTAL_CHARACTERISTICS = 24;
-    const static unsigned BLE_TOTAL_DESCRIPTORS     = 24;
+    const static unsigned BLE_TOTAL_CHARACTERISTICS = 20;
+    const static unsigned BLE_TOTAL_DESCRIPTORS     = 8;
 
     GattCharacteristic       *p_characteristics[BLE_TOTAL_CHARACTERISTICS];
     ble_gatts_char_handles_t  nrfCharacteristicHandles[BLE_TOTAL_CHARACTERISTICS];

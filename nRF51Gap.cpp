@@ -21,6 +21,11 @@
 #include "ble_advdata.h"
 #include "ble_hci.h"
 
+nRF51Gap &nRF51Gap::getInstance() {
+    static nRF51Gap m_instance;
+    return m_instance;
+}
+
 /**************************************************************************/
 /*!
     @brief  Sets the advertising parameters and payload for the device
@@ -304,7 +309,7 @@ uint16_t nRF51Gap::getConnectionHandle(void)
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51Gap::setAddress(addr_type_t type, const address_t address)
+ble_error_t nRF51Gap::setAddress(AddressType_t type, const address_t address)
 {
     if (type > ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
@@ -319,7 +324,7 @@ ble_error_t nRF51Gap::setAddress(addr_type_t type, const address_t address)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF51Gap::getAddress(addr_type_t *typeP, address_t address)
+ble_error_t nRF51Gap::getAddress(AddressType_t *typeP, address_t address)
 {
     ble_gap_addr_t dev_addr;
     if (sd_ble_gap_address_get(&dev_addr) != NRF_SUCCESS) {
@@ -327,7 +332,7 @@ ble_error_t nRF51Gap::getAddress(addr_type_t *typeP, address_t address)
     }
 
     if (typeP != NULL) {
-        *typeP = static_cast<addr_type_t>(dev_addr.addr_type);
+        *typeP = static_cast<AddressType_t>(dev_addr.addr_type);
     }
     if (address != NULL) {
         memcpy(address, dev_addr.addr, ADDR_LEN);
