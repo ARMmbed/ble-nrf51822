@@ -63,6 +63,9 @@ public:
     virtual ble_error_t setAppearance(uint16_t appearance);
     virtual ble_error_t getAppearance(uint16_t *appearanceP);
 
+    virtual ble_error_t setTxPower(int8_t txPower);
+    virtual void        getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP);
+
     void     setConnectionHandle(uint16_t con_handle);
     uint16_t getConnectionHandle(void);
 

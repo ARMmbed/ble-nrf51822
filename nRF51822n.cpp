@@ -71,33 +71,6 @@ const char *nRF51822n::getVersion(void)
     return versionString;
 }
 
-/* (Valid values are -40, -20, -16, -12, -8, -4, 0, 4) */
-ble_error_t nRF51822n::setTxPower(int8_t txPower)
-{
-    unsigned rc;
-    if ((rc = sd_ble_gap_tx_power_set(txPower)) != NRF_SUCCESS) {
-        switch (rc) {
-            case NRF_ERROR_BUSY:
-                return BLE_STACK_BUSY;
-            case NRF_ERROR_INVALID_PARAM:
-            default:
-                return BLE_ERROR_PARAM_OUT_OF_RANGE;
-        }
-    }
-
-    return BLE_ERROR_NONE;
-}
-
-void nRF51822n::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP)
-{
-    static const int8_t permittedTxValues[] = {
-        -40, -30, -20, -16, -12, -8, -4, 0, 4
-    };
-
-    *valueArrayPP = permittedTxValues;
-    *countP = sizeof(permittedTxValues) / sizeof(int8_t);
-}
-
 ble_error_t nRF51822n::init(void)
 {
     /* ToDo: Clear memory contents, reset the SD, etc. */
