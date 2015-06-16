@@ -88,6 +88,8 @@ static void bootloader_util_reset(uint32_t start_addr)
     asm(
         ".equ MASK_ONES,  0xFFFFFFFF\n\t" /* Ones, to be loaded into register as default value before reset.  */
         ".equ MASK_ZEROS, 0x00000000\n\t" /* Zeros, to be loaded into register as default value before reset. */
+        ".equ xPSR_RESET, 0x21000000\n\t" /* Default value of xPSR after System Reset. */
+        ".equ EXC_RETURN_CMD, 0xFFFFFFF9\n\t" /* EXC_RETURN for ARM Cortex. When loaded to PC the current interrupt service routine (handler mode) willl exit and the stack will be popped. Execution will continue in thread mode. */
 
         "LDR   r5, [r0]       \n\t"       /* Get App initial MSP for bootloader.                              */
         "MSR   MSP, r5        \n\t"       /* Set the main stack pointer to the applications MSP.              */

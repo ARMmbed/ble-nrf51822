@@ -227,10 +227,9 @@ nRF51ServiceDiscovery::CharUUIDDiscoveryQueue::triggerFirst(void)
             .uuid = BLE_UUID_CHARACTERISTIC,
             .type = BLE_UUID_TYPE_BLE,
         };
-        ble_gattc_handle_range_t handleRange = {
-            .start_handle = parentDiscoveryObject->characteristics[charIndex].getDeclHandle(),
-            .end_handle   = parentDiscoveryObject->characteristics[charIndex].getDeclHandle() + 1,
-        };
+        ble_gattc_handle_range_t handleRange = { };
+        handleRange.start_handle = parentDiscoveryObject->characteristics[charIndex].getDeclHandle();
+        handleRange.end_handle   = parentDiscoveryObject->characteristics[charIndex].getDeclHandle() + 1;
         if (sd_ble_gattc_char_value_by_uuid_read(parentDiscoveryObject->connHandle, &uuid, &handleRange) == NRF_SUCCESS) {
             return;
         }
