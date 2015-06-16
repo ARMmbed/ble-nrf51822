@@ -22,6 +22,7 @@
 #include "BLEDevice.h"
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
+#include "nRF51GattClient.h"
 #include "btle.h"
 #include "btle_security.h"
 
@@ -39,6 +40,9 @@ public:
     virtual GattServer &getGattServer() {
         return nRF51GattServer::getInstance();
     };
+    virtual GattClient &getGattClient() {
+        return nRF51GattClient::getInstance();
+    }
 
     virtual ble_error_t init(void);
     virtual ble_error_t shutdown(void);

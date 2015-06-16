@@ -206,6 +206,66 @@ ble_error_t nRF51Gap::stopAdvertising(void)
     return BLE_ERROR_NONE;
 }
 
+ble_error_t nRF51Gap::connect(const Address_t           peerAddr,
+                              Gap::AddressType_t        peerAddrType,
+                              const ConnectionParams_t *connectionParams,
+                              const GapScanningParams  *scanParamsIn)
+{
+    ble_gap_addr_t addr;
+    addr.addr_type = peerAddrType;
+    memcpy(addr.addr, peerAddr, Gap::ADDR_LEN);
+
+    ble_gap_conn_params_t connParams;
+    if (connectionParams != NULL) {
+        connParams.min_conn_interval = connectionParams->minConnectionInterval;
+        connParams.max_conn_interval = connectionParams->maxConnectionInterval;
+        connParams.slave_latency     = connectionParams->slaveLatency;
+        connParams.conn_sup_timeout  = connectionParams->connectionSupervisionTimeout;
+    } else {
+        connParams.min_conn_interval = 50;
+        connParams.max_conn_interval = 100;
+        connParams.slave_latency     = 0;
+        connParams.conn_sup_timeout  = 600;
+    }
+
+    ble_gap_scan_params_t scanParams;
+    scanParams.active      = 0;    /**< If 1, perform active scanning (scan requests). */
+    scanParams.selective   = 0;    /**< If 1, ignore unknown devices (non whitelisted). */
+    scanParams.p_whitelist = NULL; /**< Pointer to whitelist, NULL if none is given. */
+    if (scanParamsIn != NULL) {
+        scanParams.interval    = scanParamsIn->getInterval(); /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        scanParams.window      = scanParamsIn->getWindow();   /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        scanParams.timeout     = scanParamsIn->getTimeout();  /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+    } else {
+        scanParams.interval    = 500; /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        scanParams.window      = 200;   /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        scanParams.timeout     = 0;  /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+    }
+
+    uint32_t rc = sd_ble_gap_connect(&addr, &scanParams, &connParams);
+    if (rc == NRF_SUCCESS) {
+        return BLE_ERROR_NONE;
+    }
+    switch (rc) {
+        case NRF_ERROR_INVALID_ADDR:
+            return BLE_ERROR_INVALID_PARAM;
+        case NRF_ERROR_INVALID_PARAM:
+            return BLE_ERROR_INVALID_PARAM;
+        case NRF_ERROR_INVALID_STATE:
+            return BLE_ERROR_INVALID_STATE;
+        case BLE_ERROR_GAP_INVALID_BLE_ADDR:
+            return BLE_ERROR_INVALID_PARAM;
+        case NRF_ERROR_NO_MEM:
+            return BLE_ERROR_NO_MEM;
+        case NRF_ERROR_BUSY:
+            return BLE_STACK_BUSY;
+        default:
+        case BLE_ERROR_GAP_WHITELIST_IN_USE:
+            return BLE_ERROR_UNSPECIFIED;
+    }
+}
+
+
 /**************************************************************************/
 /*!
     @brief  Disconnects if we are connected to a central device
@@ -309,7 +369,7 @@ uint16_t nRF51Gap::getConnectionHandle(void)
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51Gap::setAddress(AddressType_t type, const address_t address)
+ble_error_t nRF51Gap::setAddress(AddressType_t type, const Address_t address)
 {
     if (type > ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
@@ -324,7 +384,7 @@ ble_error_t nRF51Gap::setAddress(AddressType_t type, const address_t address)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF51Gap::getAddress(AddressType_t *typeP, address_t address)
+ble_error_t nRF51Gap::getAddress(AddressType_t *typeP, Address_t address)
 {
     ble_gap_addr_t dev_addr;
     if (sd_ble_gap_address_get(&dev_addr) != NRF_SUCCESS) {

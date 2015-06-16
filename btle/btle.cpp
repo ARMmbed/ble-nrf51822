@@ -36,6 +36,7 @@
 #include "device_manager.h"
 
 #include "ble_hci.h"
+#include "btle_discovery.h"
 
 extern "C" void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
 void            app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name);
@@ -104,6 +105,8 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 
     dm_ble_evt_handler(p_ble_evt);
 
+    bleGattcEventHandler(p_ble_evt);
+
     /* Custom event handler */
     switch (p_ble_evt->header.evt_id) {
         case BLE_GAP_EVT_CONNECTED: {
@@ -113,6 +116,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             const ble_gap_addr_t *peer = &p_ble_evt->evt.gap_evt.params.connected.peer_addr;
             const ble_gap_addr_t *own  = &p_ble_evt->evt.gap_evt.params.connected.own_addr;
             nRF51Gap::getInstance().processConnectionEvent(handle,
+                                                           static_cast<Gap::Role_t>(p_ble_evt->evt.gap_evt.params.connected.role),
                                                            static_cast<Gap::AddressType_t>(peer->addr_type), peer->addr,
                                                            static_cast<Gap::AddressType_t>(own->addr_type),  own->addr,
                                                            params);
