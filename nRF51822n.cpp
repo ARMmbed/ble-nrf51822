@@ -24,7 +24,7 @@
 #include "softdevice_handler.h"
 
 /**
- * The singleton which represents the nRF51822 transport for the BLEDevice.
+ * The singleton which represents the nRF51822 transport for the BLE.
  */
 static nRF51822n deviceInstance;
 
@@ -32,8 +32,8 @@ static nRF51822n deviceInstance;
  * BLE-API requires an implementation of the following function in order to
  * obtain its transport handle.
  */
-BLEDeviceInstanceBase *
-createBLEDeviceInstance(void)
+BLEInstanceBase *
+createBLEInstance(void)
 {
     return (&deviceInstance);
 }

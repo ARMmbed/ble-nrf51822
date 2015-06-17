@@ -19,14 +19,14 @@
 
 #include "mbed.h"
 #include "blecommon.h"
-#include "BLEDevice.h"
+#include "BLE.h"
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
 #include "nRF51GattClient.h"
 #include "btle.h"
 #include "btle_security.h"
 
-class nRF51822n : public BLEDeviceInstanceBase
+class nRF51822n : public BLEInstanceBase
 {
 public:
     nRF51822n(void);
