@@ -295,6 +295,8 @@ ble_error_t nRF51Gap::disconnect(DisconnectionReason_t reason)
         case CONN_INTERVAL_UNACCEPTABLE:
             code = BLE_HCI_CONN_INTERVAL_UNACCEPTABLE;
             break;
+        default:
+            break;
     }
 
     /* Disconnect if we are connected to a central device */
