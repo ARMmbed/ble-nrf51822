@@ -116,14 +116,11 @@ public:
     }
 
     virtual ble_error_t write(GattClient::WriteOp_t cmd, Gap::Handle_t connHandle, GattAttribute::Handle_t attributeHandle, size_t length, const uint8_t *value) const {
-        ble_gattc_write_params_t writeParams = {
-            .write_op = cmd,
-            // .flags  = 0,
-            .handle   = attributeHandle,
-            .offset   = 0,
-            .len      = length,
-            .p_value  = const_cast<uint8_t *>(value),
-        };
+        ble_gattc_write_params_t writeParams = { };
+        writeParams.write_op = cmd;
+        writeParams.handle   = attributeHandle;
+        writeParams.len      = length;
+        writeParams.p_value  = const_cast<uint8_t *>(value);
 
         uint32_t rc = sd_ble_gattc_write(connHandle, &writeParams);
         if (rc == NRF_SUCCESS) {
