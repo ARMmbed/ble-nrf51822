@@ -34,10 +34,10 @@ public:
 
     virtual const char *getVersion(void);
 
-    virtual Gap        &getGap()        {
+    virtual Gap &getGap() {
         return nRF51Gap::getInstance();
     };
-    virtual const Gap  &getGap() const  {
+    virtual const Gap &getGap() const  {
         return nRF51Gap::getInstance();
     };
     virtual GattServer &getGattServer() {
