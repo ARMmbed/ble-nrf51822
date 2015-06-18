@@ -172,7 +172,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             nRF51Gap::getInstance().processAdvertisementReport(advReport->peer_addr.addr,
                                                                advReport->rssi,
                                                                advReport->scan_rsp,
-                                                               static_cast<Gap::AdvertisementType_t>(advReport->type),
+                                                               static_cast<GapAdvertisingParams::AdvertisingType_t>(advReport->type),
                                                                advReport->dlen,
                                                                advReport->data);
             break;
