@@ -74,9 +74,9 @@ public:
     virtual ble_error_t setPreferredConnectionParams(const ConnectionParams_t *params);
     virtual ble_error_t updateConnectionParams(Handle_t handle, const ConnectionParams_t *params);
 
-    virtual void setOnRadioNotification(RadioNotificationEventCallback_t callback) {
-        Gap::setOnRadioNotification(callback);
-        ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, onRadioNotification);
+    virtual void onRadioNotification(RadioNotificationEventCallback_t callback) {
+        Gap::onRadioNotification(callback);
+        ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, radioNotificationCallback);
     }
 
     virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams) {
