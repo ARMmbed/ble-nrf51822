@@ -43,6 +43,9 @@ public:
     virtual GattServer &getGattServer() {
         return nRF51GattServer::getInstance();
     };
+    virtual const GattServer &getGattServer() const {
+        return nRF51GattServer::getInstance();
+    };
     virtual GattClient &getGattClient() {
         return nRF51GattClient::getInstance();
     }
