@@ -159,12 +159,12 @@ ble_error_t nRF51GattServer::addService(GattService &service)
                 Everything executed properly
 */
 /**************************************************************************/
-ble_error_t nRF51GattServer::readValue(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
+ble_error_t nRF51GattServer::read(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
 {
-    return readValue(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, lengthP);
+    return read(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, lengthP);
 }
 
-ble_error_t nRF51GattServer::readValue(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
+ble_error_t nRF51GattServer::read(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
 {
     ble_gatts_value_t value = {
         .len     = *lengthP,
@@ -199,12 +199,12 @@ ble_error_t nRF51GattServer::readValue(Gap::Handle_t connectionHandle, GattAttri
                 Everything executed properly
 */
 /**************************************************************************/
-ble_error_t nRF51GattServer::updateValue(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
+ble_error_t nRF51GattServer::write(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
-    return updateValue(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, len, localOnly);
+    return write(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, len, localOnly);
 }
 
-ble_error_t nRF51GattServer::updateValue(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
+ble_error_t nRF51GattServer::write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
     uint16_t gapConnectionHandle = nRF51Gap::getInstance().getConnectionHandle();
     ble_error_t returnValue = BLE_ERROR_NONE;
