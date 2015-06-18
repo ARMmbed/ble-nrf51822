@@ -423,7 +423,7 @@ ble_error_t nRF51Gap::getDeviceName(uint8_t *deviceName, unsigned *lengthP)
     }
 }
 
-ble_error_t nRF51Gap::setAppearance(uint16_t appearance)
+ble_error_t nRF51Gap::setAppearance(GapAdvertisingData::Appearance appearance)
 {
     if (sd_ble_gap_appearance_set(appearance) == NRF_SUCCESS) {
         return BLE_ERROR_NONE;
@@ -432,9 +432,9 @@ ble_error_t nRF51Gap::setAppearance(uint16_t appearance)
     }
 }
 
-ble_error_t nRF51Gap::getAppearance(uint16_t *appearanceP)
+ble_error_t nRF51Gap::getAppearance(GapAdvertisingData::Appearance *appearanceP)
 {
-    if (sd_ble_gap_appearance_get(appearanceP)) {
+    if (sd_ble_gap_appearance_get(reinterpret_cast<uint16_t *>(appearanceP))) {
         return BLE_ERROR_NONE;
     } else {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;

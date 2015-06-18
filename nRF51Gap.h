@@ -61,8 +61,8 @@ public:
 
     virtual ble_error_t setDeviceName(const uint8_t *deviceName);
     virtual ble_error_t getDeviceName(uint8_t *deviceName, unsigned *lengthP);
-    virtual ble_error_t setAppearance(uint16_t appearance);
-    virtual ble_error_t getAppearance(uint16_t *appearanceP);
+    virtual ble_error_t setAppearance(GapAdvertisingData::Appearance appearance);
+    virtual ble_error_t getAppearance(GapAdvertisingData::Appearance *appearanceP);
 
     virtual ble_error_t setTxPower(int8_t txPower);
     virtual void        getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP);
