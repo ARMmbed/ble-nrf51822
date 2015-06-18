@@ -155,9 +155,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             break;
 
         case BLE_GAP_EVT_TIMEOUT:
-            if (p_ble_evt->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISING) {
-                nRF51Gap::getInstance().processEvent(GapEvents::GAP_EVENT_TIMEOUT);
-            }
+            nRF51Gap::getInstance().processTimeoutEvent(static_cast<Gap::TimeoutSource_t>(p_ble_evt->evt.gap_evt.params.timeout.src));
             break;
 
         case BLE_GATTC_EVT_TIMEOUT:
