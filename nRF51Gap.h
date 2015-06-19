@@ -54,11 +54,6 @@ public:
     virtual ble_error_t connect(const Address_t, Gap::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
     virtual ble_error_t disconnect(DisconnectionReason_t reason);
 
-    virtual ble_error_t purgeAllBondingState(void) {return btle_purgeAllBondingState();}
-    virtual ble_error_t getLinkSecurity(Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
-        return btle_getLinkSecurity(connectionHandle, securityStatusP);
-    }
-
     virtual ble_error_t setDeviceName(const uint8_t *deviceName);
     virtual ble_error_t getDeviceName(uint8_t *deviceName, unsigned *lengthP);
     virtual ble_error_t setAppearance(GapAdvertisingData::Appearance appearance);

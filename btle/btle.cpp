@@ -33,6 +33,8 @@
 #include "GapEvents.h"
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
+#include "nRF51SecurityManager.h"
+
 #include "device_manager.h"
 
 #include "ble_hci.h"
@@ -151,7 +153,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
         }
 
         case BLE_GAP_EVT_PASSKEY_DISPLAY:
-            nRF51Gap::getInstance().processPasskeyDisplayEvent(p_ble_evt->evt.gap_evt.conn_handle, p_ble_evt->evt.gap_evt.params.passkey_display.passkey);
+            nRF51SecurityManager::getInstance().processPasskeyDisplayEvent(p_ble_evt->evt.gap_evt.conn_handle, p_ble_evt->evt.gap_evt.params.passkey_display.passkey);
             break;
 
         case BLE_GAP_EVT_TIMEOUT:

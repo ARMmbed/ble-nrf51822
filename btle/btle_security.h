@@ -18,6 +18,7 @@
 #define _BTLE_SECURITY_H_
 
 #include "Gap.h"
+#include "SecurityManager.h"
 
 /**
  * Enable Nordic's Device Manager, which brings in functionality from the
@@ -34,10 +35,10 @@
  *
  * @return BLE_ERROR_NONE on success.
  */
-ble_error_t btle_initializeSecurity(bool                          enableBonding = true,
-                                    bool                          requireMITM   = true,
-                                    Gap::SecurityIOCapabilities_t iocaps        = Gap::IO_CAPS_NONE,
-                                    const Gap::Passkey_t          passkey       = NULL);
+ble_error_t btle_initializeSecurity(bool                                      enableBonding = true,
+                                    bool                                      requireMITM   = true,
+                                    SecurityManager::SecurityIOCapabilities_t iocaps        = SecurityManager::IO_CAPS_NONE,
+                                    const SecurityManager::Passkey_t          passkey       = NULL);
 
 /**
  * Get the security status of a link.
@@ -49,7 +50,7 @@ ble_error_t btle_initializeSecurity(bool                          enableBonding 
  *
  * @return BLE_SUCCESS Or appropriate error code indicating reason for failure.
  */
-ble_error_t btle_getLinkSecurity(Gap::Handle_t connectionHandle, Gap::LinkSecurityStatus_t *securityStatusP);
+ble_error_t btle_getLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager::LinkSecurityStatus_t *securityStatusP);
 
 /**
  * Function for deleting all peer device context and all related bonding
