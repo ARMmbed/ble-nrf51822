@@ -76,24 +76,12 @@ ble_error_t nRF51822n::init(void)
     /* ToDo: Clear memory contents, reset the SD, etc. */
     btle_init();
 
-    reset();
-
     return BLE_ERROR_NONE;
 }
 
 ble_error_t nRF51822n::shutdown(void)
 {
     return (softdevice_handler_sd_disable() == NRF_SUCCESS) ? BLE_ERROR_NONE : BLE_STACK_BUSY;
-}
-
-ble_error_t nRF51822n::reset(void)
-{
-    nrf_delay_us(500000);
-
-    /* Wait for the radio to come back up */
-    nrf_delay_us(1000000);
-
-    return BLE_ERROR_NONE;
 }
 
 void
