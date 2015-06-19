@@ -30,12 +30,15 @@
 #include "softdevice_handler.h"
 #include "pstorage.h"
 
-#include "GapEvents.h"
+#include "ble/GapEvents.h"
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
+#include "nRF51SecurityManager.h"
+
 #include "device_manager.h"
 
 #include "ble_hci.h"
+#include "btle_discovery.h"
 
 extern "C" void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
 void            app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name);
@@ -104,6 +107,8 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 
     dm_ble_evt_handler(p_ble_evt);
 
+    bleGattcEventHandler(p_ble_evt);
+
     /* Custom event handler */
     switch (p_ble_evt->header.evt_id) {
         case BLE_GAP_EVT_CONNECTED: {
@@ -113,6 +118,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             const ble_gap_addr_t *peer = &p_ble_evt->evt.gap_evt.params.connected.peer_addr;
             const ble_gap_addr_t *own  = &p_ble_evt->evt.gap_evt.params.connected.own_addr;
             nRF51Gap::getInstance().processConnectionEvent(handle,
+                                                           static_cast<Gap::Role_t>(p_ble_evt->evt.gap_evt.params.connected.role),
                                                            static_cast<Gap::AddressType_t>(peer->addr_type), peer->addr,
                                                            static_cast<Gap::AddressType_t>(own->addr_type),  own->addr,
                                                            params);
@@ -147,13 +153,11 @@ static void btle_handler(ble_evt_t *p_ble_evt)
         }
 
         case BLE_GAP_EVT_PASSKEY_DISPLAY:
-            nRF51Gap::getInstance().processPasskeyDisplayEvent(p_ble_evt->evt.gap_evt.conn_handle, p_ble_evt->evt.gap_evt.params.passkey_display.passkey);
+            nRF51SecurityManager::getInstance().processPasskeyDisplayEvent(p_ble_evt->evt.gap_evt.conn_handle, p_ble_evt->evt.gap_evt.params.passkey_display.passkey);
             break;
 
         case BLE_GAP_EVT_TIMEOUT:
-            if (p_ble_evt->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISING) {
-                nRF51Gap::getInstance().processEvent(GapEvents::GAP_EVENT_TIMEOUT);
-            }
+            nRF51Gap::getInstance().processTimeoutEvent(static_cast<Gap::TimeoutSource_t>(p_ble_evt->evt.gap_evt.params.timeout.src));
             break;
 
         case BLE_GATTC_EVT_TIMEOUT:
@@ -168,7 +172,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             nRF51Gap::getInstance().processAdvertisementReport(advReport->peer_addr.addr,
                                                                advReport->rssi,
                                                                advReport->scan_rsp,
-                                                               static_cast<Gap::AdvertisementType_t>(advReport->type),
+                                                               static_cast<GapAdvertisingParams::AdvertisingType_t>(advReport->type),
                                                                advReport->dlen,
                                                                advReport->data);
             break;

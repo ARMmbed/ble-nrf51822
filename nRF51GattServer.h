@@ -19,10 +19,10 @@
 
 #include <stddef.h>
 
-#include "blecommon.h"
+#include "ble/blecommon.h"
 #include "ble.h" /* nordic ble */
-#include "Gap.h"
-#include "GattServer.h"
+#include "ble/Gap.h"
+#include "ble/GattServer.h"
 
 class nRF51GattServer : public GattServer
 {
@@ -31,11 +31,10 @@ public:
 
     /* Functions that must be implemented from GattServer */
     virtual ble_error_t addService(GattService &);
-    virtual ble_error_t readValue(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
-    virtual ble_error_t readValue(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
-    virtual ble_error_t updateValue(GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
-    virtual ble_error_t updateValue(Gap::Handle_t connectionHandle, GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
-    virtual ble_error_t initializeGATTDatabase(void);
+    virtual ble_error_t read(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
+    virtual ble_error_t read(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
+    virtual ble_error_t write(GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
+    virtual ble_error_t write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
 
     /* nRF51 Functions */
     void eventCallback(void);

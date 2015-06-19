@@ -18,12 +18,12 @@
 #define __NRF51822_GAP_H__
 
 #include "mbed.h"
-#include "blecommon.h"
+#include "ble/blecommon.h"
 #include "ble.h"
-#include "GapAdvertisingParams.h"
-#include "GapAdvertisingData.h"
-#include "Gap.h"
-#include "GapScanningParams.h"
+#include "ble/GapAdvertisingParams.h"
+#include "ble/GapAdvertisingData.h"
+#include "ble/Gap.h"
+#include "ble/GapScanningParams.h"
 
 #include "nrf_soc.h"
 #include "ble_radio_notification.h"
@@ -41,8 +41,8 @@ public:
     static nRF51Gap &getInstance();
 
     /* Functions that must be implemented from Gap */
-    virtual ble_error_t setAddress(AddressType_t  type,  const address_t address);
-    virtual ble_error_t getAddress(AddressType_t *typeP, address_t address);
+    virtual ble_error_t setAddress(AddressType_t  type,  const Address_t address);
+    virtual ble_error_t getAddress(AddressType_t *typeP, Address_t address);
     virtual ble_error_t setAdvertisingData(const GapAdvertisingData &, const GapAdvertisingData &);
 
     virtual uint16_t    getMinAdvertisingInterval(void) const {return ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_INTERVAL_MIN);}
@@ -51,17 +51,17 @@ public:
 
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
     virtual ble_error_t stopAdvertising(void);
+    virtual ble_error_t connect(const Address_t, Gap::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
+    virtual ble_error_t disconnect(Handle_t connectionHandle, DisconnectionReason_t reason);
     virtual ble_error_t disconnect(DisconnectionReason_t reason);
-
-    virtual ble_error_t purgeAllBondingState(void) {return btle_purgeAllBondingState();}
-    virtual ble_error_t getLinkSecurity(Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
-        return btle_getLinkSecurity(connectionHandle, securityStatusP);
-    }
 
     virtual ble_error_t setDeviceName(const uint8_t *deviceName);
     virtual ble_error_t getDeviceName(uint8_t *deviceName, unsigned *lengthP);
-    virtual ble_error_t setAppearance(uint16_t appearance);
-    virtual ble_error_t getAppearance(uint16_t *appearanceP);
+    virtual ble_error_t setAppearance(GapAdvertisingData::Appearance appearance);
+    virtual ble_error_t getAppearance(GapAdvertisingData::Appearance *appearanceP);
+
+    virtual ble_error_t setTxPower(int8_t txPower);
+    virtual void        getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP);
 
     void     setConnectionHandle(uint16_t con_handle);
     uint16_t getConnectionHandle(void);
@@ -70,9 +70,9 @@ public:
     virtual ble_error_t setPreferredConnectionParams(const ConnectionParams_t *params);
     virtual ble_error_t updateConnectionParams(Handle_t handle, const ConnectionParams_t *params);
 
-    virtual void setOnRadioNotification(RadioNotificationEventCallback_t callback) {
-        Gap::setOnRadioNotification(callback);
-        ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, onRadioNotification);
+    virtual void onRadioNotification(RadioNotificationEventCallback_t callback) {
+        Gap::onRadioNotification(callback);
+        ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, radioNotificationCallback);
     }
 
     virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams) {

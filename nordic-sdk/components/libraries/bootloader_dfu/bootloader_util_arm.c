@@ -1,12 +1,32 @@
-/* Copyright (c) 2013 Nordic Semiconductor. All Rights Reserved.
+/*
+ * Copyright (c) Nordic Semiconductor ASA
+ * All rights reserved.
  *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
  *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
+ *   1. Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ *   2. Redistributions in binary form must reproduce the above copyright notice, this
+ *   list of conditions and the following disclaimer in the documentation and/or
+ *   other materials provided with the distribution.
+ *
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of other
+ *   contributors to this software may be used to endorse or promote products
+ *   derived from this software without specific prior written permission.
+ *
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
@@ -14,33 +34,16 @@
 #include <stdint.h>
 #include <string.h>
 
-
-/**
- * @brief Function for aborting current handler mode and jump to to other application/bootloader.
- *
- * @details This functions will use the address provide (reset handler) to be executed after 
- *          handler mode is exited. It creates an initial stack to ensure correct reset behavior 
- *          when the reset handler is executed.
- *          See http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0552a/Babefdjc.html
- *
- * @param[in]  reset_handler  Address of the reset handler to be executed when handler mode exits.
- *
- * @note This function must never be called directly from 'C' but is intended only to be used from 
- *       \ref bootloader_util_reset. This function will never return but issue a reset into 
- *       provided address.
- */
-
-
 /**
  * @brief Function for aborting current application/bootloader jump to to other app/bootloader.
  *
- * @details This functions will use the address provide to swap the stack pointer and then load 
- *          the address of the reset handler to be executed. It will check current system mode 
+ * @details This functions will use the address provide to swap the stack pointer and then load
+ *          the address of the reset handler to be executed. It will check current system mode
  *          (thread/handler) and if in thread mode it will reset into other application.
- *          If in handler mode \ref isr_abort will be executed to ensure correct exit of handler 
+ *          If in handler mode \ref isr_abort will be executed to ensure correct exit of handler
  *          mode and jump into reset handler of other application.
  *
- * @param[in]  start_addr  Start address of other application. This address must point to the 
+ * @param[in]  start_addr  Start address of other application. This address must point to the
                initial stack pointer of the application.
  *
  * @note This function will never return but issue a reset into provided application.
@@ -57,7 +60,7 @@ EXC_RETURN_CMD  EQU 0xFFFFFFF9  ; EXC_RETURN for ARM Cortex. When loaded to PC t
     LDR   R6, [R0, #0x04]       ; Load Reset handler into register 6.
 
     LDR   R2, =MASK_ZEROS       ; Load zeros to R2
-    MRS   R3, IPSR              ; Load IPSR to R3 to check for handler or thread mode 
+    MRS   R3, IPSR              ; Load IPSR to R3 to check for handler or thread mode
     CMP   R2, R3                ; Compare, if 0 then we are in thread mode and can continue to reset handler of bootloader
     MOV   R0, R6
     BNE   isr_abort             ; If not zero we need to exit current ISR and jump to reset handler of bootloader
@@ -88,6 +91,8 @@ static void bootloader_util_reset(uint32_t start_addr)
     asm(
         ".equ MASK_ONES,  0xFFFFFFFF\n\t" /* Ones, to be loaded into register as default value before reset.  */
         ".equ MASK_ZEROS, 0x00000000\n\t" /* Zeros, to be loaded into register as default value before reset. */
+        ".equ xPSR_RESET, 0x21000000\n\t" /* Default value of xPSR after System Reset. */
+        ".equ EXC_RETURN_CMD, 0xFFFFFFF9\n\t" /* EXC_RETURN for ARM Cortex. When loaded to PC the current interrupt service routine (handler mode) willl exit and the stack will be popped. Execution will continue in thread mode. */
 
         "LDR   r5, [r0]       \n\t"       /* Get App initial MSP for bootloader.                              */
         "MSR   MSP, r5        \n\t"       /* Set the main stack pointer to the applications MSP.              */

@@ -16,7 +16,10 @@
 
 #include "btle.h"
 #include "pstorage.h"
+
 #include "nRF51Gap.h"
+#include "nRF51SecurityManager.h"
+
 #include "device_manager.h"
 #include "btle_security.h"
 
@@ -24,7 +27,10 @@ static dm_application_instance_t applicationInstance;
 static ret_code_t dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t event_result);
 
 ble_error_t
-btle_initializeSecurity(bool enableBonding, bool requireMITM, Gap::SecurityIOCapabilities_t iocaps, const Gap::Passkey_t passkey)
+btle_initializeSecurity(bool                                      enableBonding,
+                        bool                                      requireMITM,
+                        SecurityManager::SecurityIOCapabilities_t iocaps,
+                        const SecurityManager::Passkey_t          passkey)
 {
     /* guard against multiple initializations */
     static bool initialized = false;
@@ -114,7 +120,7 @@ btle_purgeAllBondingState(void)
 }
 
 ble_error_t
-btle_getLinkSecurity(Gap::Handle_t connectionHandle, Gap::LinkSecurityStatus_t *securityStatusP)
+btle_getLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager::LinkSecurityStatus_t *securityStatusP)
 {
     ret_code_t rc;
     dm_handle_t dmHandle = {
@@ -148,51 +154,52 @@ dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t ev
     switch (p_event->event_id) {
         case DM_EVT_SECURITY_SETUP: /* started */ {
             const ble_gap_sec_params_t *peerParams = &p_event->event_param.p_gap_param->params.sec_params_request.peer_params;
-            nRF51Gap::getInstance().processSecuritySetupInitiatedEvent(p_event->event_param.p_gap_param->conn_handle,
-                                                                           peerParams->bond,
-                                                                           peerParams->mitm,
-                                                                           (Gap::SecurityIOCapabilities_t)peerParams->io_caps);
+            nRF51SecurityManager::getInstance().processSecuritySetupInitiatedEvent(p_event->event_param.p_gap_param->conn_handle,
+                                                                                   peerParams->bond,
+                                                                                   peerParams->mitm,
+                                                                                   (SecurityManager::SecurityIOCapabilities_t)peerParams->io_caps);
             break;
         }
         case DM_EVT_SECURITY_SETUP_COMPLETE:
-            nRF51Gap::getInstance().processSecuritySetupCompletedEvent(p_event->event_param.p_gap_param->conn_handle,
-                                                                           (Gap::SecurityCompletionStatus_t)(p_event->event_param.p_gap_param->params.auth_status.auth_status));
+            nRF51SecurityManager::getInstance().
+                processSecuritySetupCompletedEvent(p_event->event_param.p_gap_param->conn_handle,
+                                                   (SecurityManager::SecurityCompletionStatus_t)(p_event->event_param.p_gap_param->params.auth_status.auth_status));
             break;
         case DM_EVT_LINK_SECURED: {
             unsigned securityMode                    = p_event->event_param.p_gap_param->params.conn_sec_update.conn_sec.sec_mode.sm;
             unsigned level                           = p_event->event_param.p_gap_param->params.conn_sec_update.conn_sec.sec_mode.lv;
-            Gap::SecurityMode_t resolvedSecurityMode = Gap::SECURITY_MODE_NO_ACCESS;
+            SecurityManager::SecurityMode_t resolvedSecurityMode = SecurityManager::SECURITY_MODE_NO_ACCESS;
             switch (securityMode) {
                 case 1:
                     switch (level) {
                         case 1:
-                            resolvedSecurityMode = Gap::SECURITY_MODE_ENCRYPTION_OPEN_LINK;
+                            resolvedSecurityMode = SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK;
                             break;
                         case 2:
-                            resolvedSecurityMode = Gap::SECURITY_MODE_ENCRYPTION_NO_MITM;
+                            resolvedSecurityMode = SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM;
                             break;
                         case 3:
-                            resolvedSecurityMode = Gap::SECURITY_MODE_ENCRYPTION_WITH_MITM;
+                            resolvedSecurityMode = SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM;
                             break;
                     }
                     break;
                 case 2:
                     switch (level) {
                         case 1:
-                            resolvedSecurityMode = Gap::SECURITY_MODE_SIGNED_NO_MITM;
+                            resolvedSecurityMode = SecurityManager::SECURITY_MODE_SIGNED_NO_MITM;
                             break;
                         case 2:
-                            resolvedSecurityMode = Gap::SECURITY_MODE_SIGNED_WITH_MITM;
+                            resolvedSecurityMode = SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM;
                             break;
                     }
                     break;
             }
 
-            nRF51Gap::getInstance().processLinkSecuredEvent(p_event->event_param.p_gap_param->conn_handle, resolvedSecurityMode);
+            nRF51SecurityManager::getInstance().processLinkSecuredEvent(p_event->event_param.p_gap_param->conn_handle, resolvedSecurityMode);
             break;
         }
         case DM_EVT_DEVICE_CONTEXT_STORED:
-            nRF51Gap::getInstance().processSecurityContextStoredEvent(p_event->event_param.p_gap_param->conn_handle);
+            nRF51SecurityManager::getInstance().processSecurityContextStoredEvent(p_event->event_param.p_gap_param->conn_handle);
             break;
         default:
             break;

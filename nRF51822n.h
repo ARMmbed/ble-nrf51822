@@ -18,39 +18,44 @@
 #define __NRF51822_H__
 
 #include "mbed.h"
-#include "blecommon.h"
-#include "BLEDevice.h"
+#include "ble/blecommon.h"
+#include "ble/BLE.h"
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
+#include "nRF51GattClient.h"
+#include "nRF51SecurityManager.h"
 #include "btle.h"
-#include "btle_security.h"
 
-class nRF51822n : public BLEDeviceInstanceBase
+class nRF51822n : public BLEInstanceBase
 {
 public:
     nRF51822n(void);
     virtual ~nRF51822n(void);
 
+    virtual ble_error_t init(void);
+    virtual ble_error_t shutdown(void);
     virtual const char *getVersion(void);
 
-    virtual Gap        &getGap()        {
+    virtual Gap &getGap() {
+        return nRF51Gap::getInstance();
+    };
+    virtual const Gap &getGap() const  {
         return nRF51Gap::getInstance();
     };
     virtual GattServer &getGattServer() {
         return nRF51GattServer::getInstance();
     };
-
-    virtual ble_error_t setTxPower(int8_t txPower);
-    virtual void        getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP);
-
-    virtual ble_error_t init(void);
-    virtual ble_error_t shutdown(void);
-    virtual ble_error_t reset(void);
-    virtual ble_error_t initializeSecurity(bool                          enableBonding = true,
-                                           bool                          requireMITM   = true,
-                                           Gap::SecurityIOCapabilities_t iocaps        = Gap::IO_CAPS_NONE,
-                                           const Gap::Passkey_t          passkey       = NULL) {
-        return btle_initializeSecurity(enableBonding, requireMITM, iocaps, passkey);
+    virtual const GattServer &getGattServer() const {
+        return nRF51GattServer::getInstance();
+    };
+    virtual GattClient &getGattClient() {
+        return nRF51GattClient::getInstance();
+    }
+    virtual const SecurityManager &getSecurityManager() const {
+        return nRF51SecurityManager::getInstance();
+    }
+    virtual SecurityManager &getSecurityManager() {
+        return nRF51SecurityManager::getInstance();
     }
     virtual void        waitForEvent(void);
 };

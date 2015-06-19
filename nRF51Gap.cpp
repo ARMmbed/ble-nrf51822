@@ -206,23 +206,66 @@ ble_error_t nRF51Gap::stopAdvertising(void)
     return BLE_ERROR_NONE;
 }
 
-/**************************************************************************/
-/*!
-    @brief  Disconnects if we are connected to a central device
+ble_error_t nRF51Gap::connect(const Address_t           peerAddr,
+                              Gap::AddressType_t        peerAddrType,
+                              const ConnectionParams_t *connectionParams,
+                              const GapScanningParams  *scanParamsIn)
+{
+    ble_gap_addr_t addr;
+    addr.addr_type = peerAddrType;
+    memcpy(addr.addr, peerAddr, Gap::ADDR_LEN);
 
-    @returns    ble_error_t
+    ble_gap_conn_params_t connParams;
+    if (connectionParams != NULL) {
+        connParams.min_conn_interval = connectionParams->minConnectionInterval;
+        connParams.max_conn_interval = connectionParams->maxConnectionInterval;
+        connParams.slave_latency     = connectionParams->slaveLatency;
+        connParams.conn_sup_timeout  = connectionParams->connectionSupervisionTimeout;
+    } else {
+        connParams.min_conn_interval = 50;
+        connParams.max_conn_interval = 100;
+        connParams.slave_latency     = 0;
+        connParams.conn_sup_timeout  = 600;
+    }
 
-    @retval     BLE_ERROR_NONE
-                Everything executed properly
+    ble_gap_scan_params_t scanParams;
+    scanParams.active      = 0;    /**< If 1, perform active scanning (scan requests). */
+    scanParams.selective   = 0;    /**< If 1, ignore unknown devices (non whitelisted). */
+    scanParams.p_whitelist = NULL; /**< Pointer to whitelist, NULL if none is given. */
+    if (scanParamsIn != NULL) {
+        scanParams.interval    = scanParamsIn->getInterval(); /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        scanParams.window      = scanParamsIn->getWindow();   /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        scanParams.timeout     = scanParamsIn->getTimeout();  /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+    } else {
+        scanParams.interval    = 500; /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        scanParams.window      = 200;   /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        scanParams.timeout     = 0;  /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+    }
 
-    @section EXAMPLE
+    uint32_t rc = sd_ble_gap_connect(&addr, &scanParams, &connParams);
+    if (rc == NRF_SUCCESS) {
+        return BLE_ERROR_NONE;
+    }
+    switch (rc) {
+        case NRF_ERROR_INVALID_ADDR:
+            return BLE_ERROR_INVALID_PARAM;
+        case NRF_ERROR_INVALID_PARAM:
+            return BLE_ERROR_INVALID_PARAM;
+        case NRF_ERROR_INVALID_STATE:
+            return BLE_ERROR_INVALID_STATE;
+        case BLE_ERROR_GAP_INVALID_BLE_ADDR:
+            return BLE_ERROR_INVALID_PARAM;
+        case NRF_ERROR_NO_MEM:
+            return BLE_ERROR_NO_MEM;
+        case NRF_ERROR_BUSY:
+            return BLE_STACK_BUSY;
+        default:
+        case BLE_ERROR_GAP_WHITELIST_IN_USE:
+            return BLE_ERROR_UNSPECIFIED;
+    }
+}
 
-    @code
-
-    @endcode
-*/
-/**************************************************************************/
-ble_error_t nRF51Gap::disconnect(DisconnectionReason_t reason)
+ble_error_t nRF51Gap::disconnect(Handle_t connectionHandle, DisconnectionReason_t reason)
 {
     state.advertising = 0;
     state.connected   = 0;
@@ -235,12 +278,27 @@ ble_error_t nRF51Gap::disconnect(DisconnectionReason_t reason)
         case CONN_INTERVAL_UNACCEPTABLE:
             code = BLE_HCI_CONN_INTERVAL_UNACCEPTABLE;
             break;
+        default:
+            break;
     }
 
     /* Disconnect if we are connected to a central device */
-    ASSERT_INT(ERROR_NONE, sd_ble_gap_disconnect(m_connectionHandle, code), BLE_ERROR_PARAM_OUT_OF_RANGE);
+    ASSERT_INT(ERROR_NONE, sd_ble_gap_disconnect(connectionHandle, code), BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     return BLE_ERROR_NONE;
+}
+
+/*!
+    @brief  Disconnects if we are connected to a central device
+
+    @returns    ble_error_t
+
+    @retval     BLE_ERROR_NONE
+                Everything executed properly
+*/
+ble_error_t nRF51Gap::disconnect(DisconnectionReason_t reason)
+{
+    return disconnect(m_connectionHandle, reason);
 }
 
 ble_error_t nRF51Gap::getPreferredConnectionParams(ConnectionParams_t *params)
@@ -309,7 +367,7 @@ uint16_t nRF51Gap::getConnectionHandle(void)
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51Gap::setAddress(AddressType_t type, const address_t address)
+ble_error_t nRF51Gap::setAddress(AddressType_t type, const Address_t address)
 {
     if (type > ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
@@ -324,7 +382,7 @@ ble_error_t nRF51Gap::setAddress(AddressType_t type, const address_t address)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF51Gap::getAddress(AddressType_t *typeP, address_t address)
+ble_error_t nRF51Gap::getAddress(AddressType_t *typeP, Address_t address)
 {
     ble_gap_addr_t dev_addr;
     if (sd_ble_gap_address_get(&dev_addr) != NRF_SUCCESS) {
@@ -361,7 +419,7 @@ ble_error_t nRF51Gap::getDeviceName(uint8_t *deviceName, unsigned *lengthP)
     }
 }
 
-ble_error_t nRF51Gap::setAppearance(uint16_t appearance)
+ble_error_t nRF51Gap::setAppearance(GapAdvertisingData::Appearance appearance)
 {
     if (sd_ble_gap_appearance_set(appearance) == NRF_SUCCESS) {
         return BLE_ERROR_NONE;
@@ -370,11 +428,38 @@ ble_error_t nRF51Gap::setAppearance(uint16_t appearance)
     }
 }
 
-ble_error_t nRF51Gap::getAppearance(uint16_t *appearanceP)
+ble_error_t nRF51Gap::getAppearance(GapAdvertisingData::Appearance *appearanceP)
 {
-    if (sd_ble_gap_appearance_get(appearanceP)) {
+    if (sd_ble_gap_appearance_get(reinterpret_cast<uint16_t *>(appearanceP))) {
         return BLE_ERROR_NONE;
     } else {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
+}
+
+/* (Valid values are -40, -20, -16, -12, -8, -4, 0, 4) */
+ble_error_t nRF51Gap::setTxPower(int8_t txPower)
+{
+    unsigned rc;
+    if ((rc = sd_ble_gap_tx_power_set(txPower)) != NRF_SUCCESS) {
+        switch (rc) {
+            case NRF_ERROR_BUSY:
+                return BLE_STACK_BUSY;
+            case NRF_ERROR_INVALID_PARAM:
+            default:
+                return BLE_ERROR_PARAM_OUT_OF_RANGE;
+        }
+    }
+
+    return BLE_ERROR_NONE;
+}
+
+void nRF51Gap::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP)
+{
+    static const int8_t permittedTxValues[] = {
+        -40, -30, -20, -16, -12, -8, -4, 0, 4
+    };
+
+    *valueArrayPP = permittedTxValues;
+    *countP = sizeof(permittedTxValues) / sizeof(int8_t);
 }

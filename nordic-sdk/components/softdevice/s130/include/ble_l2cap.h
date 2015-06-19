@@ -1,26 +1,22 @@
-/* 
+/*
  * Copyright (c) Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   1. Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   2. Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  *   3. Neither the name of Nordic Semiconductor ASA nor the names of other
  *   contributors to this software may be used to endorse or promote products
  *   derived from this software without specific prior written permission.
- * 
- *   4. This software must only be used in a processor manufactured by Nordic
- *   Semiconductor ASA, or in a processor manufactured by a third party that
- *   is used in combination with a processor manufactured by Nordic Semiconductor.
- * 
- * 
+ *
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -31,7 +27,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**
@@ -41,7 +37,7 @@
  */
 
 #ifndef BLE_L2CAP_H__
-#define BLE_L2CAP_H__ 
+#define BLE_L2CAP_H__
 
 #include "ble_types.h"
 #include "ble_ranges.h"
@@ -52,7 +48,7 @@
  * @{ */
 
 /**@brief L2CAP API SVC numbers. */
-enum BLE_L2CAP_SVCS 
+enum BLE_L2CAP_SVCS
 {
   SD_BLE_L2CAP_CID_REGISTER = BLE_L2CAP_SVC_BASE,  /**< Register a CID. */
   SD_BLE_L2CAP_CID_UNREGISTER,                     /**< Unregister a CID. */
@@ -60,7 +56,7 @@ enum BLE_L2CAP_SVCS
 };
 
 /**@brief L2CAP Event IDs. */
-enum BLE_L2CAP_EVTS 
+enum BLE_L2CAP_EVTS
 {
   BLE_L2CAP_EVT_RX  = BLE_L2CAP_EVT_BASE          /**< L2CAP packet received. */
 };
@@ -76,16 +72,16 @@ enum BLE_L2CAP_EVTS
 /** @} */
 
 /**@brief Default L2CAP MTU. */
-#define BLE_L2CAP_MTU_DEF           (23)    
+#define BLE_L2CAP_MTU_DEF           (23)
 
 /**@brief Invalid Channel Identifier. */
-#define BLE_L2CAP_CID_INVALID       (0x0000) 
+#define BLE_L2CAP_CID_INVALID       (0x0000)
 
 /**@brief Dynamic Channel Identifier base. */
-#define BLE_L2CAP_CID_DYN_BASE      (0x0040) 
+#define BLE_L2CAP_CID_DYN_BASE      (0x0040)
 
 /**@brief Maximum amount of dynamic CIDs. */
-#define BLE_L2CAP_CID_DYN_MAX       (8) 
+#define BLE_L2CAP_CID_DYN_MAX       (8)
 
 /** @} */
 
@@ -126,7 +122,7 @@ typedef struct
 /**@brief Register a CID with L2CAP.
  *
  * @details This registers a higher protocol layer with the L2CAP multiplexer, and is requried prior to all operations on the CID.
- *          
+ *
  * @param[in] cid L2CAP CID.
  *
  * @retval ::NRF_SUCCESS Successfully registered a CID with the L2CAP layer.
@@ -139,7 +135,7 @@ SVCALL(SD_BLE_L2CAP_CID_REGISTER, uint32_t, sd_ble_l2cap_cid_register(uint16_t c
 /**@brief Unregister a CID with L2CAP.
  *
  * @details This unregisters a previously registerd higher protocol layer with the L2CAP multiplexer.
- *          
+ *
  * @param[in] cid L2CAP CID.
  *
  * @retval ::NRF_SUCCESS Successfully unregistered the CID.
@@ -150,8 +146,8 @@ SVCALL(SD_BLE_L2CAP_CID_UNREGISTER, uint32_t, sd_ble_l2cap_cid_unregister(uint16
 
 /**@brief Transmit an L2CAP packet.
  *
- * @note    It is important to note that a call to this function will <b>consume an application buffer</b>, and will therefore 
- *          generate a @ref BLE_EVT_TX_COMPLETE event when the packet has been transmitted. 
+ * @note    It is important to note that a call to this function will <b>consume an application buffer</b>, and will therefore
+ *          generate a @ref BLE_EVT_TX_COMPLETE event when the packet has been transmitted.
  *          Please see the documentation of @ref sd_ble_tx_buffer_count_get for more details.
  *
  * @param[in] conn_handle Connection Handle.
