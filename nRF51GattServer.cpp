@@ -419,10 +419,3 @@ void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
         }
     }
 }
-
-ble_error_t
-nRF51GattServer::initializeGATTDatabase(void)
-{
-    /* Empty. Services are populated in the GattDatabase through addService(). */
-    return BLE_ERROR_NONE;
-}
