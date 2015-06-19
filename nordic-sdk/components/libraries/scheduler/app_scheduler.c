@@ -78,7 +78,7 @@ uint32_t app_sched_init(uint16_t event_size, uint16_t queue_size, void * p_event
     }
 
     // Initialize event scheduler
-    m_queue_event_headers = p_event_buffer;
+    m_queue_event_headers = (event_header_t *)p_event_buffer;
     m_queue_event_data    = &((uint8_t *)p_event_buffer)[data_start_index];
     m_queue_end_index     = 0;
     m_queue_start_index   = 0;
