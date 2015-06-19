@@ -19,8 +19,8 @@
 
 #include "common/common.h"
 #include "ble.h"
-#include "UUID.h"
-#include "GattCharacteristic.h"
+#include "ble/UUID.h"
+#include "ble/GattCharacteristic.h"
 
 #ifdef __cplusplus
 extern "C" {

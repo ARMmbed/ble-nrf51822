@@ -18,8 +18,8 @@
 #define __NRF51822_H__
 
 #include "mbed.h"
-#include "blecommon.h"
-#include "BLE.h"
+#include "ble/blecommon.h"
+#include "ble/BLE.h"
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
 #include "nRF51GattClient.h"

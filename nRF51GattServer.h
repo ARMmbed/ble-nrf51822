@@ -19,10 +19,10 @@
 
 #include <stddef.h>
 
-#include "blecommon.h"
+#include "ble/blecommon.h"
 #include "ble.h" /* nordic ble */
-#include "Gap.h"
-#include "GattServer.h"
+#include "ble/Gap.h"
+#include "ble/GattServer.h"
 
 class nRF51GattServer : public GattServer
 {

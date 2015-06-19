@@ -19,7 +19,7 @@
 
 #include <stddef.h>
 
-#include "SecurityManager.h"
+#include "ble/SecurityManager.h"
 #include "btle_security.h"
 
 class nRF51SecurityManager : public SecurityManager

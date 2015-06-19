@@ -17,7 +17,7 @@
 #ifndef __NRF_DISCOVERED_CHARACTERISTIC_H__
 #define __NRF_DISCOVERED_CHARACTERISTIC_H__
 
-#include "DiscoveredCharacteristic.h"
+#include "ble/DiscoveredCharacteristic.h"
 #include "ble_gatt.h"
 
 class nRF51GattClient; /* forward declaration */

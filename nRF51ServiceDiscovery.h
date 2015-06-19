@@ -17,8 +17,8 @@
 #ifndef __NRF_SERVICE_DISCOVERY_H__
 #define __NRF_SERVICE_DISCOVERY_H__
 
-#include "ServiceDiscovery.h"
-#include "DiscoveredService.h"
+#include "ble/ServiceDiscovery.h"
+#include "ble/DiscoveredService.h"
 #include "nRF51DiscoveredCharacteristic.h"
 
 #include "ble.h"

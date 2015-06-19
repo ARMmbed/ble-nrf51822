@@ -17,7 +17,7 @@
 #ifndef _PROJECTCONFIG_H_
 #define _PROJECTCONFIG_H_
 
-#include "blecommon.h"
+#include "ble/blecommon.h"
 
 /*=========================================================================
     MCU & BOARD SELCTION

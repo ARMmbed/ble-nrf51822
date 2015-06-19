@@ -30,7 +30,7 @@
 #include "softdevice_handler.h"
 #include "pstorage.h"
 
-#include "GapEvents.h"
+#include "ble/GapEvents.h"
 #include "nRF51Gap.h"
 #include "nRF51GattServer.h"
 #include "nRF51SecurityManager.h"

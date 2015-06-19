@@ -17,8 +17,8 @@
 #ifndef _BTLE_SECURITY_H_
 #define _BTLE_SECURITY_H_
 
-#include "Gap.h"
-#include "SecurityManager.h"
+#include "ble/Gap.h"
+#include "ble/SecurityManager.h"
 
 /**
  * Enable Nordic's Device Manager, which brings in functionality from the

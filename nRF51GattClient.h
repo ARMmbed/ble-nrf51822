@@ -17,7 +17,7 @@
 #ifndef __NRF51822_GATT_CLIENT_H__
 #define __NRF51822_GATT_CLIENT_H__
 
-#include "GattClient.h"
+#include "ble/GattClient.h"
 #include "nRF51ServiceDiscovery.h"
 
 class nRF51GattClient : public GattClient
