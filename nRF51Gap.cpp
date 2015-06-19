@@ -265,24 +265,7 @@ ble_error_t nRF51Gap::connect(const Address_t           peerAddr,
     }
 }
 
-
-/**************************************************************************/
-/*!
-    @brief  Disconnects if we are connected to a central device
-
-    @returns    ble_error_t
-
-    @retval     BLE_ERROR_NONE
-                Everything executed properly
-
-    @section EXAMPLE
-
-    @code
-
-    @endcode
-*/
-/**************************************************************************/
-ble_error_t nRF51Gap::disconnect(DisconnectionReason_t reason)
+ble_error_t nRF51Gap::disconnect(Handle_t connectionHandle, DisconnectionReason_t reason)
 {
     state.advertising = 0;
     state.connected   = 0;
@@ -300,9 +283,22 @@ ble_error_t nRF51Gap::disconnect(DisconnectionReason_t reason)
     }
 
     /* Disconnect if we are connected to a central device */
-    ASSERT_INT(ERROR_NONE, sd_ble_gap_disconnect(m_connectionHandle, code), BLE_ERROR_PARAM_OUT_OF_RANGE);
+    ASSERT_INT(ERROR_NONE, sd_ble_gap_disconnect(connectionHandle, code), BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     return BLE_ERROR_NONE;
+}
+
+/*!
+    @brief  Disconnects if we are connected to a central device
+
+    @returns    ble_error_t
+
+    @retval     BLE_ERROR_NONE
+                Everything executed properly
+*/
+ble_error_t nRF51Gap::disconnect(DisconnectionReason_t reason)
+{
+    return disconnect(m_connectionHandle, reason);
 }
 
 ble_error_t nRF51Gap::getPreferredConnectionParams(ConnectionParams_t *params)
