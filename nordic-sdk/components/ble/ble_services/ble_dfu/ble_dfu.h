@@ -152,7 +152,7 @@ typedef void (*ble_dfu_evt_handler_t) (ble_dfu_t * p_dfu, ble_dfu_evt_t * p_evt)
  */
 struct ble_dfu_s
 {
-    uint16_t                     conn_handle;                           /**< Handle of the current connection (as provided by the S110 SoftDevice). This will be BLE_CONN_HANDLE_INVALID when not in a connection. */
+    uint16_t                     conn_handle;                           /**< Handle of the current connection (as provided by the S110 SoftDevice). This will be BLE_NRF_CONN_HANDLE_INVALID when not in a connection. */
     uint16_t                     revision;                              /**< Handle of DFU Service (as provided by the S110 SoftDevice). */
     uint16_t                     service_handle;                        /**< Handle of DFU Service (as provided by the S110 SoftDevice). */
     uint8_t                      uuid_type;                             /**< UUID type assigned for DFU Service by the S110 SoftDevice. */

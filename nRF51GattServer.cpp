@@ -81,7 +81,7 @@ ble_error_t nRF51GattServer::addService(GattService &service)
         uint16_t userDescriptionDescriptorValueLen = 0;
         for (uint8_t j = 0; j < p_char->getDescriptorCount(); j++) {
             GattAttribute *p_desc = p_char->getDescriptor(j);
-            if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC) {
+            if (p_desc->getUUID() == BLE_NRF_UUID_DESCRIPTOR_CHAR_USER_DESC) {
                 userDescriptionDescriptorValuePtr = p_desc->getValuePtr();
                 userDescriptionDescriptorValueLen = p_desc->getLength();
             }
@@ -113,7 +113,7 @@ ble_error_t nRF51GattServer::addService(GattService &service)
         for (uint8_t j = 0; j < p_char->getDescriptorCount(); j++) {
             GattAttribute *p_desc = p_char->getDescriptor(j);
             /* skip the user-description-descriptor here; this has already been handled when adding the characteristic (above). */
-            if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC) {
+            if (p_desc->getUUID() == BLE_NRF_UUID_DESCRIPTOR_CHAR_USER_DESC) {
                 continue;
             }
 
@@ -161,7 +161,7 @@ ble_error_t nRF51GattServer::addService(GattService &service)
 /**************************************************************************/
 ble_error_t nRF51GattServer::read(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
 {
-    return read(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, lengthP);
+    return read(BLE_NRF_CONN_HANDLE_INVALID, attributeHandle, buffer, lengthP);
 }
 
 ble_error_t nRF51GattServer::read(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
@@ -201,7 +201,7 @@ ble_error_t nRF51GattServer::read(Gap::Handle_t connectionHandle, GattAttribute:
 /**************************************************************************/
 ble_error_t nRF51GattServer::write(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
-    return write(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, len, localOnly);
+    return write(BLE_NRF_CONN_HANDLE_INVALID, attributeHandle, buffer, len, localOnly);
 }
 
 ble_error_t nRF51GattServer::write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)

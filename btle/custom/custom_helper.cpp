@@ -95,10 +95,10 @@ ble_uuid_t custom_convert_to_nordic_uuid(const UUID &uuid)
 {
     ble_uuid_t nordicUUID;
     nordicUUID.uuid = uuid.getShortUUID();
-    nordicUUID.type = BLE_UUID_TYPE_UNKNOWN; /* to be set below */
+    nordicUUID.type = BLE_NRF_UUID_TYPE_UNKNOWN; /* to be set below */
 
     if (uuid.shortOrLong() == UUID::UUID_TYPE_SHORT) {
-        nordicUUID.type = BLE_UUID_TYPE_BLE;
+        nordicUUID.type = BLE_NRF_UUID_TYPE_BLE;
     } else {
         if (!lookupConvertedUUIDTable(uuid.getBaseUUID(), &nordicUUID.type)) {
             nordicUUID.type = custom_add_uuid_base(uuid.getBaseUUID());
@@ -123,9 +123,9 @@ ble_uuid_t custom_convert_to_nordic_uuid(const UUID &uuid)
     @returns    The UUID type.
                 A return value of 0 should be considered an error.
 
-    @retval     0x00    BLE_UUID_TYPE_UNKNOWN
-    @retval     0x01    BLE_UUID_TYPE_BLE
-    @retval     0x02    BLE_UUID_TYPE_VENDOR_BEGIN
+    @retval     0x00    BLE_NRF_UUID_TYPE_UNKNOWN
+    @retval     0x01    BLE_NRF_UUID_TYPE_BLE
+    @retval     0x02    BLE_NRF_UUID_TYPE_VENDOR_BEGIN
 
     @section EXAMPLE
     @code

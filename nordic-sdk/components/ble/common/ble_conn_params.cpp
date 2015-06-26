@@ -86,7 +86,7 @@ static void update_timeout_handler(void)
 {
     m_conn_params_timer.detach(); /* this is supposed to be a single-shot timer callback */
 #endif /* #if !USE_APP_TIMER */
-    if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
+    if (m_conn_handle != BLE_NRF_CONN_HANDLE_INVALID)
     {
         // Check if we have reached the maximum number of attempts
         m_update_count++;
@@ -122,7 +122,7 @@ static void update_timeout_handler(void)
             {
                 ble_conn_params_evt_t evt;
 
-                evt.evt_type = BLE_CONN_PARAMS_EVT_FAILED;
+                evt.evt_type = BLE_NRF_CONN_PARAMS_EVT_FAILED;
                 m_conn_params_config.evt_handler(&evt);
             }
         }
@@ -157,7 +157,7 @@ uint32_t ble_conn_params_init(const ble_conn_params_init_t * p_init)
         }
     }
 
-    m_conn_handle  = BLE_CONN_HANDLE_INVALID;
+    m_conn_handle  = BLE_NRF_CONN_HANDLE_INVALID;
     m_update_count = 0;
 
 #ifdef USE_APP_TIMER
@@ -198,7 +198,7 @@ static void conn_params_negotiation(void)
             {
                 ble_conn_params_evt_t evt;
 
-                evt.evt_type = BLE_CONN_PARAMS_EVT_FAILED;
+                evt.evt_type = BLE_NRF_CONN_PARAMS_EVT_FAILED;
                 m_conn_params_config.evt_handler(&evt);
             }
         }
@@ -232,7 +232,7 @@ static void conn_params_negotiation(void)
         {
             ble_conn_params_evt_t evt;
 
-            evt.evt_type = BLE_CONN_PARAMS_EVT_SUCCEEDED;
+            evt.evt_type = BLE_NRF_CONN_PARAMS_EVT_SUCCEEDED;
             m_conn_params_config.evt_handler(&evt);
         }
     }
@@ -261,7 +261,7 @@ static void on_disconnect(ble_evt_t * p_ble_evt)
     uint32_t err_code;
 #endif
 
-    m_conn_handle = BLE_CONN_HANDLE_INVALID;
+    m_conn_handle = BLE_NRF_CONN_HANDLE_INVALID;
 
     // Stop timer if running
     m_update_count = 0; // Connection parameters updates should happen during every connection
@@ -371,7 +371,7 @@ uint32_t ble_conn_params_change_conn_params(ble_gap_conn_params_t *new_params)
             {
                 ble_conn_params_evt_t evt;
 
-                evt.evt_type = BLE_CONN_PARAMS_EVT_SUCCEEDED;
+                evt.evt_type = BLE_NRF_CONN_PARAMS_EVT_SUCCEEDED;
                 m_conn_params_config.evt_handler(&evt);
             }
             err_code = NRF_SUCCESS;

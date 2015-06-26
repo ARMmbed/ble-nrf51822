@@ -112,7 +112,7 @@
     #define CFG_BLE_SEC_PARAM_MAX_KEY_SIZE             16
 
     /*--------------------------------- GAP -------------------------------*/
-    #define CFG_GAP_APPEARANCE                         BLE_APPEARANCE_GENERIC_TAG
+    #define CFG_GAP_APPEARANCE                         BLE_NRF_APPEARANCE_GENERIC_TAG
     #define CFG_GAP_LOCAL_NAME                         "nRF5x"
 
     #define CFG_GAP_CONNECTION_MIN_INTERVAL_MS           50                     /**< Minimum acceptable connection interval */
