@@ -19,7 +19,7 @@
 
 #include "mbed.h"
 #include "ble/blecommon.h"
-#include "ble.h"
+#include "nrf_ble.h"
 #include "ble/GapAdvertisingParams.h"
 #include "ble/GapAdvertisingData.h"
 #include "ble/Gap.h"
