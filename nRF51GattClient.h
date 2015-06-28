@@ -77,8 +77,8 @@ public:
     virtual ble_error_t launchServiceDiscovery(Gap::Handle_t                               connectionHandle,
                                                ServiceDiscovery::ServiceCallback_t         sc = NULL,
                                                ServiceDiscovery::CharacteristicCallback_t  cc = NULL,
-                                               const UUID                                 &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN),
-                                               const UUID                                 &matchingCharacteristicUUIDIn = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN));
+                                               const UUID                                 &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_NRF_UUID_UNKNOWN),
+                                               const UUID                                 &matchingCharacteristicUUIDIn = UUID::ShortUUIDBytes_t(BLE_NRF_UUID_UNKNOWN));
 
     virtual void onServiceDiscoveryTermination(ServiceDiscovery::TerminationCallback_t callback) {
         discovery.onTermination(callback);

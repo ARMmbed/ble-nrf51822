@@ -129,7 +129,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
             // Since we are not in a connection and have not started advertising,
             // store bonds
-            nRF51Gap::getInstance().setConnectionHandle (BLE_CONN_HANDLE_INVALID);
+            nRF51Gap::getInstance().setConnectionHandle (BLE_NRF_CONN_HANDLE_INVALID);
 
             Gap::DisconnectionReason_t reason;
             switch (p_ble_evt->evt.gap_evt.params.disconnected.reason) {

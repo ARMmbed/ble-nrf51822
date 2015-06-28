@@ -21,7 +21,7 @@
 #include "ble/DiscoveredService.h"
 #include "nRF51DiscoveredCharacteristic.h"
 
-#include "ble.h"
+#include "nrf_ble.h"
 #include "ble_gattc.h"
 
 class nRF51GattClient; /* forward declaration */

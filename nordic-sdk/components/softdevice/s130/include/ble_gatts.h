@@ -210,8 +210,8 @@ typedef struct
 typedef struct
 {
   ble_uuid_t           srvc_uuid;       /**< Service UUID. */
-  ble_uuid_t           char_uuid;       /**< Characteristic UUID if applicable (BLE_UUID_TYPE_UNKNOWN otherwise). */
-  ble_uuid_t           desc_uuid;       /**< Descriptor UUID if applicable (BLE_UUID_TYPE_UNKNOWN otherwise). */
+  ble_uuid_t           char_uuid;       /**< Characteristic UUID if applicable (BLE_NRF_UUID_TYPE_UNKNOWN otherwise). */
+  ble_uuid_t           desc_uuid;       /**< Descriptor UUID if applicable (BLE_NRF_UUID_TYPE_UNKNOWN otherwise). */
   uint16_t             srvc_handle;     /**< Service Handle. */
   uint16_t             value_handle;    /**< Characteristic Value Handle if applicable (BLE_GATT_HANDLE_INVALID otherwise). */
   uint8_t              type;            /**< Attribute Type, see @ref BLE_GATTS_ATTR_TYPES. */
@@ -444,7 +444,7 @@ SVCALL(SD_BLE_GATTS_DESCRIPTOR_ADD, uint32_t, sd_ble_gatts_descriptor_add(uint16
 
 /**@brief Set the value of a given attribute.
  *
- * @param[in] conn_handle  Connection handle. If the value does not belong to a system attribute then @ref BLE_CONN_HANDLE_INVALID can be used.
+ * @param[in] conn_handle  Connection handle. If the value does not belong to a system attribute then @ref BLE_NRF_CONN_HANDLE_INVALID can be used.
  * @param[in] handle       Attribute handle.
  * @param[in,out] p_value  Attribute value information.
  *
@@ -457,13 +457,13 @@ SVCALL(SD_BLE_GATTS_DESCRIPTOR_ADD, uint32_t, sd_ble_gatts_descriptor_add(uint16
  * @retval ::NRF_ERROR_FORBIDDEN Forbidden handle supplied, certain attributes are not modifiable by the application.
  * @retval ::NRF_ERROR_DATA_SIZE Invalid data size(s) supplied, attribute lengths are restricted by @ref BLE_GATTS_ATTR_LENS_MAX.
  * @retval ::BLE_ERROR_INVALID_CONN_HANDLE Invalid connection handle supplied.
- * @retval ::BLE_ERROR_GATTS_INVALID_ATTR_TYPE @ref BLE_CONN_HANDLE_INVALID supplied on a system attribute.
+ * @retval ::BLE_ERROR_GATTS_INVALID_ATTR_TYPE @ref BLE_NRF_CONN_HANDLE_INVALID supplied on a system attribute.
  */
 SVCALL(SD_BLE_GATTS_VALUE_SET, uint32_t, sd_ble_gatts_value_set(uint16_t conn_handle, uint16_t handle, ble_gatts_value_t *p_value));
 
 /**@brief Get the value of a given attribute.
  *
- * @param[in] conn_handle  Connection handle. If the value does not belong to a system attribute then @ref BLE_CONN_HANDLE_INVALID can be used.
+ * @param[in] conn_handle  Connection handle. If the value does not belong to a system attribute then @ref BLE_NRF_CONN_HANDLE_INVALID can be used.
  * @param[in] handle       Attribute handle.
  * @param[in,out] p_value  Attribute value information.
  *
@@ -480,7 +480,7 @@ SVCALL(SD_BLE_GATTS_VALUE_SET, uint32_t, sd_ble_gatts_value_set(uint16_t conn_ha
  * @retval ::NRF_ERROR_INVALID_ADDR Invalid pointer supplied.
  * @retval ::NRF_ERROR_NOT_FOUND Attribute not found.
  * @retval ::BLE_ERROR_INVALID_CONN_HANDLE Invalid connection handle supplied.
- * @retval ::BLE_ERROR_GATTS_INVALID_ATTR_TYPE @ref BLE_CONN_HANDLE_INVALID supplied on a system attribute.
+ * @retval ::BLE_ERROR_GATTS_INVALID_ATTR_TYPE @ref BLE_NRF_CONN_HANDLE_INVALID supplied on a system attribute.
  */
 SVCALL(SD_BLE_GATTS_VALUE_GET, uint32_t, sd_ble_gatts_value_get(uint16_t conn_handle, uint16_t handle, ble_gatts_value_t *p_value));
 

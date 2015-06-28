@@ -267,7 +267,7 @@ typedef struct
  *          If the last service has not been reached, this function must be called again with an updated start handle value to continue the search.
  *
  * @note If any of the discovered services have 128-bit UUIDs which are not present in the table provided to ble_vs_uuids_assign, a UUID structure with
- *       type @ref BLE_UUID_TYPE_UNKNOWN will be received in the corresponding event.
+ *       type @ref BLE_NRF_UUID_TYPE_UNKNOWN will be received in the corresponding event.
  *
  * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.
  * @param[in] start_handle Handle to start searching from.
@@ -306,7 +306,7 @@ SVCALL(SD_BLE_GATTC_RELATIONSHIPS_DISCOVER, uint32_t, sd_ble_gattc_relationships
  *          this must be called again with an updated handle range to continue the discovery.
  *
  * @note If any of the discovered characteristics have 128-bit UUIDs which are not present in the table provided to ble_vs_uuids_assign, a UUID structure with
- *       type @ref BLE_UUID_TYPE_UNKNOWN will be received in the corresponding event.
+ *       type @ref BLE_NRF_UUID_TYPE_UNKNOWN will be received in the corresponding event.
  *
  * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.
  * @param[in] p_handle_range A pointer to the range of handles of the Service to perform this procedure on.

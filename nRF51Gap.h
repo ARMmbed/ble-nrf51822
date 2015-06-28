@@ -19,7 +19,7 @@
 
 #include "mbed.h"
 #include "ble/blecommon.h"
-#include "ble.h"
+#include "nrf_ble.h"
 #include "ble/GapAdvertisingParams.h"
 #include "ble/GapAdvertisingData.h"
 #include "ble/Gap.h"
@@ -103,7 +103,7 @@ public:
 private:
     uint16_t m_connectionHandle;
     nRF51Gap() {
-        m_connectionHandle = BLE_CONN_HANDLE_INVALID;
+        m_connectionHandle = BLE_NRF_CONN_HANDLE_INVALID;
     }
 
     nRF51Gap(nRF51Gap const &);

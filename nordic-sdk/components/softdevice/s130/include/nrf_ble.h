@@ -105,7 +105,7 @@ enum BLE_COMMON_OPTS
 
 /** @brief  Maximum number of Vendor Specific UUIDs.
 */
-#define BLE_UUID_VS_MAX_COUNT     10
+#define BLE_NRF_UUID_VS_MAX_COUNT     10
 
 /** @} */
 
@@ -321,7 +321,7 @@ SVCALL(SD_BLE_TX_BUFFER_COUNT_GET, uint32_t, sd_ble_tx_buffer_count_get(uint8_t 
  *          24-bit @ref ble_uuid_t format when dealing with both 16-bit and 128-bit UUIDs without having to
  *          check for lengths and having split code paths. The way that this is accomplished is by extending the 
  *          grouping mechanism that the Bluetooth SIG standard base UUID uses for all other 128-bit UUIDs. The 
- *          type field in the @ref ble_uuid_t structure is an index (relative to @ref BLE_UUID_TYPE_VENDOR_BEGIN) 
+ *          type field in the @ref ble_uuid_t structure is an index (relative to @ref BLE_NRF_UUID_TYPE_VENDOR_BEGIN) 
  *          to the table populated by multiple calls to this function, and the uuid field in the same structure 
  *          contains the 2 bytes at indices 12 and 13. The number of possible 128-bit UUIDs available to the 
  *          application is therefore the number of Vendor Specific UUIDs added with the help of this function times 65536, 
@@ -348,9 +348,9 @@ SVCALL(SD_BLE_UUID_VS_ADD, uint32_t, sd_ble_uuid_vs_add(ble_uuid128_t const *p_v
  * @details The raw UUID bytes excluding bytes 12 and 13 (i.e. bytes 0-11 and 14-15) of p_uuid_le are compared 
  * to the corresponding ones in each entry of the table of vendor specific UUIDs populated with @ref sd_ble_uuid_vs_add 
  * to look for a match. If there is such a match, bytes 12 and 13 are returned as p_uuid->uuid and the index 
- * relative to @ref BLE_UUID_TYPE_VENDOR_BEGIN as p_uuid->type. 
+ * relative to @ref BLE_NRF_UUID_TYPE_VENDOR_BEGIN as p_uuid->type. 
  *
- * @note If the UUID length supplied is 2, then the type set by this call will always be @ref BLE_UUID_TYPE_BLE.
+ * @note If the UUID length supplied is 2, then the type set by this call will always be @ref BLE_NRF_UUID_TYPE_BLE.
  *
  * @param[in]      uuid_le_len Length in bytes of the buffer pointed to by p_uuid_le (must be 2 or 16 bytes).
  * @param[in]      p_uuid_le   Pointer pointing to little endian raw UUID bytes.

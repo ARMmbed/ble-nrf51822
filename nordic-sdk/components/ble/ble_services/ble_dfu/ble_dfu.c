@@ -472,7 +472,7 @@ static void on_write(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
  */
 static void on_disconnect(ble_dfu_t * p_dfu, ble_evt_t * p_ble_evt)
 {
-    p_dfu->conn_handle = BLE_CONN_HANDLE_INVALID;
+    p_dfu->conn_handle = BLE_NRF_CONN_HANDLE_INVALID;
 }
 
 
@@ -483,7 +483,7 @@ uint32_t ble_dfu_init(ble_dfu_t * p_dfu, ble_dfu_init_t * p_dfu_init)
         return NRF_ERROR_NULL;
     }
 
-    p_dfu->conn_handle = BLE_CONN_HANDLE_INVALID;
+    p_dfu->conn_handle = BLE_NRF_CONN_HANDLE_INVALID;
 
     ble_uuid_t service_uuid;
     uint32_t   err_code;
@@ -587,7 +587,7 @@ uint32_t ble_dfu_bytes_rcvd_report(ble_dfu_t * p_dfu, uint32_t num_of_firmware_b
         return NRF_ERROR_NULL;
     }
 
-    if ((p_dfu->conn_handle == BLE_CONN_HANDLE_INVALID) || !m_is_dfu_service_initialized)
+    if ((p_dfu->conn_handle == BLE_NRF_CONN_HANDLE_INVALID) || !m_is_dfu_service_initialized)
     {
         return NRF_ERROR_INVALID_STATE;
     }
@@ -625,7 +625,7 @@ uint32_t ble_dfu_pkts_rcpt_notify(ble_dfu_t * p_dfu, uint32_t num_of_firmware_by
         return NRF_ERROR_NULL;
     }
 
-    if ((p_dfu->conn_handle == BLE_CONN_HANDLE_INVALID) || !m_is_dfu_service_initialized)
+    if ((p_dfu->conn_handle == BLE_NRF_CONN_HANDLE_INVALID) || !m_is_dfu_service_initialized)
     {
         return NRF_ERROR_INVALID_STATE;
     }
@@ -658,7 +658,7 @@ uint32_t ble_dfu_response_send(ble_dfu_t         * p_dfu,
         return NRF_ERROR_NULL;
     }
 
-    if ((p_dfu->conn_handle == BLE_CONN_HANDLE_INVALID) || !m_is_dfu_service_initialized)
+    if ((p_dfu->conn_handle == BLE_NRF_CONN_HANDLE_INVALID) || !m_is_dfu_service_initialized)
     {
         return NRF_ERROR_INVALID_STATE;
     }

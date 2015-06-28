@@ -58,7 +58,7 @@ nRF51ServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_dis
 
     serviceUUIDDiscoveryQueue.reset();
     for (unsigned serviceIndex = 0; serviceIndex < numServices; serviceIndex++) {
-        if (response->services[serviceIndex].uuid.type == BLE_UUID_TYPE_UNKNOWN) {
+        if (response->services[serviceIndex].uuid.type == BLE_NRF_UUID_TYPE_UNKNOWN) {
             serviceUUIDDiscoveryQueue.enqueue(serviceIndex);
             services[serviceIndex].setup(response->services[serviceIndex].handle_range.start_handle,
                                          response->services[serviceIndex].handle_range.end_handle);
@@ -88,7 +88,7 @@ nRF51ServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_d
 
     charUUIDDiscoveryQueue.reset();
     for (unsigned charIndex = 0; charIndex < numCharacteristics; charIndex++) {
-        if (response->chars[charIndex].uuid.type == BLE_UUID_TYPE_UNKNOWN) {
+        if (response->chars[charIndex].uuid.type == BLE_NRF_UUID_TYPE_UNKNOWN) {
             charUUIDDiscoveryQueue.enqueue(charIndex);
             characteristics[charIndex].setup(gattc,
                                              connHandle,
@@ -116,9 +116,9 @@ nRF51ServiceDiscovery::progressCharacteristicDiscovery(void)
 {
     /* Iterate through the previously discovered characteristics cached in characteristics[]. */
     while ((state == CHARACTERISTIC_DISCOVERY_ACTIVE) && (characteristicIndex < numCharacteristics)) {
-        if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
+        if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_NRF_UUID_UNKNOWN)) ||
             ((matchingCharacteristicUUID == characteristics[characteristicIndex].getShortUUID()) &&
-             (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)))) {
+             (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_NRF_UUID_UNKNOWN)))) {
             if (characteristicCallback) {
                 characteristicCallback(&characteristics[characteristicIndex]);
             }
@@ -153,10 +153,10 @@ nRF51ServiceDiscovery::progressServiceDiscovery(void)
 {
     /* Iterate through the previously discovered services cached in services[]. */
     while ((state == SERVICE_DISCOVERY_ACTIVE) && (serviceIndex < numServices)) {
-        if ((matchingServiceUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
+        if ((matchingServiceUUID == UUID::ShortUUIDBytes_t(BLE_NRF_UUID_UNKNOWN)) ||
             (matchingServiceUUID == services[serviceIndex].getUUID().getShortUUID())) {
 
-            if (serviceCallback && (matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN))) {
+            if (serviceCallback && (matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_NRF_UUID_UNKNOWN))) {
                 serviceCallback(&services[serviceIndex]);
             }
 
@@ -194,8 +194,8 @@ nRF51ServiceDiscovery::ServiceUUIDDiscoveryQueue::triggerFirst(void)
 
         unsigned serviceIndex = getFirst();
         ble_uuid_t uuid = {
-            .uuid = BLE_UUID_SERVICE_PRIMARY,
-            .type = BLE_UUID_TYPE_BLE,
+            .uuid = BLE_NRF_UUID_SERVICE_PRIMARY,
+            .type = BLE_NRF_UUID_TYPE_BLE,
         };
         ble_gattc_handle_range_t handleRange = {
             .start_handle = parentDiscoveryObject->services[serviceIndex].getStartHandle(),
@@ -224,8 +224,8 @@ nRF51ServiceDiscovery::CharUUIDDiscoveryQueue::triggerFirst(void)
 
         unsigned charIndex = getFirst();
         ble_uuid_t uuid = {
-            .uuid = BLE_UUID_CHARACTERISTIC,
-            .type = BLE_UUID_TYPE_BLE,
+            .uuid = BLE_NRF_UUID_CHARACTERISTIC,
+            .type = BLE_NRF_UUID_TYPE_BLE,
         };
         ble_gattc_handle_range_t handleRange = { };
         handleRange.start_handle = parentDiscoveryObject->characteristics[charIndex].getDeclHandle();

@@ -617,7 +617,7 @@ static __INLINE void connection_instance_init(uint32_t index)
     DM_TRC("[DM]: Initializing Connection Instance 0x%08X.\r\n", index);
     
     m_connection_table[index].state         = STATE_IDLE;
-    m_connection_table[index].conn_handle   = BLE_CONN_HANDLE_INVALID;
+    m_connection_table[index].conn_handle   = BLE_NRF_CONN_HANDLE_INVALID;
     m_connection_table[index].bonded_dev_id = DM_INVALID_ID;
     
     memset(&m_connection_table[index].peer_addr, 0, sizeof (ble_gap_addr_t));
@@ -659,7 +659,7 @@ static __INLINE void peer_instance_init(uint32_t index)
  *        requested.
  *
  * @details Connection handle and state information is used to get a connection instance, it
- *          is possible to ignore the connection handle by using BLE_CONN_HANDLE_INVALID.
+ *          is possible to ignore the connection handle by using BLE_NRF_CONN_HANDLE_INVALID.
  *
  * @param[in]  conn_handle Connection handle.
  * @param[in]  state       Connection instance state.
@@ -684,7 +684,7 @@ static ret_code_t connection_instance_find(uint16_t   conn_handle,
         if (state & m_connection_table[index].state)
         {
             //Ignore the connection handle.
-            if ((conn_handle == BLE_CONN_HANDLE_INVALID) ||
+            if ((conn_handle == BLE_NRF_CONN_HANDLE_INVALID) ||
                 (conn_handle == m_connection_table[index].conn_handle))
             {
                 //Search for matching connection handle.
@@ -878,7 +878,7 @@ static __INLINE uint32_t connection_instance_allocate(uint32_t * p_instance)
 
     DM_TRC("[DM]: Request to allocation connection instance\r\n");
 
-    err_code = connection_instance_find(BLE_CONN_HANDLE_INVALID, STATE_IDLE, p_instance);
+    err_code = connection_instance_find(BLE_NRF_CONN_HANDLE_INVALID, STATE_IDLE, p_instance);
 
     if (err_code == NRF_SUCCESS)
     {
