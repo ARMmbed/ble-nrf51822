@@ -46,8 +46,10 @@
 /** @addtogroup BLE_GATT_DEFINES Defines
  * @{ */
 
+#if 0 /* The following have been duplicated in blecommon.h */
 /** @brief Default MTU size. */
 #define GATT_MTU_SIZE_DEFAULT 23
+#endif
 
 /** @brief Only the default MTU size of 23 is currently supported. */
 #define GATT_RX_MTU 23
