@@ -54,20 +54,18 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
             }
             break;
 
-        case BLE_GATTC_EVT_READ_RSP:
-            if (DiscoveredCharacteristic::onDataReadCallback != NULL) {
+        case BLE_GATTC_EVT_READ_RSP: {
                 GattReadCallbackParams response = {
                     .handle = p_ble_evt->evt.gattc_evt.params.read_rsp.handle,
                     .offset = p_ble_evt->evt.gattc_evt.params.read_rsp.offset,
                     .len    = p_ble_evt->evt.gattc_evt.params.read_rsp.len,
                     .data   = p_ble_evt->evt.gattc_evt.params.read_rsp.data,
                 };
-                DiscoveredCharacteristic::onDataReadCallback(&response);
+                nRF51GattClient::getInstance().processReadResponse(&response);
             }
             break;
 
-        case BLE_GATTC_EVT_WRITE_RSP:
-            if (DiscoveredCharacteristic::onDataWriteCallback != NULL) {
+        case BLE_GATTC_EVT_WRITE_RSP: {
                 GattWriteCallbackParams response = {
                     .handle  = p_ble_evt->evt.gattc_evt.params.write_rsp.handle,
                     .writeOp = (GattWriteCallbackParams::WriteOp_t)(p_ble_evt->evt.gattc_evt.params.write_rsp.write_op),
@@ -75,7 +73,7 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                     .len     = p_ble_evt->evt.gattc_evt.params.write_rsp.len,
                     .data    = p_ble_evt->evt.gattc_evt.params.write_rsp.data,
                 };
-                DiscoveredCharacteristic::onDataWriteCallback(&response);
+                nRF51GattClient::getInstance().processWriteResponse(&response);
             }
             break;
     }
