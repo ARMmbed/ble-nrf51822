@@ -52,7 +52,7 @@ private:
      * @param  valueHandle the value handle to be resolved.
      * @return             characteristic index if a resolution is found, else -1.
      */
-    int resolveValueHandleToCharIndex(GattAttribute::Handle_t valueHandle) {
+    int resolveValueHandleToCharIndex(GattAttribute::Handle_t valueHandle) const {
         unsigned charIndex;
         for (charIndex = 0; charIndex < characteristicCount; charIndex++) {
             if (nrfCharacteristicHandles[charIndex].value_handle == valueHandle) {
@@ -68,7 +68,7 @@ private:
      * @param  cccdHandle the CCCD handle to be resolved.
      * @return             characteristic index if a resolution is found, else -1.
      */
-    int resolveCCCDHandleToCharIndex(GattAttribute::Handle_t cccdHandle) {
+    int resolveCCCDHandleToCharIndex(GattAttribute::Handle_t cccdHandle) const {
         unsigned charIndex;
         for (charIndex = 0; charIndex < characteristicCount; charIndex++) {
             if (nrfCharacteristicHandles[charIndex].cccd_handle == cccdHandle) {
