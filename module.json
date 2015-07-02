@@ -22,11 +22,9 @@
     "ble": "~0.0.0"
   },
   "extraIncludes": [
-    "ble-nrf51822",
-    "ble-nrf51822/btle",
-    "ble-nrf51822/btle/custom",
-    "ble-nrf51822/common",
-    "source/nordic-sdk",
+    "source/btle",
+    "source/btle/custom",
+    "source/common",
     "source/nordic-sdk/components",
     "source/nordic-sdk/components/libraries",
     "source/nordic-sdk/components/libraries/scheduler",
