@@ -259,6 +259,39 @@ ble_error_t nRF51GattServer::write(Gap::Handle_t connectionHandle, GattAttribute
     return returnValue;
 }
 
+ble_error_t nRF51GattServer::areUpdatesEnabled(const GattCharacteristic &characteristic, bool *enabledP)
+{
+    /* Forward the call with the default connection handle. */
+    return areUpdatesEnabled(nRF51Gap::getInstance().getConnectionHandle(), characteristic, enabledP);
+}
+
+ble_error_t nRF51GattServer::areUpdatesEnabled(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP)
+{
+    int characteristicIndex = resolveValueHandleToCharIndex(characteristic.getValueHandle());
+    if (characteristicIndex == -1) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    /* Read the cccd value from the GATT server. */
+    GattAttribute::Handle_t cccdHandle = nrfCharacteristicHandles[characteristicIndex].cccd_handle;
+    uint16_t cccdValue;
+    uint16_t length = sizeof(cccdValue);
+    ble_error_t rc = read(connectionHandle, cccdHandle, reinterpret_cast<uint8_t *>(&cccdValue), &length);
+    if (rc != BLE_ERROR_NONE) {
+        return rc;
+    }
+    if (length != sizeof(cccdValue)) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    /* Check for NOTFICATION or INDICATION in CCCD. */
+    if ((cccdValue & BLE_GATT_HVX_NOTIFICATION) || (cccdValue & BLE_GATT_HVX_INDICATION)) {
+        *enabledP = true;
+    }
+
+    return BLE_ERROR_NONE;
+}
+
 /**************************************************************************/
 /*!
     @brief  Callback handler for events getting pushed up from the SD
