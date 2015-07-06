@@ -20,44 +20,44 @@
 #include "mbed.h"
 #include "ble/blecommon.h"
 #include "ble/BLE.h"
-#include "nRF51Gap.h"
-#include "nRF51GattServer.h"
-#include "nRF51GattClient.h"
-#include "nRF51SecurityManager.h"
+#include "nRF5xGap.h"
+#include "nRF5xGattServer.h"
+#include "nRF5xGattClient.h"
+#include "nRF5xSecurityManager.h"
 #include "btle.h"
 
-class nRF51822n : public BLEInstanceBase
+class nRF5xn : public BLEInstanceBase
 {
 public:
-    nRF51822n(void);
-    virtual ~nRF51822n(void);
+    nRF5xn(void);
+    virtual ~nRF5xn(void);
 
     virtual ble_error_t init(void);
     virtual ble_error_t shutdown(void);
     virtual const char *getVersion(void);
 
     virtual Gap &getGap() {
-        return nRF51Gap::getInstance();
+        return nRF5xGap::getInstance();
     };
     virtual const Gap &getGap() const  {
-        return nRF51Gap::getInstance();
+        return nRF5xGap::getInstance();
     };
     virtual GattServer &getGattServer() {
-        return nRF51GattServer::getInstance();
+        return nRF5xGattServer::getInstance();
     };
     virtual const GattServer &getGattServer() const {
-        return nRF51GattServer::getInstance();
+        return nRF5xGattServer::getInstance();
     };
     virtual GattClient &getGattClient() {
-        return nRF51GattClient::getInstance();
+        return nRF5xGattClient::getInstance();
     }
     virtual const SecurityManager &getSecurityManager() const {
-        return nRF51SecurityManager::getInstance();
+        return nRF5xSecurityManager::getInstance();
     }
     virtual SecurityManager &getSecurityManager() {
-        return nRF51SecurityManager::getInstance();
+        return nRF5xSecurityManager::getInstance();
     }
-    virtual void        waitForEvent(void);
+    virtual void waitForEvent(void);
 };
 
 #endif

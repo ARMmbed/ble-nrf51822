@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "nRF51ServiceDiscovery.h"
-#include "nRF51GattClient.h"
+#include "nRF5xServiceDiscovery.h"
+#include "nRF5xGattClient.h"
 
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 {
-    nRF51ServiceDiscovery &sdSingleton = nRF51GattClient::getInstance().discovery;
+    nRF5xServiceDiscovery &sdSingleton = nRF5xGattClient::getInstance().discovery;
 
     switch (p_ble_evt->header.evt_id) {
         case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
@@ -61,7 +61,7 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                     .len    = p_ble_evt->evt.gattc_evt.params.read_rsp.len,
                     .data   = p_ble_evt->evt.gattc_evt.params.read_rsp.data,
                 };
-                nRF51GattClient::getInstance().processReadResponse(&response);
+                nRF5xGattClient::getInstance().processReadResponse(&response);
             }
             break;
 
@@ -73,7 +73,7 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                     .len     = p_ble_evt->evt.gattc_evt.params.write_rsp.len,
                     .data    = p_ble_evt->evt.gattc_evt.params.write_rsp.data,
                 };
-                nRF51GattClient::getInstance().processWriteResponse(&response);
+                nRF5xGattClient::getInstance().processWriteResponse(&response);
             }
             break;
 
@@ -84,7 +84,7 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                 params.len    = p_ble_evt->evt.gattc_evt.params.hvx.len;
                 params.data   = p_ble_evt->evt.gattc_evt.params.hvx.data;
 
-                nRF51GattClient::getInstance().processHVXEvent(&params);
+                nRF5xGattClient::getInstance().processHVXEvent(&params);
             }
             break;
     }

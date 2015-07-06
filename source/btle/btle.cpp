@@ -31,9 +31,9 @@
 #include "pstorage.h"
 
 #include "ble/GapEvents.h"
-#include "nRF51Gap.h"
-#include "nRF51GattServer.h"
-#include "nRF51SecurityManager.h"
+#include "nRF5xGap.h"
+#include "nRF5xGattServer.h"
+#include "nRF5xSecurityManager.h"
 
 #include "device_manager.h"
 
@@ -113,11 +113,11 @@ static void btle_handler(ble_evt_t *p_ble_evt)
     switch (p_ble_evt->header.evt_id) {
         case BLE_GAP_EVT_CONNECTED: {
             Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
-            nRF51Gap::getInstance().setConnectionHandle(handle);
+            nRF5xGap::getInstance().setConnectionHandle(handle);
             const Gap::ConnectionParams_t *params = reinterpret_cast<Gap::ConnectionParams_t *>(&(p_ble_evt->evt.gap_evt.params.connected.conn_params));
             const ble_gap_addr_t *peer = &p_ble_evt->evt.gap_evt.params.connected.peer_addr;
             const ble_gap_addr_t *own  = &p_ble_evt->evt.gap_evt.params.connected.own_addr;
-            nRF51Gap::getInstance().processConnectionEvent(handle,
+            nRF5xGap::getInstance().processConnectionEvent(handle,
                                                            static_cast<Gap::Role_t>(p_ble_evt->evt.gap_evt.params.connected.role),
                                                            static_cast<Gap::AddressType_t>(peer->addr_type), peer->addr,
                                                            static_cast<Gap::AddressType_t>(own->addr_type),  own->addr,
@@ -129,7 +129,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
             // Since we are not in a connection and have not started advertising,
             // store bonds
-            nRF51Gap::getInstance().setConnectionHandle (BLE_CONN_HANDLE_INVALID);
+            nRF5xGap::getInstance().setConnectionHandle (BLE_CONN_HANDLE_INVALID);
 
             Gap::DisconnectionReason_t reason;
             switch (p_ble_evt->evt.gap_evt.params.disconnected.reason) {
@@ -148,16 +148,16 @@ static void btle_handler(ble_evt_t *p_ble_evt)
                     reason = static_cast<Gap::DisconnectionReason_t>(p_ble_evt->evt.gap_evt.params.disconnected.reason);
                     break;
             }
-            nRF51Gap::getInstance().processDisconnectionEvent(handle, reason);
+            nRF5xGap::getInstance().processDisconnectionEvent(handle, reason);
             break;
         }
 
         case BLE_GAP_EVT_PASSKEY_DISPLAY:
-            nRF51SecurityManager::getInstance().processPasskeyDisplayEvent(p_ble_evt->evt.gap_evt.conn_handle, p_ble_evt->evt.gap_evt.params.passkey_display.passkey);
+            nRF5xSecurityManager::getInstance().processPasskeyDisplayEvent(p_ble_evt->evt.gap_evt.conn_handle, p_ble_evt->evt.gap_evt.params.passkey_display.passkey);
             break;
 
         case BLE_GAP_EVT_TIMEOUT:
-            nRF51Gap::getInstance().processTimeoutEvent(static_cast<Gap::TimeoutSource_t>(p_ble_evt->evt.gap_evt.params.timeout.src));
+            nRF5xGap::getInstance().processTimeoutEvent(static_cast<Gap::TimeoutSource_t>(p_ble_evt->evt.gap_evt.params.timeout.src));
             break;
 
         case BLE_GATTC_EVT_TIMEOUT:
@@ -169,7 +169,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 
         case BLE_GAP_EVT_ADV_REPORT: {
             const ble_gap_evt_adv_report_t *advReport = &p_ble_evt->evt.gap_evt.params.adv_report;
-            nRF51Gap::getInstance().processAdvertisementReport(advReport->peer_addr.addr,
+            nRF5xGap::getInstance().processAdvertisementReport(advReport->peer_addr.addr,
                                                                advReport->rssi,
                                                                advReport->scan_rsp,
                                                                static_cast<GapAdvertisingParams::AdvertisingType_t>(advReport->type),
@@ -182,7 +182,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             break;
     }
 
-    nRF51GattServer::getInstance().hwCallback(p_ble_evt);
+    nRF5xGattServer::getInstance().hwCallback(p_ble_evt);
 }
 
 /*! @brief      Callback when an error occurs inside the SoftDevice */

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include "nRF51DiscoveredCharacteristic.h"
-#include "nRF51GattClient.h"
+#include "nRF5xDiscoveredCharacteristic.h"
+#include "nRF5xGattClient.h"
 #include "ble_gatt.h"
 
 void
-nRF51DiscoveredCharacteristic::setup(nRF51GattClient         *gattcIn,
-                                   Gap::Handle_t            connectionHandleIn,
-                                   ble_gatt_char_props_t    propsIn,
-                                   GattAttribute::Handle_t  declHandleIn,
-                                   GattAttribute::Handle_t  valueHandleIn)
+nRF5xDiscoveredCharacteristic::setup(nRF5xGattClient         *gattcIn,
+                                     Gap::Handle_t            connectionHandleIn,
+                                     ble_gatt_char_props_t    propsIn,
+                                     GattAttribute::Handle_t  declHandleIn,
+                                     GattAttribute::Handle_t  valueHandleIn)
 {
     gattc       = gattcIn;
     connHandle  = connectionHandleIn;
@@ -40,12 +40,12 @@ nRF51DiscoveredCharacteristic::setup(nRF51GattClient         *gattcIn,
 }
 
 void
-nRF51DiscoveredCharacteristic::setup(nRF51GattClient         *gattcIn,
-                                   Gap::Handle_t            connectionHandleIn,
-                                   UUID::ShortUUIDBytes_t   uuidIn,
-                                   ble_gatt_char_props_t    propsIn,
-                                   GattAttribute::Handle_t  declHandleIn,
-                                   GattAttribute::Handle_t  valueHandleIn)
+nRF5xDiscoveredCharacteristic::setup(nRF5xGattClient         *gattcIn,
+                                      Gap::Handle_t            connectionHandleIn,
+                                     UUID::ShortUUIDBytes_t   uuidIn,
+                                     ble_gatt_char_props_t    propsIn,
+                                     GattAttribute::Handle_t  declHandleIn,
+                                     GattAttribute::Handle_t  valueHandleIn)
 {
     gattc       = gattcIn;
     connHandle  = connectionHandleIn;

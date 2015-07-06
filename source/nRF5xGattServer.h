@@ -24,10 +24,10 @@
 #include "ble/Gap.h"
 #include "ble/GattServer.h"
 
-class nRF51GattServer : public GattServer
+class nRF5xGattServer : public GattServer
 {
 public:
-    static nRF51GattServer &getInstance();
+    static nRF5xGattServer &getInstance();
 
     /* Functions that must be implemented from GattServer */
     virtual ble_error_t addService(GattService &);
@@ -86,13 +86,13 @@ private:
     uint8_t                   descriptorCount;
     uint16_t                  nrfDescriptorHandles[BLE_TOTAL_DESCRIPTORS];
 
-    nRF51GattServer() : GattServer(), p_characteristics(), nrfCharacteristicHandles(), p_descriptors(), descriptorCount(0), nrfDescriptorHandles() {
+    nRF5xGattServer() : GattServer(), p_characteristics(), nrfCharacteristicHandles(), p_descriptors(), descriptorCount(0), nrfDescriptorHandles() {
         /* empty */
     }
 
 private:
-    nRF51GattServer(const nRF51GattServer &);
-    const nRF51GattServer& operator=(const nRF51GattServer &);
+    nRF5xGattServer(const nRF5xGattServer &);
+    const nRF5xGattServer& operator=(const nRF5xGattServer &);
 };
 
 #endif // ifndef __NRF51822_GATT_SERVER_H__

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __NRF51822_GAP_H__
-#define __NRF51822_GAP_H__
+#ifndef __NRF5x_GAP_H__
+#define __NRF5x_GAP_H__
 
 #include "mbed.h"
 #include "ble/blecommon.h"
@@ -35,10 +35,10 @@
 
 */
 /**************************************************************************/
-class nRF51Gap : public Gap
+class nRF5xGap : public Gap
 {
 public:
-    static nRF51Gap &getInstance();
+    static nRF5xGap &getInstance();
 
     /* Functions that must be implemented from Gap */
     virtual ble_error_t setAddress(AddressType_t  type,  const Address_t address);
@@ -102,12 +102,12 @@ public:
 
 private:
     uint16_t m_connectionHandle;
-    nRF51Gap() {
+    nRF5xGap() {
         m_connectionHandle = BLE_CONN_HANDLE_INVALID;
     }
 
-    nRF51Gap(nRF51Gap const &);
-    void operator=(nRF51Gap const &);
+    nRF5xGap(nRF5xGap const &);
+    void operator=(nRF5xGap const &);
 };
 
-#endif // ifndef __NRF51822_GAP_H__
+#endif // ifndef __NRF5x_GAP_H__

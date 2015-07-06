@@ -20,17 +20,17 @@
 #include "ble/DiscoveredCharacteristic.h"
 #include "ble_gatt.h"
 
-class nRF51GattClient; /* forward declaration */
+class nRF5xGattClient; /* forward declaration */
 
-class nRF51DiscoveredCharacteristic : public DiscoveredCharacteristic {
+class nRF5xDiscoveredCharacteristic : public DiscoveredCharacteristic {
 public:
-    void setup(nRF51GattClient         *gattcIn,
+    void setup(nRF5xGattClient         *gattcIn,
                Gap::Handle_t            connectionHandleIn,
                ble_gatt_char_props_t    propsIn,
                GattAttribute::Handle_t  declHandleIn,
                GattAttribute::Handle_t  valueHandleIn);
 
-    void setup(nRF51GattClient         *gattcIn,
+    void setup(nRF5xGattClient         *gattcIn,
                Gap::Handle_t            connectionHandleIn,
                UUID::ShortUUIDBytes_t   uuidIn,
                ble_gatt_char_props_t    propsIn,

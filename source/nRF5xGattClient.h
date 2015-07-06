@@ -18,12 +18,12 @@
 #define __NRF51822_GATT_CLIENT_H__
 
 #include "ble/GattClient.h"
-#include "nRF51ServiceDiscovery.h"
+#include "nRF5xServiceDiscovery.h"
 
-class nRF51GattClient : public GattClient
+class nRF5xGattClient : public GattClient
 {
 public:
-    static nRF51GattClient &getInstance();
+    static nRF5xGattClient &getInstance();
 
     /**
      * Launch service discovery. Once launched, service discovery will remain
@@ -140,18 +140,18 @@ public:
     }
 
 public:
-    nRF51GattClient() : discovery(this) {
+    nRF5xGattClient() : discovery(this) {
         /* empty */
     }
 
     friend void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
 
 private:
-    nRF51GattClient(const nRF51GattClient &);
-    const nRF51GattClient& operator=(const nRF51GattClient &);
+    nRF5xGattClient(const nRF5xGattClient &);
+    const nRF5xGattClient& operator=(const nRF5xGattClient &);
 
 private:
-    nRF51ServiceDiscovery discovery;
+    nRF5xServiceDiscovery discovery;
 };
 
 #endif // ifndef __NRF51822_GATT_CLIENT_H__

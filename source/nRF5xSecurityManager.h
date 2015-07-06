@@ -22,10 +22,10 @@
 #include "ble/SecurityManager.h"
 #include "btle_security.h"
 
-class nRF51SecurityManager : public SecurityManager
+class nRF5xSecurityManager : public SecurityManager
 {
 public:
-    static nRF51SecurityManager &getInstance();
+    static nRF5xSecurityManager &getInstance();
 
     /* Functions that must be implemented from SecurityManager */
     virtual ble_error_t init(bool                     enableBonding,
@@ -44,13 +44,13 @@ public:
     }
 
 public:
-    nRF51SecurityManager() {
+    nRF5xSecurityManager() {
         /* empty */
     }
 
 private:
-    nRF51SecurityManager(const nRF51SecurityManager &);
-    const nRF51SecurityManager& operator=(const nRF51SecurityManager &);
+    nRF5xSecurityManager(const nRF5xSecurityManager &);
+    const nRF5xSecurityManager& operator=(const nRF5xSecurityManager &);
 };
 
 #endif // ifndef __NRF51822_SECURITY_MANAGER_H__
