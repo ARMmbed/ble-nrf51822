@@ -76,6 +76,17 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                 nRF51GattClient::getInstance().processWriteResponse(&response);
             }
             break;
+
+        case BLE_GATTC_EVT_HVX: {
+                GattHVXCallbackParams params;
+                params.handle = p_ble_evt->evt.gattc_evt.params.hvx.handle;
+                params.type   = static_cast<HVXType_t>(p_ble_evt->evt.gattc_evt.params.hvx.type);
+                params.len    = p_ble_evt->evt.gattc_evt.params.hvx.len;
+                params.data   = p_ble_evt->evt.gattc_evt.params.hvx.data;
+
+                nRF51GattClient::getInstance().processHVXEvent(&params);
+            }
+            break;
     }
 
     sdSingleton.progressCharacteristicDiscovery();
