@@ -18,8 +18,8 @@
 
 ble_error_t
 nRF5xServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHandle,
-                                                   Gap::Handle_t startHandle,
-                                                   Gap::Handle_t endHandle)
+                                                     Gap::Handle_t startHandle,
+                                                     Gap::Handle_t endHandle)
 {
     characteristicDiscoveryStarted(connectionHandle);
 
