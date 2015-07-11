@@ -154,7 +154,7 @@ nRF51ServiceDiscovery::progressServiceDiscovery(void)
     /* Iterate through the previously discovered services cached in services[]. */
     while ((state == SERVICE_DISCOVERY_ACTIVE) && (serviceIndex < numServices)) {
         if ((matchingServiceUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
-            (matchingServiceUUID == services[serviceIndex].getUUID().getShortUUID())) {
+            (matchingServiceUUID == services[serviceIndex].getUUID())) {
 
             if (serviceCallback && (matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN))) {
                 serviceCallback(&services[serviceIndex]);
