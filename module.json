@@ -8,7 +8,7 @@
   ],
   "author": "Rohit Grover",
   "repository": {
-    "url": "git@github.com:mbedmicro/nRF51822.git",
+    "url": "git@github.com:ARMmbed/nRF51822.git",
     "type": "git"
   },
   "homepage": "https://developer.mbed.org/teams/Nordic-Semiconductor/",
