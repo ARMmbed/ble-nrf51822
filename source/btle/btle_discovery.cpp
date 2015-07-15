@@ -56,10 +56,11 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 
         case BLE_GATTC_EVT_READ_RSP: {
                 GattReadCallbackParams response = {
-                    .handle = p_ble_evt->evt.gattc_evt.params.read_rsp.handle,
-                    .offset = p_ble_evt->evt.gattc_evt.params.read_rsp.offset,
-                    .len    = p_ble_evt->evt.gattc_evt.params.read_rsp.len,
-                    .data   = p_ble_evt->evt.gattc_evt.params.read_rsp.data,
+                    .connHandle = p_ble_evt->evt.gattc_evt.conn_handle,
+                    .handle     = p_ble_evt->evt.gattc_evt.params.read_rsp.handle,
+                    .offset     = p_ble_evt->evt.gattc_evt.params.read_rsp.offset,
+                    .len        = p_ble_evt->evt.gattc_evt.params.read_rsp.len,
+                    .data       = p_ble_evt->evt.gattc_evt.params.read_rsp.data,
                 };
                 nRF5xGattClient::getInstance().processReadResponse(&response);
             }
@@ -67,11 +68,12 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 
         case BLE_GATTC_EVT_WRITE_RSP: {
                 GattWriteCallbackParams response = {
-                    .handle  = p_ble_evt->evt.gattc_evt.params.write_rsp.handle,
-                    .writeOp = (GattWriteCallbackParams::WriteOp_t)(p_ble_evt->evt.gattc_evt.params.write_rsp.write_op),
-                    .offset  = p_ble_evt->evt.gattc_evt.params.write_rsp.offset,
-                    .len     = p_ble_evt->evt.gattc_evt.params.write_rsp.len,
-                    .data    = p_ble_evt->evt.gattc_evt.params.write_rsp.data,
+                    .connHandle = p_ble_evt->evt.gattc_evt.conn_handle,
+                    .handle     = p_ble_evt->evt.gattc_evt.params.write_rsp.handle,
+                    .writeOp    = (GattWriteCallbackParams::WriteOp_t)(p_ble_evt->evt.gattc_evt.params.write_rsp.write_op),
+                    .offset     = p_ble_evt->evt.gattc_evt.params.write_rsp.offset,
+                    .len        = p_ble_evt->evt.gattc_evt.params.write_rsp.len,
+                    .data       = p_ble_evt->evt.gattc_evt.params.write_rsp.data,
                 };
                 nRF5xGattClient::getInstance().processWriteResponse(&response);
             }
@@ -79,10 +81,11 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 
         case BLE_GATTC_EVT_HVX: {
                 GattHVXCallbackParams params;
-                params.handle = p_ble_evt->evt.gattc_evt.params.hvx.handle;
-                params.type   = static_cast<HVXType_t>(p_ble_evt->evt.gattc_evt.params.hvx.type);
-                params.len    = p_ble_evt->evt.gattc_evt.params.hvx.len;
-                params.data   = p_ble_evt->evt.gattc_evt.params.hvx.data;
+                params.connHandle = p_ble_evt->evt.gattc_evt.conn_handle;
+                params.handle     = p_ble_evt->evt.gattc_evt.params.hvx.handle;
+                params.type       = static_cast<HVXType_t>(p_ble_evt->evt.gattc_evt.params.hvx.type);
+                params.len        = p_ble_evt->evt.gattc_evt.params.hvx.len;
+                params.data       = p_ble_evt->evt.gattc_evt.params.hvx.data;
 
                 nRF5xGattClient::getInstance().processHVXEvent(&params);
             }
