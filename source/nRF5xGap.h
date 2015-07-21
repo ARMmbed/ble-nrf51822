@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __NRF51822_GAP_H__
-#define __NRF51822_GAP_H__
+#ifndef __NRF5x_GAP_H__
+#define __NRF5x_GAP_H__
 
 #include "mbed.h"
 #include "ble/blecommon.h"
@@ -29,16 +29,18 @@
 #include "ble_radio_notification.h"
 #include "btle_security.h"
 
+void radioNotificationStaticCallback(bool param);
+
 /**************************************************************************/
 /*!
     \brief
 
 */
 /**************************************************************************/
-class nRF51Gap : public Gap
+class nRF5xGap : public Gap
 {
 public:
-    static nRF51Gap &getInstance();
+    static nRF5xGap &getInstance();
 
     /* Functions that must be implemented from Gap */
     virtual ble_error_t setAddress(AddressType_t  type,  const Address_t address);
@@ -70,9 +72,12 @@ public:
     virtual ble_error_t setPreferredConnectionParams(const ConnectionParams_t *params);
     virtual ble_error_t updateConnectionParams(Handle_t handle, const ConnectionParams_t *params);
 
-    virtual void onRadioNotification(RadioNotificationEventCallback_t callback) {
-        Gap::onRadioNotification(callback);
-        ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, radioNotificationCallback);
+    virtual ble_error_t initRadioNotification(void) {
+        if (ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, radioNotificationStaticCallback) == NRF_SUCCESS) {
+            return BLE_ERROR_NONE;
+        }
+
+        return BLE_ERROR_UNSPECIFIED;
     }
 
     virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams) {
@@ -101,13 +106,23 @@ public:
     }
 
 private:
+    /**
+     * A helper function to process radio-notification events; to be called internally.
+     * @param param [description]
+     */
+    void processRadioNotificationEvent(bool param) {
+        radioNotificationCallback.call(param);
+    }
+    friend void radioNotificationStaticCallback(bool param); /* allow invocations of processRadioNotificationEvent() */
+
+private:
     uint16_t m_connectionHandle;
-    nRF51Gap() {
+    nRF5xGap() {
         m_connectionHandle = BLE_CONN_HANDLE_INVALID;
     }
 
-    nRF51Gap(nRF51Gap const &);
-    void operator=(nRF51Gap const &);
+    nRF5xGap(nRF5xGap const &);
+    void operator=(nRF5xGap const &);
 };
 
-#endif // ifndef __NRF51822_GAP_H__
+#endif // ifndef __NRF5x_GAP_H__

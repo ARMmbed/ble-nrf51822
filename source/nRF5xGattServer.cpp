@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include "nRF51GattServer.h"
+#include "nRF5xGattServer.h"
 #include "mbed.h"
 
 #include "common/common.h"
 #include "btle/custom/custom_helper.h"
 
-#include "nRF51Gap.h"
+#include "nRF5xGap.h"
 
-nRF51GattServer &nRF51GattServer::getInstance(void) {
-    static nRF51GattServer m_instance;
+nRF5xGattServer &nRF5xGattServer::getInstance(void) {
+    static nRF5xGattServer m_instance;
     return m_instance;
 }
 
@@ -43,7 +43,7 @@ nRF51GattServer &nRF51GattServer::getInstance(void) {
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51GattServer::addService(GattService &service)
+ble_error_t nRF5xGattServer::addService(GattService &service)
 {
     /* ToDo: Make sure we don't overflow the array, etc. */
     /* ToDo: Make sure this service UUID doesn't already exist (?) */
@@ -157,12 +157,12 @@ ble_error_t nRF51GattServer::addService(GattService &service)
                 Everything executed properly
 */
 /**************************************************************************/
-ble_error_t nRF51GattServer::read(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
+ble_error_t nRF5xGattServer::read(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
 {
     return read(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, lengthP);
 }
 
-ble_error_t nRF51GattServer::read(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
+ble_error_t nRF5xGattServer::read(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
 {
     ble_gatts_value_t value = {
         .len     = *lengthP,
@@ -197,14 +197,14 @@ ble_error_t nRF51GattServer::read(Gap::Handle_t connectionHandle, GattAttribute:
                 Everything executed properly
 */
 /**************************************************************************/
-ble_error_t nRF51GattServer::write(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
+ble_error_t nRF5xGattServer::write(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
     return write(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, len, localOnly);
 }
 
-ble_error_t nRF51GattServer::write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
+ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
-    uint16_t gapConnectionHandle = nRF51Gap::getInstance().getConnectionHandle();
+    uint16_t gapConnectionHandle = nRF5xGap::getInstance().getConnectionHandle();
     ble_error_t returnValue = BLE_ERROR_NONE;
 
     ble_gatts_value_t value = {
@@ -259,13 +259,13 @@ ble_error_t nRF51GattServer::write(Gap::Handle_t connectionHandle, GattAttribute
     return returnValue;
 }
 
-ble_error_t nRF51GattServer::areUpdatesEnabled(const GattCharacteristic &characteristic, bool *enabledP)
+ble_error_t nRF5xGattServer::areUpdatesEnabled(const GattCharacteristic &characteristic, bool *enabledP)
 {
     /* Forward the call with the default connection handle. */
-    return areUpdatesEnabled(nRF51Gap::getInstance().getConnectionHandle(), characteristic, enabledP);
+    return areUpdatesEnabled(nRF5xGap::getInstance().getConnectionHandle(), characteristic, enabledP);
 }
 
-ble_error_t nRF51GattServer::areUpdatesEnabled(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP)
+ble_error_t nRF5xGattServer::areUpdatesEnabled(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP)
 {
     int characteristicIndex = resolveValueHandleToCharIndex(characteristic.getValueHandle());
     if (characteristicIndex == -1) {
@@ -297,7 +297,7 @@ ble_error_t nRF51GattServer::areUpdatesEnabled(Gap::Handle_t connectionHandle, c
     @brief  Callback handler for events getting pushed up from the SD
 */
 /**************************************************************************/
-void nRF51GattServer::hwCallback(ble_evt_t *p_ble_evt)
+void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
 {
     GattAttribute::Handle_t        handle_value;
     GattServerEvents::gattEvent_t  eventType;

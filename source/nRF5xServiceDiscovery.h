@@ -19,14 +19,14 @@
 
 #include "ble/ServiceDiscovery.h"
 #include "ble/DiscoveredService.h"
-#include "nRF51DiscoveredCharacteristic.h"
+#include "nRF5xDiscoveredCharacteristic.h"
 
 #include "ble.h"
 #include "ble_gattc.h"
 
-class nRF51GattClient; /* forward declaration */
+class nRF5xGattClient; /* forward declaration */
 
-class nRF51ServiceDiscovery : public ServiceDiscovery
+class nRF5xServiceDiscovery : public ServiceDiscovery
 {
 public:
     static const uint16_t SRV_DISC_START_HANDLE             = 0x0001; /**< The start handle value used during service discovery. */
@@ -37,7 +37,7 @@ public:
     static const unsigned BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV = 4;      /**< Maximum number of characteristics per service we can retain information for. */
 
 public:
-    nRF51ServiceDiscovery(nRF51GattClient *gattcIn) :
+    nRF5xServiceDiscovery(nRF5xGattClient *gattcIn) :
         gattc(gattcIn),
         serviceIndex(0),
         numServices(0),
@@ -158,7 +158,7 @@ private:
      */
     class ServiceUUIDDiscoveryQueue {
     public:
-        ServiceUUIDDiscoveryQueue(nRF51ServiceDiscovery *parent) :
+        ServiceUUIDDiscoveryQueue(nRF5xServiceDiscovery *parent) :
             numIndices(0),
             serviceIndices(),
             parentDiscoveryObject(parent) {
@@ -207,7 +207,7 @@ private:
         size_t numIndices;
         int    serviceIndices[BLE_DB_DISCOVERY_MAX_SRV];
 
-        nRF51ServiceDiscovery *parentDiscoveryObject;
+        nRF5xServiceDiscovery *parentDiscoveryObject;
     };
     friend class ServiceUUIDDiscoveryQueue;
 
@@ -217,7 +217,7 @@ private:
      */
     class CharUUIDDiscoveryQueue {
     public:
-        CharUUIDDiscoveryQueue(nRF51ServiceDiscovery *parent) :
+        CharUUIDDiscoveryQueue(nRF5xServiceDiscovery *parent) :
             numIndices(0),
             charIndices(),
             parentDiscoveryObject(parent) {
@@ -266,7 +266,7 @@ private:
         size_t numIndices;
         int    charIndices[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
 
-        nRF51ServiceDiscovery *parentDiscoveryObject;
+        nRF5xServiceDiscovery *parentDiscoveryObject;
     };
     friend class CharUUIDDiscoveryQueue;
 
@@ -276,7 +276,7 @@ private:
     void progressServiceDiscovery(void);
 
 private:
-    nRF51GattClient *gattc;
+    nRF5xGattClient *gattc;
 
 private:
     uint8_t  serviceIndex;        /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
@@ -294,7 +294,7 @@ private:
 
     DiscoveredService           services[BLE_DB_DISCOVERY_MAX_SRV];  /**< Information related to the current service being discovered.
                                                                       *  This is intended for internal use during service discovery. */
-    nRF51DiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
+    nRF5xDiscoveredCharacteristic characteristics[BLE_DB_DISCOVERY_MAX_CHAR_PER_SRV];
 
     ServiceUUIDDiscoveryQueue   serviceUUIDDiscoveryQueue;
     CharUUIDDiscoveryQueue      charUUIDDiscoveryQueue;

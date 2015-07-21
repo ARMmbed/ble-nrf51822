@@ -17,8 +17,8 @@
 #include "btle.h"
 #include "pstorage.h"
 
-#include "nRF51Gap.h"
-#include "nRF51SecurityManager.h"
+#include "nRF5xGap.h"
+#include "nRF5xSecurityManager.h"
 
 #include "device_manager.h"
 #include "btle_security.h"
@@ -154,14 +154,14 @@ dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t ev
     switch (p_event->event_id) {
         case DM_EVT_SECURITY_SETUP: /* started */ {
             const ble_gap_sec_params_t *peerParams = &p_event->event_param.p_gap_param->params.sec_params_request.peer_params;
-            nRF51SecurityManager::getInstance().processSecuritySetupInitiatedEvent(p_event->event_param.p_gap_param->conn_handle,
+            nRF5xSecurityManager::getInstance().processSecuritySetupInitiatedEvent(p_event->event_param.p_gap_param->conn_handle,
                                                                                    peerParams->bond,
                                                                                    peerParams->mitm,
                                                                                    (SecurityManager::SecurityIOCapabilities_t)peerParams->io_caps);
             break;
         }
         case DM_EVT_SECURITY_SETUP_COMPLETE:
-            nRF51SecurityManager::getInstance().
+            nRF5xSecurityManager::getInstance().
                 processSecuritySetupCompletedEvent(p_event->event_param.p_gap_param->conn_handle,
                                                    (SecurityManager::SecurityCompletionStatus_t)(p_event->event_param.p_gap_param->params.auth_status.auth_status));
             break;
@@ -195,11 +195,11 @@ dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t ev
                     break;
             }
 
-            nRF51SecurityManager::getInstance().processLinkSecuredEvent(p_event->event_param.p_gap_param->conn_handle, resolvedSecurityMode);
+            nRF5xSecurityManager::getInstance().processLinkSecuredEvent(p_event->event_param.p_gap_param->conn_handle, resolvedSecurityMode);
             break;
         }
         case DM_EVT_DEVICE_CONTEXT_STORED:
-            nRF51SecurityManager::getInstance().processSecurityContextStoredEvent(p_event->event_param.p_gap_param->conn_handle);
+            nRF5xSecurityManager::getInstance().processSecurityContextStoredEvent(p_event->event_param.p_gap_param->conn_handle);
             break;
         default:
             break;

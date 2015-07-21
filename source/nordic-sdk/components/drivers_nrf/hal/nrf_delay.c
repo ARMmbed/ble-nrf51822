@@ -31,7 +31,7 @@
  */
  
 #include <stdio.h> 
-#include "compiler_abstraction.h"
+
 #include "nrf.h"
 #include "nrf_delay.h"
 

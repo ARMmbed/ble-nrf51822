@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "nRF51SecurityManager.h"
+#include "nRF5xSecurityManager.h"
 
-nRF51SecurityManager &nRF51SecurityManager::getInstance(void) {
-    static nRF51SecurityManager m_instance;
+nRF5xSecurityManager &nRF5xSecurityManager::getInstance(void) {
+    static nRF5xSecurityManager m_instance;
     return m_instance;
 }

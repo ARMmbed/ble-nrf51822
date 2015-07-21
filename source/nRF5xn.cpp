@@ -15,7 +15,7 @@
  */
 
 #include "mbed.h"
-#include "nRF51822n.h"
+#include "nRF5xn.h"
 #include "nrf_soc.h"
 
 #include "btle/btle.h"
@@ -26,7 +26,7 @@
 /**
  * The singleton which represents the nRF51822 transport for the BLE.
  */
-static nRF51822n deviceInstance;
+static nRF5xn deviceInstance;
 
 /**
  * BLE-API requires an implementation of the following function in order to
@@ -38,15 +38,15 @@ createBLEInstance(void)
     return (&deviceInstance);
 }
 
-nRF51822n::nRF51822n(void)
+nRF5xn::nRF5xn(void)
 {
 }
 
-nRF51822n::~nRF51822n(void)
+nRF5xn::~nRF5xn(void)
 {
 }
 
-const char *nRF51822n::getVersion(void)
+const char *nRF5xn::getVersion(void)
 {
     static char versionString[32];
     static bool versionFetched = false;
@@ -71,7 +71,7 @@ const char *nRF51822n::getVersion(void)
     return versionString;
 }
 
-ble_error_t nRF51822n::init(void)
+ble_error_t nRF5xn::init(void)
 {
     /* ToDo: Clear memory contents, reset the SD, etc. */
     btle_init();
@@ -79,13 +79,13 @@ ble_error_t nRF51822n::init(void)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF51822n::shutdown(void)
+ble_error_t nRF5xn::shutdown(void)
 {
     return (softdevice_handler_sd_disable() == NRF_SUCCESS) ? BLE_ERROR_NONE : BLE_STACK_BUSY;
 }
 
 void
-nRF51822n::waitForEvent(void)
+nRF5xn::waitForEvent(void)
 {
     sd_app_evt_wait();
 }

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#include "nRF51GattClient.h"
+#include "nRF5xGattClient.h"
 
-nRF51GattClient nRFGattClientSingleton;
+nRF5xGattClient nRFGattClientSingleton;
 
-nRF51GattClient &
-nRF51GattClient::getInstance(void) {
+nRF5xGattClient &
+nRF5xGattClient::getInstance(void) {
     return nRFGattClientSingleton;
 }
 
 ble_error_t
-nRF51GattClient::launchServiceDiscovery(Gap::Handle_t                               connectionHandle,
+nRF5xGattClient::launchServiceDiscovery(Gap::Handle_t                               connectionHandle,
                                         ServiceDiscovery::ServiceCallback_t         sc,
                                         ServiceDiscovery::CharacteristicCallback_t  cc,
                                         const UUID                                 &matchingServiceUUIDIn,

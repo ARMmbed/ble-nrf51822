@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-#include "nRF51Gap.h"
+#include "nRF5xGap.h"
 #include "mbed.h"
 
 #include "common/common.h"
 #include "ble_advdata.h"
 #include "ble_hci.h"
 
-nRF51Gap &nRF51Gap::getInstance() {
-    static nRF51Gap m_instance;
+nRF5xGap &nRF5xGap::getInstance() {
+    static nRF5xGap m_instance;
     return m_instance;
+}
+
+void radioNotificationStaticCallback(bool param) {
+    nRF5xGap::getInstance().processRadioNotificationEvent(param);
 }
 
 /**************************************************************************/
@@ -63,7 +67,7 @@ nRF51Gap &nRF51Gap::getInstance() {
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51Gap::setAdvertisingData(const GapAdvertisingData &advData, const GapAdvertisingData &scanResponse)
+ble_error_t nRF5xGap::setAdvertisingData(const GapAdvertisingData &advData, const GapAdvertisingData &scanResponse)
 {
     /* Make sure we don't exceed the advertising payload length */
     if (advData.getPayloadLen() > GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
@@ -128,7 +132,7 @@ ble_error_t nRF51Gap::setAdvertisingData(const GapAdvertisingData &advData, cons
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51Gap::startAdvertising(const GapAdvertisingParams &params)
+ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 {
     /* Make sure we support the advertising type */
     if (params.getAdvertisingType() == GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) {
@@ -196,7 +200,7 @@ ble_error_t nRF51Gap::startAdvertising(const GapAdvertisingParams &params)
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51Gap::stopAdvertising(void)
+ble_error_t nRF5xGap::stopAdvertising(void)
 {
     /* Stop Advertising */
     ASSERT(ERROR_NONE == sd_ble_gap_adv_stop(), BLE_ERROR_PARAM_OUT_OF_RANGE);
@@ -206,7 +210,7 @@ ble_error_t nRF51Gap::stopAdvertising(void)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF51Gap::connect(const Address_t           peerAddr,
+ble_error_t nRF5xGap::connect(const Address_t           peerAddr,
                               Gap::AddressType_t        peerAddrType,
                               const ConnectionParams_t *connectionParams,
                               const GapScanningParams  *scanParamsIn)
@@ -265,7 +269,7 @@ ble_error_t nRF51Gap::connect(const Address_t           peerAddr,
     }
 }
 
-ble_error_t nRF51Gap::disconnect(Handle_t connectionHandle, DisconnectionReason_t reason)
+ble_error_t nRF5xGap::disconnect(Handle_t connectionHandle, DisconnectionReason_t reason)
 {
     state.advertising = 0;
     state.connected   = 0;
@@ -296,12 +300,12 @@ ble_error_t nRF51Gap::disconnect(Handle_t connectionHandle, DisconnectionReason_
     @retval     BLE_ERROR_NONE
                 Everything executed properly
 */
-ble_error_t nRF51Gap::disconnect(DisconnectionReason_t reason)
+ble_error_t nRF5xGap::disconnect(DisconnectionReason_t reason)
 {
     return disconnect(m_connectionHandle, reason);
 }
 
-ble_error_t nRF51Gap::getPreferredConnectionParams(ConnectionParams_t *params)
+ble_error_t nRF5xGap::getPreferredConnectionParams(ConnectionParams_t *params)
 {
     ASSERT_INT(NRF_SUCCESS,
         sd_ble_gap_ppcp_get(reinterpret_cast<ble_gap_conn_params_t *>(params)),
@@ -310,7 +314,7 @@ ble_error_t nRF51Gap::getPreferredConnectionParams(ConnectionParams_t *params)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF51Gap::setPreferredConnectionParams(const ConnectionParams_t *params)
+ble_error_t nRF5xGap::setPreferredConnectionParams(const ConnectionParams_t *params)
 {
     ASSERT_INT(NRF_SUCCESS,
         sd_ble_gap_ppcp_set(reinterpret_cast<const ble_gap_conn_params_t *>(params)),
@@ -319,7 +323,7 @@ ble_error_t nRF51Gap::setPreferredConnectionParams(const ConnectionParams_t *par
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF51Gap::updateConnectionParams(Handle_t handle, const ConnectionParams_t *newParams)
+ble_error_t nRF5xGap::updateConnectionParams(Handle_t handle, const ConnectionParams_t *newParams)
 {
     uint32_t rc;
 
@@ -336,7 +340,7 @@ ble_error_t nRF51Gap::updateConnectionParams(Handle_t handle, const ConnectionPa
     @brief  Sets the 16-bit connection handle
 */
 /**************************************************************************/
-void nRF51Gap::setConnectionHandle(uint16_t con_handle)
+void nRF5xGap::setConnectionHandle(uint16_t con_handle)
 {
     m_connectionHandle = con_handle;
 }
@@ -346,7 +350,7 @@ void nRF51Gap::setConnectionHandle(uint16_t con_handle)
     @brief  Gets the 16-bit connection handle
 */
 /**************************************************************************/
-uint16_t nRF51Gap::getConnectionHandle(void)
+uint16_t nRF5xGap::getConnectionHandle(void)
 {
     return m_connectionHandle;
 }
@@ -367,7 +371,7 @@ uint16_t nRF51Gap::getConnectionHandle(void)
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF51Gap::setAddress(AddressType_t type, const Address_t address)
+ble_error_t nRF5xGap::setAddress(AddressType_t type, const Address_t address)
 {
     if (type > ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
@@ -382,7 +386,7 @@ ble_error_t nRF51Gap::setAddress(AddressType_t type, const Address_t address)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF51Gap::getAddress(AddressType_t *typeP, Address_t address)
+ble_error_t nRF5xGap::getAddress(AddressType_t *typeP, Address_t address)
 {
     ble_gap_addr_t dev_addr;
     if (sd_ble_gap_address_get(&dev_addr) != NRF_SUCCESS) {
@@ -398,7 +402,7 @@ ble_error_t nRF51Gap::getAddress(AddressType_t *typeP, Address_t address)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF51Gap::setDeviceName(const uint8_t *deviceName)
+ble_error_t nRF5xGap::setDeviceName(const uint8_t *deviceName)
 {
     ble_gap_conn_sec_mode_t sec_mode;
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode); // no security is needed
@@ -410,7 +414,7 @@ ble_error_t nRF51Gap::setDeviceName(const uint8_t *deviceName)
     }
 }
 
-ble_error_t nRF51Gap::getDeviceName(uint8_t *deviceName, unsigned *lengthP)
+ble_error_t nRF5xGap::getDeviceName(uint8_t *deviceName, unsigned *lengthP)
 {
     if (sd_ble_gap_device_name_get(deviceName, (uint16_t *)lengthP) == NRF_SUCCESS) {
         return BLE_ERROR_NONE;
@@ -419,7 +423,7 @@ ble_error_t nRF51Gap::getDeviceName(uint8_t *deviceName, unsigned *lengthP)
     }
 }
 
-ble_error_t nRF51Gap::setAppearance(GapAdvertisingData::Appearance appearance)
+ble_error_t nRF5xGap::setAppearance(GapAdvertisingData::Appearance appearance)
 {
     if (sd_ble_gap_appearance_set(appearance) == NRF_SUCCESS) {
         return BLE_ERROR_NONE;
@@ -428,7 +432,7 @@ ble_error_t nRF51Gap::setAppearance(GapAdvertisingData::Appearance appearance)
     }
 }
 
-ble_error_t nRF51Gap::getAppearance(GapAdvertisingData::Appearance *appearanceP)
+ble_error_t nRF5xGap::getAppearance(GapAdvertisingData::Appearance *appearanceP)
 {
     if (sd_ble_gap_appearance_get(reinterpret_cast<uint16_t *>(appearanceP))) {
         return BLE_ERROR_NONE;
@@ -438,7 +442,7 @@ ble_error_t nRF51Gap::getAppearance(GapAdvertisingData::Appearance *appearanceP)
 }
 
 /* (Valid values are -40, -20, -16, -12, -8, -4, 0, 4) */
-ble_error_t nRF51Gap::setTxPower(int8_t txPower)
+ble_error_t nRF5xGap::setTxPower(int8_t txPower)
 {
     unsigned rc;
     if ((rc = sd_ble_gap_tx_power_set(txPower)) != NRF_SUCCESS) {
@@ -454,7 +458,7 @@ ble_error_t nRF51Gap::setTxPower(int8_t txPower)
     return BLE_ERROR_NONE;
 }
 
-void nRF51Gap::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP)
+void nRF5xGap::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP)
 {
     static const int8_t permittedTxValues[] = {
         -40, -30, -20, -16, -12, -8, -4, 0, 4
