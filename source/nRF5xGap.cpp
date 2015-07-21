@@ -26,6 +26,10 @@ nRF5xGap &nRF5xGap::getInstance() {
     return m_instance;
 }
 
+void radioNotificationStaticCallback(bool param) {
+    nRF5xGap::getInstance().processRadioNotificationEvent(param);
+}
+
 /**************************************************************************/
 /*!
     @brief  Sets the advertising parameters and payload for the device

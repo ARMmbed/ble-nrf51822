@@ -29,6 +29,8 @@
 #include "ble_radio_notification.h"
 #include "btle_security.h"
 
+void radioNotificationStaticCallback(bool param);
+
 /**************************************************************************/
 /*!
     \brief
@@ -70,9 +72,12 @@ public:
     virtual ble_error_t setPreferredConnectionParams(const ConnectionParams_t *params);
     virtual ble_error_t updateConnectionParams(Handle_t handle, const ConnectionParams_t *params);
 
-    virtual void onRadioNotification(RadioNotificationEventCallback_t callback) {
-        Gap::onRadioNotification(callback);
-        ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, radioNotificationCallback);
+    virtual ble_error_t initRadioNotification(void) {
+        if (ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, radioNotificationStaticCallback) == NRF_SUCCESS) {
+            return BLE_ERROR_NONE;
+        }
+
+        return BLE_ERROR_UNSPECIFIED;
     }
 
     virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams) {
@@ -99,6 +104,16 @@ public:
 
         return BLE_STACK_BUSY;
     }
+
+private:
+    /**
+     * A helper function to process radio-notification events; to be called internally.
+     * @param param [description]
+     */
+    void processRadioNotificationEvent(bool param) {
+        radioNotificationCallback.call(param);
+    }
+    friend void radioNotificationStaticCallback(bool param); /* allow invocations of processRadioNotificationEvent() */
 
 private:
     uint16_t m_connectionHandle;
