@@ -113,12 +113,18 @@ static void btle_handler(ble_evt_t *p_ble_evt)
     switch (p_ble_evt->header.evt_id) {
         case BLE_GAP_EVT_CONNECTED: {
             Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
+#if defined(MCU_NORDIC_16K_S110) || defined(MCU_NORDIC_32K_S110)
+            /* Only peripheral role is supported by S110 */
+            Gap::Role_t role = Gap::PERIPHERAL;
+#else
+            Gap::Role_t role = static_cast<Gap::Role_t>(p_ble_evt->evt.gap_evt.params.connected.role);
+#endif
             nRF5xGap::getInstance().setConnectionHandle(handle);
             const Gap::ConnectionParams_t *params = reinterpret_cast<Gap::ConnectionParams_t *>(&(p_ble_evt->evt.gap_evt.params.connected.conn_params));
             const ble_gap_addr_t *peer = &p_ble_evt->evt.gap_evt.params.connected.peer_addr;
             const ble_gap_addr_t *own  = &p_ble_evt->evt.gap_evt.params.connected.own_addr;
             nRF5xGap::getInstance().processConnectionEvent(handle,
-                                                           static_cast<Gap::Role_t>(p_ble_evt->evt.gap_evt.params.connected.role),
+                                                           role,
                                                            static_cast<Gap::AddressType_t>(peer->addr_type), peer->addr,
                                                            static_cast<Gap::AddressType_t>(own->addr_type),  own->addr,
                                                            params);
