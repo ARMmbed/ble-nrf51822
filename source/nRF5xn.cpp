@@ -57,10 +57,10 @@ const char *nRF5xn::getVersion(void)
             switch (version.version_number) {
                 case 0x07:
                 case 0x08:
-                    snprintf(versionString, sizeof(versionString), "Nordic BLE4.1 fw:%04x", version.subversion_number);
+                    snprintf(versionString, sizeof(versionString), "Nordic BLE4.1 ver:%u fw:%04x", version.version_number, version.subversion_number);
                     break;
                 default:
-                    snprintf(versionString, sizeof(versionString), "Nordic (spec unknown) fw:%04x", version.subversion_number);
+                    snprintf(versionString, sizeof(versionString), "Nordic (spec unknown) ver:%u fw:%04x", version.version_number, version.subversion_number);
                     break;
             }
             versionFetched = true;
