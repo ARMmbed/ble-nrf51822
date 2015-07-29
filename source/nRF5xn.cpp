@@ -56,6 +56,7 @@ const char *nRF5xn::getVersion(void)
         if ((sd_ble_version_get(&version) == NRF_SUCCESS) && (version.company_id == 0x0059)) {
             switch (version.version_number) {
                 case 0x07:
+                case 0x08:
                     snprintf(versionString, sizeof(versionString), "Nordic BLE4.1 fw:%04x", version.subversion_number);
                     break;
                 default:
