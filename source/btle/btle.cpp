@@ -52,10 +52,11 @@ static void sys_evt_dispatch(uint32_t sys_evt)
 
 error_t btle_init(void)
 {
-    if (NRF_CLOCK->LFCLKSRC & (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos))
+    if (NRF_CLOCK->LFCLKSRC & (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos)) {
         SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, NULL);
-    else
+    } else {
         SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_RC_250_PPM_4000MS_CALIBRATION, NULL);
+    }
 
     // Enable BLE stack
     /**
