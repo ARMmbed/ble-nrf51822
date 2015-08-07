@@ -19,7 +19,7 @@
     }
   ],
   "dependencies": {
-    "ble": "~0.4.3"
+    "ble": "~0.4.4"
   },
   "extraIncludes": [
     "source/btle",
