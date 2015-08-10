@@ -1,6 +1,6 @@
 {
   "name": "ble-nrf51822",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "Nordic stack and drivers for the mbed BLE API.",
   "keywords": [
     "Bluetooth",
