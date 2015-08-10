@@ -143,13 +143,13 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
     /* Check interval range */
     if (params.getAdvertisingType() == GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED) {
         /* Min delay is slightly longer for unconnectable devices */
-        if ((params.getInterval() < GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN_NONCON) ||
-            (params.getInterval() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
+        if ((params.getIntervalInAdvUnits() < GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN_NONCON) ||
+            (params.getIntervalInAdvUnits() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
     } else {
-        if ((params.getInterval() < GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN) ||
-            (params.getInterval() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
+        if ((params.getIntervalInAdvUnits() < GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN) ||
+            (params.getIntervalInAdvUnits() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
     }
@@ -174,7 +174,7 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
     adv_para.p_peer_addr = NULL;                         // Undirected advertisement
     adv_para.fp          = BLE_GAP_ADV_FP_ANY;
     adv_para.p_whitelist = NULL;
-    adv_para.interval    = params.getInterval();         // advertising interval (in units of 0.625 ms)
+    adv_para.interval    = params.getIntervalInAdvUnits();         // advertising interval (in units of 0.625 ms)
     adv_para.timeout     = params.getTimeout();
 
     ASSERT(ERROR_NONE == sd_ble_gap_adv_start(&adv_para), BLE_ERROR_PARAM_OUT_OF_RANGE);
