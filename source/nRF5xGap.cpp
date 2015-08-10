@@ -434,7 +434,7 @@ ble_error_t nRF5xGap::setAppearance(GapAdvertisingData::Appearance appearance)
 
 ble_error_t nRF5xGap::getAppearance(GapAdvertisingData::Appearance *appearanceP)
 {
-    if (sd_ble_gap_appearance_get(reinterpret_cast<uint16_t *>(appearanceP))) {
+    if ((sd_ble_gap_appearance_get(reinterpret_cast<uint16_t *>(appearanceP)) == NRF_SUCCESS)) {
         return BLE_ERROR_NONE;
     } else {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
