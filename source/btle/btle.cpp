@@ -52,11 +52,13 @@ static void sys_evt_dispatch(uint32_t sys_evt)
 
 error_t btle_init(void)
 {
+    nrf_clock_lfclksrc_t clockSource;
     if (NRF_CLOCK->LFCLKSRC & (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos)) {
-        SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, NULL);
+        clockSource = NRF_CLOCK_LFCLKSRC_XTAL_20_PPM;
     } else {
-        SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_RC_250_PPM_4000MS_CALIBRATION, NULL);
+        clockSource = NRF_CLOCK_LFCLKSRC_RC_250_PPM_4000MS_CALIBRATION;
     }
+    SOFTDEVICE_HANDLER_INIT(clockSource, NULL);
 
     // Enable BLE stack
     /**
@@ -107,7 +109,9 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 
     dm_ble_evt_handler(p_ble_evt);
 
+#if !defined(MCU_NORDIC_16K_S110) && !defined(MCU_NORDIC_32K_S110)
     bleGattcEventHandler(p_ble_evt);
+#endif
 
     /* Custom event handler */
     switch (p_ble_evt->header.evt_id) {
