@@ -17,6 +17,7 @@
 #include "nRF5xServiceDiscovery.h"
 #include "nRF5xGattClient.h"
 
+#if !defined(MCU_NORDIC_16K_S110) && !defined(MCU_NORDIC_32K_S110)
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 {
     nRF5xServiceDiscovery &sdSingleton = nRF5xGattClient::getInstance().discovery;
@@ -92,4 +93,5 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
     sdSingleton.progressCharacteristicDiscovery();
     sdSingleton.progressServiceDiscovery();
 }
+#endif
 
