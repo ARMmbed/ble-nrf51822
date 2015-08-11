@@ -16,10 +16,9 @@
 
 #include "nRF5xGattClient.h"
 
-nRF5xGattClient nRFGattClientSingleton;
-
 nRF5xGattClient &
 nRF5xGattClient::getInstance(void) {
+    static nRF5xGattClient nRFGattClientSingleton;
     return nRFGattClientSingleton;
 }
 
