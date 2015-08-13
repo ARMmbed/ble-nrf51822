@@ -50,6 +50,30 @@ static void sys_evt_dispatch(uint32_t sys_evt)
     pstorage_sys_event_handler(sys_evt);
 }
 
+/**
+ * This function is called in interrupt context to handle BLE events; i.e. pull
+ * system and user events out of the pending events-queue of the BLE stack. The
+ * BLE stack signals the availability of events by the triggering the SWI2
+ * interrupt, which forwards the handling to this function.
+ *
+ * The event processing loop is implemented in intern_softdevice_events_execute().
+ *
+ * In mbed OS, a callback for intern_softdevice_events_execute() is posted
+ * to the scheduler, which then executes in thread mode. In mbed-classic,
+ * event processing happens right-away in interrupt context (which is more
+ * risk-prone). In either case, the logic of event processing is identical.
+ */
+static uint32_t eventHandler()
+{
+#ifdef YOTTA_CFG_MBED_OS
+    minar::Scheduler::postCallback(intern_softdevice_events_execute);
+#else
+    intern_softdevice_events_execute();
+#endif
+
+    return NRF_SUCCESS;
+}
+
 error_t btle_init(void)
 {
     nrf_clock_lfclksrc_t clockSource;
@@ -58,7 +82,7 @@ error_t btle_init(void)
     } else {
         clockSource = NRF_CLOCK_LFCLKSRC_RC_250_PPM_4000MS_CALIBRATION;
     }
-    SOFTDEVICE_HANDLER_INIT(clockSource, NULL);
+    SOFTDEVICE_HANDLER_INIT(clockSource, eventHandler);
 
     // Enable BLE stack
     /**
