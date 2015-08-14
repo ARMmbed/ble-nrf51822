@@ -392,6 +392,9 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                 .offset     = gattsEventP->params.authorize_request.request.write.offset,
                 .len        = gattsEventP->params.authorize_request.request.write.len,
                 .data       = gattsEventP->params.authorize_request.request.write.data,
+                .authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
+                                                                   * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
+                                                                   * request is to proceed. */
             };
             ble_gatts_rw_authorize_reply_params_t reply = {
                 .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
@@ -425,11 +428,14 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
         }
         case GattServerEvents::GATT_EVENT_READ_AUTHORIZATION_REQ: {
             GattReadAuthCallbackParams cbParams = {
-                .connHandle = gattsEventP->conn_handle,
-                .handle     = handle_value,
-                .offset     = gattsEventP->params.authorize_request.request.read.offset,
-                .len        = 0,
-                .data       = NULL
+                .connHandle         = gattsEventP->conn_handle,
+                .handle             = handle_value,
+                .offset             = gattsEventP->params.authorize_request.request.read.offset,
+                .len                = 0,
+                .data               = NULL,
+                .authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
+                                                                   * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
+                                                                   * request is to proceed. */
             };
 
             ble_gatts_rw_authorize_reply_params_t reply = {
