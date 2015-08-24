@@ -29,7 +29,7 @@ public:
      * When using S110, all Gatt client features will return
      * BLE_ERROR_NOT_IMPLEMENTED
      */
-#if !defined(MCU_NORDIC_16K_S110) && !defined(MCU_NORDIC_32K_S110)
+#if !defined(MCU_NRF51_16K_S110) && !defined(MCU_NRF51_32K_S110)
 
     /**
      * Launch service discovery. Once launched, service discovery will remain
