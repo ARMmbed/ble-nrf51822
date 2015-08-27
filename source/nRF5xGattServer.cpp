@@ -243,12 +243,31 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
                         sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value),
                         BLE_ERROR_PARAM_OUT_OF_RANGE );
         }
+		
+        if (error != ERROR_NONE) 
+		{
+			switch (error)
+			{
+				case ERROR_INVALID_STATE:
+					returnValue = BLE_ERROR_INVALID_STATE;
+					break;
 
-        /*  Notifications consume application buffers. The return value can
-            be used for resending notifications.
-        */
-        if (error != ERROR_NONE) {
-            returnValue = BLE_STACK_BUSY;
+				case ERROR_BLE_NO_TX_BUFFERS:
+					returnValue = BLE_STACK_BUSY;
+					break;
+
+				case ERROR_BUSY:
+					returnValue = BLE_STACK_BUSY;
+					break;
+				
+				case ERROR_BLEGATTS_SYS_ATTR_MISSING:
+					returnValue = BLE_ERROR_INVALID_STATE;
+					break;
+				
+				default :
+					returnValue = BLE_ERROR_INVALID_STATE;
+					break;
+			}
         }
     } else {
         ASSERT_INT( ERROR_NONE,
