@@ -199,7 +199,7 @@ ble_error_t nRF5xGattServer::read(Gap::Handle_t connectionHandle, GattAttribute:
 /**************************************************************************/
 ble_error_t nRF5xGattServer::write(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
-    return write(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, len, localOnly);
+    return write(nRF5xGap::getInstance().getConnectionHandle(), attributeHandle, buffer, len, localOnly);
 }
 
 ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
@@ -224,7 +224,7 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
     int characteristicIndex = resolveValueHandleToCharIndex(attributeHandle);
     if ((characteristicIndex != -1) &&
         (p_characteristics[characteristicIndex]->getProperties() & (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)) &&
-        (gapConnectionHandle != connectionHandle)) {
+        (gapConnectionHandle == connectionHandle)) {
         /* HVX update for the characteristic value */
         ble_gatts_hvx_params_t hvx_params;
 
@@ -243,31 +243,34 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
                         sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value),
                         BLE_ERROR_PARAM_OUT_OF_RANGE );
         }
-		
+
+        /*  Notifications consume application buffers. The return value can
+            be used for resending notifications.
+        */
         if (error != ERROR_NONE) 
-		{
-			switch (error)
-			{
-				case ERROR_INVALID_STATE:
-					returnValue = BLE_ERROR_INVALID_STATE;
-					break;
+        {
+            switch (error)
+            {
+                case ERROR_INVALID_STATE:
+                    returnValue = BLE_ERROR_INVALID_STATE;
+                    break;
 
-				case ERROR_BLE_NO_TX_BUFFERS:
-					returnValue = BLE_STACK_BUSY;
-					break;
+                case ERROR_BLE_NO_TX_BUFFERS:
+                    returnValue = BLE_STACK_BUSY;
+                    break;
 
-				case ERROR_BUSY:
-					returnValue = BLE_STACK_BUSY;
-					break;
-				
-				case ERROR_BLEGATTS_SYS_ATTR_MISSING:
-					returnValue = BLE_ERROR_INVALID_STATE;
-					break;
-				
-				default :
-					returnValue = BLE_ERROR_INVALID_STATE;
-					break;
-			}
+                case ERROR_BUSY:
+                    returnValue = BLE_STACK_BUSY;
+                    break;
+                
+                case ERROR_BLEGATTS_SYS_ATTR_MISSING:
+                    returnValue = BLE_ERROR_INVALID_STATE;
+                    break;
+                
+                default :
+                    returnValue = BLE_ERROR_INVALID_STATE;
+                    break;
+            }
         }
     } else {
         ASSERT_INT( ERROR_NONE,
