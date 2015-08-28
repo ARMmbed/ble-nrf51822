@@ -233,7 +233,7 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
         hvx_params.offset = 0;
         hvx_params.p_data = const_cast<uint8_t *>(buffer);
         hvx_params.p_len  = &len;
-        
+
         error_t error = (error_t) sd_ble_gatts_hvx(gapConnectionHandle, &hvx_params);
         if (error != ERROR_NONE) {
             switch (error) {
