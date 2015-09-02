@@ -204,7 +204,6 @@ ble_error_t nRF5xGattServer::write(GattAttribute::Handle_t attributeHandle, cons
 
 ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
-    uint16_t gapConnectionHandle = nRF5xGap::getInstance().getConnectionHandle();
     ble_error_t returnValue = BLE_ERROR_NONE;
 
     ble_gatts_value_t value = {
@@ -234,7 +233,10 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
         hvx_params.p_data = const_cast<uint8_t *>(buffer);
         hvx_params.p_len  = &len;
 
-        error_t error = (error_t) sd_ble_gatts_hvx(gapConnectionHandle, &hvx_params);
+        if (connectionHandle == BLE_CONN_HANDLE_INVALID) { /* use the default connection handle if the caller hasn't specified a valid connectionHandle. */
+            connectionHandle = nRF5xGap::getInstance().getConnectionHandle();
+        }
+        error_t error = (error_t) sd_ble_gatts_hvx(connectionHandle, &hvx_params);
         if (error != ERROR_NONE) {
             switch (error) {
                 case ERROR_BLE_NO_TX_BUFFERS: /*  Notifications consume application buffers. The return value can be used for resending notifications. */
