@@ -253,6 +253,10 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
                     ASSERT_INT( ERROR_NONE,
                                 sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value),
                                 BLE_ERROR_PARAM_OUT_OF_RANGE );
+
+                    /* Notifications consume application buffers. The return value can
+                     * be used for resending notifications. */
+                    returnValue = BLE_STACK_BUSY;
                     break;
             }
         }
