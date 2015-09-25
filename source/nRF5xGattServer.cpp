@@ -204,7 +204,6 @@ ble_error_t nRF5xGattServer::write(GattAttribute::Handle_t attributeHandle, cons
 
 ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
-    uint16_t gapConnectionHandle = nRF5xGap::getInstance().getConnectionHandle();
     ble_error_t returnValue = BLE_ERROR_NONE;
 
     ble_gatts_value_t value = {
@@ -223,8 +222,7 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
 
     int characteristicIndex = resolveValueHandleToCharIndex(attributeHandle);
     if ((characteristicIndex != -1) &&
-        (p_characteristics[characteristicIndex]->getProperties() & (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY)) &&
-        (gapConnectionHandle != connectionHandle)) {
+        (p_characteristics[characteristicIndex]->getProperties() & (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY))) {
         /* HVX update for the characteristic value */
         ble_gatts_hvx_params_t hvx_params;
 
@@ -235,22 +233,35 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
         hvx_params.p_data = const_cast<uint8_t *>(buffer);
         hvx_params.p_len  = &len;
 
-        error_t error = (error_t) sd_ble_gatts_hvx(gapConnectionHandle, &hvx_params);
-
-        /* ERROR_INVALID_STATE, ERROR_BUSY, ERROR_GATTS_SYS_ATTR_MISSING and ERROR_NO_TX_BUFFERS the ATT table has been updated. */
-        if ((error != ERROR_NONE) && (error != ERROR_INVALID_STATE) && (error != ERROR_BLE_NO_TX_BUFFERS) && (error != ERROR_BUSY) && (error != ERROR_BLEGATTS_SYS_ATTR_MISSING)) {
-            ASSERT_INT( ERROR_NONE,
-                        sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value),
-                        BLE_ERROR_PARAM_OUT_OF_RANGE );
+        if (connectionHandle == BLE_CONN_HANDLE_INVALID) { /* use the default connection handle if the caller hasn't specified a valid connectionHandle. */
+            connectionHandle = nRF5xGap::getInstance().getConnectionHandle();
         }
-
-        /*  Notifications consume application buffers. The return value can
-            be used for resending notifications.
-        */
+        error_t error = (error_t) sd_ble_gatts_hvx(connectionHandle, &hvx_params);
         if (error != ERROR_NONE) {
-            returnValue = BLE_STACK_BUSY;
+            switch (error) {
+                case ERROR_BLE_NO_TX_BUFFERS: /*  Notifications consume application buffers. The return value can be used for resending notifications. */
+                case ERROR_BUSY:
+                    returnValue = BLE_STACK_BUSY;
+                    break;
+
+                case ERROR_INVALID_STATE:
+                case ERROR_BLEGATTS_SYS_ATTR_MISSING:
+                    returnValue = BLE_ERROR_INVALID_STATE;
+                    break;
+
+                default :
+                    ASSERT_INT( ERROR_NONE,
+                                sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value),
+                                BLE_ERROR_PARAM_OUT_OF_RANGE );
+
+                    /* Notifications consume application buffers. The return value can
+                     * be used for resending notifications. */
+                    returnValue = BLE_STACK_BUSY;
+                    break;
+            }
         }
     } else {
+        returnValue = BLE_ERROR_INVALID_STATE; // if assert is not used
         ASSERT_INT( ERROR_NONE,
                     sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value),
                     BLE_ERROR_PARAM_OUT_OF_RANGE );
@@ -392,6 +403,9 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                 .offset     = gattsEventP->params.authorize_request.request.write.offset,
                 .len        = gattsEventP->params.authorize_request.request.write.len,
                 .data       = gattsEventP->params.authorize_request.request.write.data,
+                .authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
+                                                                   * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
+                                                                   * request is to proceed. */
             };
             ble_gatts_rw_authorize_reply_params_t reply = {
                 .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
@@ -425,11 +439,14 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
         }
         case GattServerEvents::GATT_EVENT_READ_AUTHORIZATION_REQ: {
             GattReadAuthCallbackParams cbParams = {
-                .connHandle = gattsEventP->conn_handle,
-                .handle     = handle_value,
-                .offset     = gattsEventP->params.authorize_request.request.read.offset,
-                .len        = 0,
-                .data       = NULL
+                .connHandle         = gattsEventP->conn_handle,
+                .handle             = handle_value,
+                .offset             = gattsEventP->params.authorize_request.request.read.offset,
+                .len                = 0,
+                .data               = NULL,
+                .authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
+                                                                   * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
+                                                                   * request is to proceed. */
             };
 
             ble_gatts_rw_authorize_reply_params_t reply = {

@@ -29,7 +29,7 @@ public:
      * When using S110, all Gatt client features will return
      * BLE_ERROR_NOT_IMPLEMENTED
      */
-#if !defined(MCU_NORDIC_16K_S110) && !defined(MCU_NORDIC_32K_S110)
+#if !defined(MCU_NRF51_16K_S110) && !defined(MCU_NRF51_32K_S110)
 
     /**
      * Launch service discovery. Once launched, service discovery will remain
@@ -122,9 +122,11 @@ public:
     }
 
     virtual ble_error_t write(GattClient::WriteOp_t cmd, Gap::Handle_t connHandle, GattAttribute::Handle_t attributeHandle, size_t length, const uint8_t *value) const {
-        ble_gattc_write_params_t writeParams = { };
+        ble_gattc_write_params_t writeParams;
         writeParams.write_op = cmd;
+        writeParams.flags    = 0; /* this is inconsequential */
         writeParams.handle   = attributeHandle;
+        writeParams.offset   = 0;
         writeParams.len      = length;
         writeParams.p_value  = const_cast<uint8_t *>(value);
 

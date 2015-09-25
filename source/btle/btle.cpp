@@ -133,7 +133,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 
     dm_ble_evt_handler(p_ble_evt);
 
-#if !defined(MCU_NORDIC_16K_S110) && !defined(MCU_NORDIC_32K_S110)
+#if !defined(MCU_NRF51_16K_S110) && !defined(MCU_NRF51_32K_S110)
     bleGattcEventHandler(p_ble_evt);
 #endif
 
@@ -141,7 +141,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
     switch (p_ble_evt->header.evt_id) {
         case BLE_GAP_EVT_CONNECTED: {
             Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
-#if defined(MCU_NORDIC_16K_S110) || defined(MCU_NORDIC_32K_S110)
+#if defined(MCU_NRF51_16K_S110) || defined(MCU_NRF51_32K_S110)
             /* Only peripheral role is supported by S110 */
             Gap::Role_t role = Gap::PERIPHERAL;
 #else
