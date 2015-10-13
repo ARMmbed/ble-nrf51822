@@ -45,7 +45,6 @@ nRF5xGattServer &nRF5xGattServer::getInstance(void) {
 /**************************************************************************/
 ble_error_t nRF5xGattServer::addService(GattService &service)
 {
-    /* ToDo: Make sure we don't overflow the array, etc. */
     /* ToDo: Make sure this service UUID doesn't already exist (?) */
     /* ToDo: Basic validation */
 
@@ -63,7 +62,10 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
 
     /* Add characteristics to the service */
     for (uint8_t i = 0; i < service.getCharacteristicCount(); i++) {
-        GattCharacteristic *p_char = service.getCharacteristic(i);
+		if (characteristicCount >= BLE_TOTAL_CHARACTERISTICS) {
+			return BLE_ERROR_NO_MEM;
+		}
+		GattCharacteristic *p_char = service.getCharacteristic(i);
 
         /* Skip any incompletely defined, read-only characteristics. */
         if ((p_char->getValueAttribute().getValuePtr() == NULL) &&
@@ -108,9 +110,12 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
         characteristicCount++;
 
         /* Add optional descriptors if any */
-        /* ToDo: Make sure we don't overflow the array */
         for (uint8_t j = 0; j < p_char->getDescriptorCount(); j++) {
-            GattAttribute *p_desc = p_char->getDescriptor(j);
+    		if (descriptorCount >= BLE_TOTAL_DESCRIPTORS) {
+    			return BLE_ERROR_NO_MEM;
+    		}
+
+			GattAttribute *p_desc = p_char->getDescriptor(j);
             /* skip the user-description-descriptor here; this has already been handled when adding the characteristic (above). */
             if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC) {
                 continue;
