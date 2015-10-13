@@ -17,7 +17,7 @@
 #include "nRF5xServiceDiscovery.h"
 #include "nRF5xGattClient.h"
 
-#if !defined(MCU_NRF51_16K_S110) && !defined(MCU_NRF51_32K_S110)
+#if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 {
     nRF5xServiceDiscovery &sdSingleton = nRF5xGattClient::getInstance().discovery;
