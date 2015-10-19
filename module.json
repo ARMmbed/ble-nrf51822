@@ -4,7 +4,9 @@
   "description": "Nordic stack and drivers for the mbed BLE API.",
   "keywords": [
     "Bluetooth",
-    "BLE"
+    "BLE",
+    "mbed",
+    "mbed-official"
   ],
   "author": "Rohit Grover",
   "repository": {
@@ -19,7 +21,7 @@
     }
   ],
   "dependencies": {
-    "ble": "~0.4.7"
+    "ble": "^1.0.0"
   },
   "extraIncludes": [
     "source/btle",
