@@ -17,13 +17,15 @@
 #ifndef __NRF51822_H__
 #define __NRF51822_H__
 
-#include "mbed.h"
-#include "ble/blecommon.h"
 #include "ble/BLE.h"
+#include "ble/blecommon.h"
+#include "ble/BLEInstanceBase.h"
+
 #include "nRF5xGap.h"
 #include "nRF5xGattServer.h"
 #include "nRF5xGattClient.h"
 #include "nRF5xSecurityManager.h"
+
 #include "btle.h"
 
 class nRF5xn : public BLEInstanceBase
@@ -32,7 +34,10 @@ public:
     nRF5xn(void);
     virtual ~nRF5xn(void);
 
-    virtual ble_error_t init(void);
+    virtual ble_error_t init(BLE::InstanceID_t instanceID, BLE::InitializationCompleteCallback_t);
+    virtual bool        hasInitialized(void) const {
+        return initialized;
+    }
     virtual ble_error_t shutdown(void);
     virtual const char *getVersion(void);
 
@@ -58,6 +63,10 @@ public:
         return nRF5xSecurityManager::getInstance();
     }
     virtual void waitForEvent(void);
+
+private:
+    bool              initialized;
+    BLE::InstanceID_t instanceID;
 };
 
 #endif
