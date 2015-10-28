@@ -38,7 +38,7 @@ createBLEInstance(void)
     return (&deviceInstance);
 }
 
-nRF5xn::nRF5xn(void)
+nRF5xn::nRF5xn(void) : initialized(false), instanceID(BLE::DEFAULT_INSTANCE)
 {
 }
 
@@ -72,11 +72,24 @@ const char *nRF5xn::getVersion(void)
     return versionString;
 }
 
-ble_error_t nRF5xn::init(void)
+ble_error_t nRF5xn::init(BLE::InstanceID_t instanceID, BLE::InitializationCompleteCallback_t callback)
 {
+    if (initialized) {
+        if (callback) {
+            callback(BLE::Instance(instanceID), BLE_ERROR_ALREADY_INITIALIZED);
+        }
+        return BLE_ERROR_ALREADY_INITIALIZED;
+    }
+
+    instanceID   = instanceID;
+
     /* ToDo: Clear memory contents, reset the SD, etc. */
     btle_init();
 
+    initialized = true;
+    if (callback) {
+        callback(BLE::Instance(instanceID), BLE_ERROR_NONE);
+    }
     return BLE_ERROR_NONE;
 }
 
