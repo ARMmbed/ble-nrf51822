@@ -17,6 +17,9 @@
 #include "nRF5xSecurityManager.h"
 
 nRF5xSecurityManager &nRF5xSecurityManager::getInstance(void) {
-    static nRF5xSecurityManager m_instance;
-    return m_instance;
+    static nRF5xSecurityManager* m_instance = NULL;
+    if (m_instance == NULL) {
+        m_instance = new nRF5xSecurityManager();
+    }
+    return *m_instance;
 }
