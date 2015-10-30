@@ -16,6 +16,7 @@
 
 #include "mbed.h"
 #include "nRF5xn.h"
+#include "ble/blecommon.h"
 #include "nrf_soc.h"
 
 #include "btle/btle.h"
@@ -48,6 +49,10 @@ nRF5xn::~nRF5xn(void)
 
 const char *nRF5xn::getVersion(void)
 {
+    if (!initialized) {
+        return "INITIALIZATION_INCOMPLETE";
+    }
+
     static char versionString[32];
     static bool versionFetched = false;
 
@@ -95,6 +100,10 @@ ble_error_t nRF5xn::init(BLE::InstanceID_t instanceID, BLE::InitializationComple
 
 ble_error_t nRF5xn::shutdown(void)
 {
+    if (!initialized) {
+        return BLE_ERROR_INITIALIZATION_INCOMPLETE;
+    }
+
     return (softdevice_handler_sd_disable() == NRF_SUCCESS) ? BLE_ERROR_NONE : BLE_STACK_BUSY;
 }
 
