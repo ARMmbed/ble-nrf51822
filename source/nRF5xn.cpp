@@ -104,7 +104,12 @@ ble_error_t nRF5xn::shutdown(void)
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     }
 
-    return (softdevice_handler_sd_disable() == NRF_SUCCESS) ? BLE_ERROR_NONE : BLE_STACK_BUSY;
+    if(softdevice_handler_sd_disable() != NRF_SUCCESS) {
+        return BLE_STACK_BUSY;
+    }
+
+    initialized = false;
+    return BLE_ERROR_NONE;
 }
 
 void
