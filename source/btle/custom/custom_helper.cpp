@@ -26,7 +26,7 @@ typedef struct {
     UUID::LongUUIDBytes_t uuid;
     uint8_t         type;
 } converted_uuid_table_entry_t;
-static const unsigned UUID_TABLE_MAX_ENTRIES = 8; /* This is the maximum number of 128-bit UUIDs with distinct bases that
+static const unsigned UUID_TABLE_MAX_ENTRIES = 4; /* This is the maximum number of 128-bit UUIDs with distinct bases that
                                                    * we expect to be in use; increase this limit if needed. */
 static unsigned uuidTableEntries = 0; /* current usage of the table */
 converted_uuid_table_entry_t convertedUUIDTable[UUID_TABLE_MAX_ENTRIES];
