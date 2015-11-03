@@ -77,12 +77,14 @@ const char *nRF5xn::getVersion(void)
     return versionString;
 }
 
-ble_error_t nRF5xn::init(BLE::InstanceID_t instanceID, BLE::InitializationCompleteCallback_t callback)
+ble_error_t nRF5xn::init(BLE::InstanceID_t instanceID, FunctionPointerWithContext<BLE::InitializationCompleteCallbackContext *> callback)
 {
     if (initialized) {
-        if (callback) {
-            callback(BLE::Instance(instanceID), BLE_ERROR_ALREADY_INITIALIZED);
-        }
+        BLE::InitializationCompleteCallbackContext context = {
+            BLE::Instance(instanceID),
+            BLE_ERROR_ALREADY_INITIALIZED
+        };
+        callback.call(&context);
         return BLE_ERROR_ALREADY_INITIALIZED;
     }
 
@@ -92,9 +94,11 @@ ble_error_t nRF5xn::init(BLE::InstanceID_t instanceID, BLE::InitializationComple
     btle_init();
 
     initialized = true;
-    if (callback) {
-        callback(BLE::Instance(instanceID), BLE_ERROR_NONE);
-    }
+    BLE::InitializationCompleteCallbackContext context = {
+        BLE::Instance(instanceID),
+        BLE_ERROR_NONE
+    };
+    callback.call(&context);
     return BLE_ERROR_NONE;
 }
 
