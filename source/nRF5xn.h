@@ -34,7 +34,7 @@ public:
     nRF5xn(void);
     virtual ~nRF5xn(void);
 
-    virtual ble_error_t init(BLE::InstanceID_t instanceID, BLE::InitializationCompleteCallback_t);
+    virtual ble_error_t init(BLE::InstanceID_t instanceID, FunctionPointerWithContext<BLE::InitializationCompleteCallbackContext *> callback);
     virtual bool        hasInitialized(void) const {
         return initialized;
     }
