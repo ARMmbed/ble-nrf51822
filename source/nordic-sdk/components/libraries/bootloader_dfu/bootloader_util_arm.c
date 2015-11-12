@@ -100,8 +100,8 @@ static void bootloader_util_reset(uint32_t start_addr)
 
         "LDR   r2, =MASK_ZEROS\n\t"       /* Load zeros to R2                                                 */
         "MRS   r3, IPSR       \n\t"       /* Load IPSR to R3 to check for handler or thread mode              */
-        "CMP   r2, r3         \n\t"       /* Compare, if 0 then we are in thread mode and can continue to reset handler of bootloader */
         "MOV   R0, R6         \n\t"
+        "CMP   r2, r3         \n\t"       /* Compare, if 0 then we are in thread mode and can continue to reset handler of bootloader */
         "BNE   isr_abort      \n\t"       /* If not zero we need to exit current ISR and jump to reset handler of bootloader */
 
         "LDR   r4, =MASK_ONES \n\t"       /* Load ones to R4 to be placed in Link Register.                   */
