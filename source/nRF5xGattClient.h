@@ -19,6 +19,7 @@
 
 #include "ble/GattClient.h"
 #include "nRF5xServiceDiscovery.h"
+#include "nRF5xCharacteristicDescriptorDiscoverer.h"
 
 class nRF5xGattClient : public GattClient
 {
@@ -105,6 +106,28 @@ public:
         discovery.terminate();
     }
 
+    /**
+     * @brief Implementation of GattClient::discoverCharacteristicDescriptors 
+     * @see GattClient::discoverCharacteristicDescriptors 
+     */
+    virtual ble_error_t discoverCharacteristicDescriptors(
+        const DiscoveredCharacteristic& characteristic,
+        CharacteristicDescriptorDiscovery::DiscoveryCallback_t discoveryCallback,
+        CharacteristicDescriptorDiscovery::TerminationCallback_t terminationCallback
+    );
+
+    /**
+     * @brief Implementation of GattClient::isCharacteristicDiscoveryActive 
+     * @see GattClient::isCharacteristicDiscoveryActive 
+     */
+    virtual bool isCharacteristicDiscoveryActive(const DiscoveredCharacteristic& characteristic) const;
+
+    /**
+     * @brief Implementation of GattClient::terminateCharacteristicDiscovery 
+     * @see GattClient::terminateCharacteristicDiscovery 
+     */
+    virtual void terminateCharacteristicDiscovery(const DiscoveredCharacteristic& characteristic);
+
     virtual ble_error_t read(Gap::Handle_t connHandle, GattAttribute::Handle_t attributeHandle, uint16_t offset) const {
         uint32_t rc = sd_ble_gattc_read(connHandle, attributeHandle, offset);
         if (rc == NRF_SUCCESS) {
@@ -160,6 +183,7 @@ private:
 
 private:
     nRF5xServiceDiscovery discovery;
+    nRF5xCharacteristicDescriptorDiscoverer characteristicDescriptorDiscoverer;
 
 #endif // if !S110
 };

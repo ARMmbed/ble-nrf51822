@@ -35,4 +35,25 @@ nRF5xGattClient::launchServiceDiscovery(Gap::Handle_t                           
 {
     return discovery.launch(connectionHandle, sc, cc, matchingServiceUUIDIn, matchingCharacteristicUUIDIn);
 }
+
+ble_error_t nRF5xGattClient::discoverCharacteristicDescriptors(
+    const DiscoveredCharacteristic& characteristic,
+    CharacteristicDescriptorDiscovery::DiscoveryCallback_t discoveryCallback,
+    CharacteristicDescriptorDiscovery::TerminationCallback_t terminationCallback)
+{
+    return characteristicDescriptorDiscoverer.launch(
+        characteristic, 
+        discoveryCallback, 
+        terminationCallback
+    );
+}
+
+bool nRF5xGattClient::isCharacteristicDiscoveryActive(const DiscoveredCharacteristic& characteristic) const {
+    return characteristicDescriptorDiscoverer.isActive(characteristic);   
+}
+
+void nRF5xGattClient::terminateCharacteristicDiscovery(const DiscoveredCharacteristic& characteristic) { 
+    return characteristicDescriptorDiscoverer.requestTerminate(characteristic);
+}
+
 #endif

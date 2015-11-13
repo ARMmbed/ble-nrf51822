@@ -183,6 +183,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
                     break;
             }
             nRF5xGap::getInstance().processDisconnectionEvent(handle, reason);
+            // TODO: close pending discoveries
             break;
         }
 

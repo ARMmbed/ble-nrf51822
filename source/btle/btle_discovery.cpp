@@ -15,12 +15,15 @@
  */
 
 #include "nRF5xServiceDiscovery.h"
+#include "nRF5xCharacteristicDescriptorDiscoverer.h"
 #include "nRF5xGattClient.h"
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 {
     nRF5xServiceDiscovery &sdSingleton = nRF5xGattClient::getInstance().discovery;
+    nRF5xCharacteristicDescriptorDiscoverer &characteristicDescriptorDiscoverer = 
+        nRF5xGattClient::getInstance().characteristicDescriptorDiscoverer;
 
     switch (p_ble_evt->header.evt_id) {
         case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
@@ -91,6 +94,20 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                 nRF5xGattClient::getInstance().processHVXEvent(&params);
             }
             break;
+
+        case BLE_GATTC_EVT_DESC_DISC_RSP: {
+            uint16_t conn_handle = p_ble_evt->evt.gattc_evt.conn_handle;
+
+            if (p_ble_evt->evt.gattc_evt.gatt_status != BLE_GATT_STATUS_SUCCESS) { 
+                characteristicDescriptorDiscoverer.terminate(conn_handle);
+                return;
+            }
+
+            characteristicDescriptorDiscoverer.process(
+                conn_handle, 
+                /* discoveredDescriptors */ p_ble_evt->evt.gattc_evt.params.desc_disc_rsp
+            );
+        }   break;
     }
 
     sdSingleton.progressCharacteristicDiscovery();
