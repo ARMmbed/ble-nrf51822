@@ -109,12 +109,50 @@ public:
 #endif
 
 private:
+#ifdef YOTTA_CFG_MBED_OS
+    /* Store the current radio notification value that will be used in the next callback */
+    bool radioNotificationCallbackParam;
+
+    /*
+     * In mbed OS, the idea is to post all callbacks through minar scheduler. However, the radio notifications
+     * are handled in IRQs with very high priority. Trying to post a minar callback directly in
+     * processRadioNotification() will result in a hard-fault. This is because minar asumes that all callbacks
+     * are posted from low priority context, so when minar schedules the callback it attempts to enter a
+     * critical section and disable all interrupts. The problem is that minar tries to do this by invoking the
+     * SoftDevice with a call to sd_nvic_critical_region_enter() while already running in high priority. This
+     * results in the SoftDevice generating a hard-fault.
+     * A solution is to reduce the priority from which the callback is posted to minar. Unfortunately, there
+     * are not clean ways to do this. The solution implemented uses a Timeout to call
+     * postRadioNotificationCallback() after a very short delay (1 us) and post the minar callback there.
+     *
+     * !!!WARNING!!! Radio notifications are very time critical events. The current solution is expected to
+     * work under the assumption that postRadioNotificationCalback() will be executed BEFORE the next radio
+     * notification event is generated.
+     */
+    Timeout radioNotificationTimeout;
+
+    /*
+     * A helper function to post radio notification callbacks through minar when using mbed OS.
+     */
+    void postRadioNotificationCallback(void) {
+        minar::Scheduler::postCallback(
+            mbed::util::FunctionPointer1<void, bool>(&radioNotificationCallback, &FunctionPointerWithContext<bool>::call).bind(radioNotificationCallbackParam)
+        );
+    }
+#endif
+
     /**
      * A helper function to process radio-notification events; to be called internally.
      * @param param [description]
      */
     void processRadioNotificationEvent(bool param) {
+#ifdef YOTTA_CFG_MBED_OS
+        /* When using mbed OS the callback to the user-defined function will be posted through minar */
+        radioNotificationCallbackParam = param;
+        radioNotificationTimeout.attach_us(this, &nRF5xGap::postRadioNotificationCallback, 0);
+#else
         radioNotificationCallback.call(param);
+#endif
     }
     friend void radioNotificationStaticCallback(bool param); /* allow invocations of processRadioNotificationEvent() */
 
