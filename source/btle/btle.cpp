@@ -19,7 +19,6 @@
 
 #include "btle.h"
 
-#include "ble_stack_handler_types.h"
 #include "ble_flash.h"
 #include "ble_conn_params.h"
 
@@ -27,15 +26,18 @@
 #include "btle_advertising.h"
 #include "custom/custom_helper.h"
 
-#include "softdevice_handler.h"
-#include "pstorage.h"
-
 #include "ble/GapEvents.h"
 #include "nRF5xGap.h"
 #include "nRF5xGattServer.h"
 #include "nRF5xSecurityManager.h"
 
+#define BLE_STACK_SUPPORT_REQD
+extern "C" {
+#include "pstorage.h"
 #include "device_manager.h"
+#include "softdevice_handler.h"
+#include "ble_stack_handler_types.h"
+}
 
 #include "ble_hci.h"
 #include "btle_discovery.h"

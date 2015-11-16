@@ -15,12 +15,15 @@
  */
 
 #include "btle.h"
-#include "pstorage.h"
 
 #include "nRF5xGap.h"
 #include "nRF5xSecurityManager.h"
 
+extern "C" {
+#include "pstorage.h"
 #include "device_manager.h"
+}
+
 #include "btle_security.h"
 
 static dm_application_instance_t applicationInstance;
