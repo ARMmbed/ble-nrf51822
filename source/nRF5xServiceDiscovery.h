@@ -41,7 +41,6 @@ public:
         gattc(gattcIn),
         serviceIndex(0),
         numServices(0),
-        characteristicIndex(0),
         numCharacteristics(0),
         state(INACTIVE),
         services(),
@@ -111,6 +110,8 @@ private:
     void removeFirstServiceNeedingUUIDDiscovery(void);
 
     void terminateServiceDiscovery(void) {
+        remainingCharacteristic = nRF5xDiscoveredCharacteristic();
+
         bool wasActive = isActive();
         state = INACTIVE;
 
@@ -119,8 +120,24 @@ private:
         }
     }
 
-    void terminateCharacteristicDiscovery(void) {
+    void terminateCharacteristicDiscovery(ble_error_t err) {
         if (state == CHARACTERISTIC_DISCOVERY_ACTIVE) {
+            if(remainingCharacteristic != nRF5xDiscoveredCharacteristic()) { 
+               if(err == BLE_ERROR_NONE) {
+                    // fullfill the last characteristic
+                    remainingCharacteristic.setLastHandle(services[serviceIndex].getEndHandle());
+
+                    if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
+                        ((matchingCharacteristicUUID == remainingCharacteristic.getUUID()) &&
+                         (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)))) {
+                        if (characteristicCallback) {
+                            characteristicCallback(&remainingCharacteristic);
+                        }
+                    }
+               }
+               remainingCharacteristic = nRF5xDiscoveredCharacteristic();
+            }
+
             state = SERVICE_DISCOVERY_ACTIVE;
         }
         serviceIndex++; /* Progress service index to keep discovery alive. */
@@ -134,7 +151,6 @@ private:
 
     void resetDiscoveredCharacteristics(void) {
         numCharacteristics  = 0;
-        characteristicIndex = 0;
     }
 
 private:
@@ -281,7 +297,6 @@ private:
 private:
     uint8_t  serviceIndex;        /**< Index of the current service being discovered. This is intended for internal use during service discovery.*/
     uint8_t  numServices;         /**< Number of services at the peers GATT database.*/
-    uint8_t  characteristicIndex; /**< Index of the current characteristic being discovered. This is intended for internal use during service discovery.*/
     uint8_t  numCharacteristics;  /**< Number of characteristics within the service.*/
 
     enum State_t {
@@ -300,6 +315,8 @@ private:
     CharUUIDDiscoveryQueue      charUUIDDiscoveryQueue;
 
     TerminationCallback_t       onTerminationCallback;
+
+    nRF5xDiscoveredCharacteristic remainingCharacteristic;
 };
 
 #endif /*__NRF_SERVICE_DISCOVERY_H__*/

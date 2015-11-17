@@ -47,7 +47,7 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 
                 case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND:
                 default:
-                    sdSingleton.terminateCharacteristicDiscovery();
+                    sdSingleton.terminateCharacteristicDiscovery(BLE_ERROR_NONE);
                     break;
             }
             break;

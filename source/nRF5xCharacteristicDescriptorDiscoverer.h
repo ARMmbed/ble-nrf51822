@@ -116,7 +116,11 @@ private:
         friend bool operator==(const Discovery& lhs, const Discovery& rhs) {
             return lhs.characteristic == rhs.characteristic &&
                 lhs.onDiscovery == rhs.onDiscovery &&
-                lhs.onTerminate == lhs.onTerminate;
+                lhs.onTerminate == rhs.onTerminate;
+        }
+
+        friend bool operator!=(const Discovery& lhs, const Discovery& rhs) {
+            return !(lhs == rhs);
         }
     };
 

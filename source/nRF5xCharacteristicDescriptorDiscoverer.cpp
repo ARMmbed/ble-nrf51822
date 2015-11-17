@@ -3,8 +3,6 @@
 #include "mbed-drivers/mbed_error.h"
 #include "ble/DiscoveredCharacteristicDescriptor.h"
 
-
-
 namespace { 
     void emptyDiscoveryCallback(const CharacteristicDescriptorDiscovery::DiscoveryCallbackParams_t*) { }
     void emptyTerminationCallback(const CharacteristicDescriptorDiscovery::TerminationCallbackParams_t*) { }
@@ -111,8 +109,10 @@ void nRF5xCharacteristicDescriptorDiscoverer::terminate(uint16_t handle, ble_err
     if(!discovery) { 
         error("logic error in nRF5xCharacteristicDescriptorDiscoverer::process !!!");
     }
-    discovery->terminate(err);
-    removeDiscovery(discovery);
+
+    Discovery tmp = *discovery;
+    *discovery = Discovery();
+    tmp.terminate(err);
 }
 
 nRF5xCharacteristicDescriptorDiscoverer::Discovery* 
@@ -137,8 +137,9 @@ nRF5xCharacteristicDescriptorDiscoverer::findRunningDiscovery(const DiscoveredCh
 
 nRF5xCharacteristicDescriptorDiscoverer::Discovery* 
 nRF5xCharacteristicDescriptorDiscoverer::findRunningDiscovery(uint16_t handle) {
-    for(size_t i = 0; i < maximumConcurrentConnectionsCount; ++i) { 
-        if(discoveryRunning[i].characteristic.getConnectionHandle() == handle) { 
+    for(size_t i = 0; i < maximumConcurrentConnectionsCount; ++i) {
+        if(discoveryRunning[i].characteristic.getConnectionHandle() == handle && 
+           discoveryRunning[i] != Discovery()) {
             return &discoveryRunning[i];
         }
     }

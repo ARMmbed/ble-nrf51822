@@ -27,22 +27,32 @@ nRF5xServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHan
         .start_handle = startHandle,
         .end_handle   = endHandle
     };
-    uint32_t rc;
-    if ((rc = sd_ble_gattc_characteristics_discover(connectionHandle, &handleRange)) != NRF_SUCCESS) {
-        terminateCharacteristicDiscovery();
-        switch (rc) {
-            case BLE_ERROR_INVALID_CONN_HANDLE:
-            case NRF_ERROR_INVALID_ADDR:
-                return BLE_ERROR_INVALID_PARAM;
-            case NRF_ERROR_BUSY:
-                return BLE_STACK_BUSY;
-            default:
-            case NRF_ERROR_INVALID_STATE:
-                return BLE_ERROR_INVALID_STATE;
-        }
+    uint32_t rc = sd_ble_gattc_characteristics_discover(connectionHandle, &handleRange);
+    ble_error_t err = BLE_ERROR_NONE;
+
+    switch (rc) {
+        case NRF_SUCCESS:
+            err = BLE_ERROR_NONE;
+            break;
+        case BLE_ERROR_INVALID_CONN_HANDLE:
+        case NRF_ERROR_INVALID_ADDR:
+            err = BLE_ERROR_INVALID_PARAM;
+            break;
+        case NRF_ERROR_BUSY:
+            err = BLE_STACK_BUSY;
+            break;
+        case NRF_ERROR_INVALID_STATE:
+            err = BLE_ERROR_INVALID_STATE;
+            break;
+        default:
+            err = BLE_ERROR_UNSPECIFIED;
+            break;
     }
 
-    return BLE_ERROR_NONE;
+    if(err) {
+        terminateCharacteristicDiscovery(err);        
+    }
+    return err;
 }
 
 void
@@ -113,13 +123,36 @@ nRF5xServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_d
 void
 nRF5xServiceDiscovery::progressCharacteristicDiscovery(void)
 {
+    if(state != CHARACTERISTIC_DISCOVERY_ACTIVE) {
+        return;
+    }
+
+    if(remainingCharacteristic != nRF5xDiscoveredCharacteristic() && numCharacteristics > 0) { 
+        remainingCharacteristic.setLastHandle(characteristics[0].getDeclHandle() - 1);
+
+        if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
+            ((matchingCharacteristicUUID == remainingCharacteristic.getUUID()) &&
+             (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)))) {
+            if (characteristicCallback) {
+                characteristicCallback(&remainingCharacteristic);
+            }
+        }
+    }
+
     for(uint8_t i = 0; i < numCharacteristics; ++i) {
         if(state != CHARACTERISTIC_DISCOVERY_ACTIVE) {
             return;
         }
 
+        if(i == numCharacteristics - 1) { 
+            remainingCharacteristic = characteristics[i];
+            break;
+        } else { 
+            characteristics[i].setLastHandle(characteristics[i + 1].getDeclHandle() - 1);
+        }
+
         if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
-            ((matchingCharacteristicUUID == characteristics[characteristicIndex].getUUID()) &&
+            ((matchingCharacteristicUUID == characteristics[i].getUUID()) &&
              (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)))) {
             if (characteristicCallback) {
                 characteristicCallback(&characteristics[i]);
@@ -131,7 +164,8 @@ nRF5xServiceDiscovery::progressCharacteristicDiscovery(void)
         return;
     }
 
-    Gap::Handle_t startHandle = characteristics[characteristicIndex - 1].getValueHandle() + 1;
+
+    Gap::Handle_t startHandle = (numCharacteristics > 0) ? characteristics[numCharacteristics - 1].getValueHandle() + 1 : SRV_DISC_END_HANDLE;
     Gap::Handle_t endHandle   = services[serviceIndex].getEndHandle();
     resetDiscoveredCharacteristics(); /* Note: resetDiscoveredCharacteristics() must come after fetching start and end Handles. */
 
@@ -141,10 +175,10 @@ nRF5xServiceDiscovery::progressCharacteristicDiscovery(void)
             .end_handle   = endHandle
         };
         if (sd_ble_gattc_characteristics_discover(connHandle, &handleRange) != NRF_SUCCESS) {
-            terminateCharacteristicDiscovery();
+            terminateCharacteristicDiscovery(BLE_ERROR_UNSPECIFIED);
         }
     } else {
-        terminateCharacteristicDiscovery();
+        terminateCharacteristicDiscovery(BLE_ERROR_NONE);
     }
 }
 
