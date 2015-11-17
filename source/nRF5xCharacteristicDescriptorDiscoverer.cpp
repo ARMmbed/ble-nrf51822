@@ -35,7 +35,8 @@ ble_error_t nRF5xCharacteristicDescriptorDiscoverer::launch(
     // check if their is any descriptor to discover
     if (descriptorEndHandle < descriptorStartHandle) { 
         CharacteristicDescriptorDiscovery::TerminationCallbackParams_t termParams = { 
-            characteristic
+            characteristic,
+            BLE_ERROR_NONE
         };
         terminationCallback.call(&termParams);
         return BLE_ERROR_NONE;
@@ -53,30 +54,13 @@ ble_error_t nRF5xCharacteristicDescriptorDiscoverer::launch(
     }
 
     // try to launch the discovery 
-    ble_gattc_handle_range_t discoveryRange = {
-        descriptorStartHandle,
-        descriptorEndHandle
-    };
-    uint32_t err = sd_ble_gattc_descriptors_discover(characteristic.getConnectionHandle(), &discoveryRange);
-    switch(err) { 
-        case NRF_SUCCESS:
-            // commit the new discovery to its slot
-            *discovery = Discovery(
-                characteristic,
-                discoveryCallback, 
-                terminationCallback
-            );
-
-            return BLE_ERROR_NONE;            
-        case BLE_ERROR_INVALID_CONN_HANDLE:
-            return BLE_ERROR_INVALID_PARAM;
-        case NRF_ERROR_INVALID_ADDR:
-            return BLE_ERROR_PARAM_OUT_OF_RANGE;
-        case NRF_ERROR_BUSY:
-            return BLE_STACK_BUSY;
-        default:
-            return BLE_ERROR_UNSPECIFIED;
+    ble_error_t err = gattc_descriptors_discover(connHandle, descriptorStartHandle, descriptorEndHandle);
+    if(!err) { 
+        // commit the new discovery to its slot
+        *discovery = Discovery(characteristic, discoveryCallback, terminationCallback);
     }
+
+    return err;
 }
 
 bool nRF5xCharacteristicDescriptorDiscoverer::isActive(const DiscoveredCharacteristic& characteristic) const {
@@ -88,13 +72,13 @@ void nRF5xCharacteristicDescriptorDiscoverer::requestTerminate(const DiscoveredC
     if(discovery) { 
         discovery->onDiscovery = emptyDiscoveryCallback;
         // call terminate anyway
-        discovery->terminate();
+        discovery->terminate(BLE_ERROR_NONE);
         discovery->onTerminate = emptyTerminationCallback;
     }
 }
 
-void nRF5xCharacteristicDescriptorDiscoverer::process(uint16_t handle, const ble_gattc_evt_desc_disc_rsp_t& descriptors) {
-    Discovery* discovery = findRunningDiscovery(handle);
+void nRF5xCharacteristicDescriptorDiscoverer::process(uint16_t connectionHandle, const ble_gattc_evt_desc_disc_rsp_t& descriptors) {
+    Discovery* discovery = findRunningDiscovery(connectionHandle);
     if(!discovery) { 
         error("logic error in nRF5xCharacteristicDescriptorDiscoverer::process !!!");
     }
@@ -104,14 +88,30 @@ void nRF5xCharacteristicDescriptorDiscoverer::process(uint16_t handle, const ble
             descriptors.descs[i].handle, UUID(descriptors.descs[i].uuid.uuid)
         );
     }
+
+    // prepare the next discovery request (if needed)
+    uint16_t startHandle = descriptors.descs[descriptors.count - 1].handle + 1;
+    uint16_t endHandle = discovery->characteristic.getLastHandle();
+
+    if(startHandle > endHandle || 
+      (discovery->onDiscovery == emptyDiscoveryCallback && discovery->onTerminate == emptyTerminationCallback)) { 
+        terminate(connectionHandle, BLE_ERROR_NONE);
+        return;
+    }
+
+    ble_error_t err = gattc_descriptors_discover(connectionHandle, startHandle, endHandle);
+    if(err) { 
+        terminate(connectionHandle, err);
+        return;
+    }
 }
 
-void nRF5xCharacteristicDescriptorDiscoverer::terminate(uint16_t handle) {
+void nRF5xCharacteristicDescriptorDiscoverer::terminate(uint16_t handle, ble_error_t err) {
     Discovery* discovery = findRunningDiscovery(handle);
     if(!discovery) { 
         error("logic error in nRF5xCharacteristicDescriptorDiscoverer::process !!!");
     }
-    discovery->terminate();
+    discovery->terminate(err);
     removeDiscovery(discovery);
 }
 
@@ -165,4 +165,27 @@ nRF5xCharacteristicDescriptorDiscoverer::getAvailableDiscoverySlot() {
 
 bool nRF5xCharacteristicDescriptorDiscoverer::isConnectionInUse(uint16_t connHandle) {
      return findRunningDiscovery(connHandle) != NULL;
+}
+
+ble_error_t nRF5xCharacteristicDescriptorDiscoverer::gattc_descriptors_discover(
+    uint16_t connection_handle, uint16_t start_handle, uint16_t end_handle) { 
+
+    ble_gattc_handle_range_t discoveryRange = {
+        start_handle,
+        end_handle
+    };
+    uint32_t err = sd_ble_gattc_descriptors_discover(connection_handle, &discoveryRange);
+
+    switch(err) { 
+        case NRF_SUCCESS:
+            return BLE_ERROR_NONE;            
+        case BLE_ERROR_INVALID_CONN_HANDLE:
+            return BLE_ERROR_INVALID_PARAM;
+        case NRF_ERROR_INVALID_ADDR:
+            return BLE_ERROR_PARAM_OUT_OF_RANGE;
+        case NRF_ERROR_BUSY:
+            return BLE_STACK_BUSY;
+        default:
+            return BLE_ERROR_UNSPECIFIED;
+    }
 }

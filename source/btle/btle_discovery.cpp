@@ -97,16 +97,24 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 
         case BLE_GATTC_EVT_DESC_DISC_RSP: {
             uint16_t conn_handle = p_ble_evt->evt.gattc_evt.conn_handle;
+            uint16_t status = p_ble_evt->evt.gattc_evt.gatt_status;
+            ble_gattc_evt_desc_disc_rsp_t discovered_descriptors = p_ble_evt->evt.gattc_evt.params.desc_disc_rsp;
 
-            if (p_ble_evt->evt.gattc_evt.gatt_status != BLE_GATT_STATUS_SUCCESS) { 
-                characteristicDescriptorDiscoverer.terminate(conn_handle);
-                return;
+            switch(status) { 
+                case BLE_GATT_STATUS_SUCCESS:
+                    characteristicDescriptorDiscoverer.process(
+                        conn_handle, 
+                        discovered_descriptors
+                    );                
+                    break;
+                case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND:
+                    // end of discovery 
+                    characteristicDescriptorDiscoverer.terminate(conn_handle, BLE_ERROR_NONE);
+                    break;
+                default:
+                    characteristicDescriptorDiscoverer.terminate(conn_handle, BLE_ERROR_UNSPECIFIED);
+                    break;
             }
-
-            characteristicDescriptorDiscoverer.process(
-                conn_handle, 
-                /* discoveredDescriptors */ p_ble_evt->evt.gattc_evt.params.desc_disc_rsp
-            );
         }   break;
     }
 

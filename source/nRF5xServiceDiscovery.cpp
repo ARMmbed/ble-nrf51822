@@ -78,7 +78,6 @@ nRF5xServiceDiscovery::setupDiscoveredServices(const ble_gattc_evt_prim_srvc_dis
 void
 nRF5xServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_disc_rsp_t *response)
 {
-    characteristicIndex = 0;
     numCharacteristics  = response->count;
 
     /* Account for the limitation on the number of discovered characteristics we can handle at a time. */
@@ -114,37 +113,38 @@ nRF5xServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_d
 void
 nRF5xServiceDiscovery::progressCharacteristicDiscovery(void)
 {
-    /* Iterate through the previously discovered characteristics cached in characteristics[]. */
-    while ((state == CHARACTERISTIC_DISCOVERY_ACTIVE) && (characteristicIndex < numCharacteristics)) {
+    for(uint8_t i = 0; i < numCharacteristics; ++i) {
+        if(state != CHARACTERISTIC_DISCOVERY_ACTIVE) {
+            return;
+        }
+
         if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
             ((matchingCharacteristicUUID == characteristics[characteristicIndex].getUUID()) &&
              (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)))) {
             if (characteristicCallback) {
-                characteristicCallback(&characteristics[characteristicIndex]);
+                characteristicCallback(&characteristics[i]);
             }
         }
-
-        characteristicIndex++;
     }
 
-    /* Relaunch discovery of new characteristics beyond the last entry cached in characteristics[]. */
-    if (state == CHARACTERISTIC_DISCOVERY_ACTIVE) {
-        /* Determine the ending handle of the last cached characteristic. */
-        Gap::Handle_t startHandle = characteristics[characteristicIndex - 1].getValueHandle() + 1;
-        Gap::Handle_t endHandle   = services[serviceIndex].getEndHandle();
-        resetDiscoveredCharacteristics(); /* Note: resetDiscoveredCharacteristics() must come after fetching start and end Handles. */
+    if(state != CHARACTERISTIC_DISCOVERY_ACTIVE) {
+        return;
+    }
 
-        if (startHandle < endHandle) {
-            ble_gattc_handle_range_t handleRange = {
-                .start_handle = startHandle,
-                .end_handle   = endHandle
-            };
-            if (sd_ble_gattc_characteristics_discover(connHandle, &handleRange) != NRF_SUCCESS) {
-                terminateCharacteristicDiscovery();
-            }
-        } else {
+    Gap::Handle_t startHandle = characteristics[characteristicIndex - 1].getValueHandle() + 1;
+    Gap::Handle_t endHandle   = services[serviceIndex].getEndHandle();
+    resetDiscoveredCharacteristics(); /* Note: resetDiscoveredCharacteristics() must come after fetching start and end Handles. */
+
+    if (startHandle < endHandle) {
+        ble_gattc_handle_range_t handleRange = {
+            .start_handle = startHandle,
+            .end_handle   = endHandle
+        };
+        if (sd_ble_gattc_characteristics_discover(connHandle, &handleRange) != NRF_SUCCESS) {
             terminateCharacteristicDiscovery();
         }
+    } else {
+        terminateCharacteristicDiscovery();
     }
 }
 

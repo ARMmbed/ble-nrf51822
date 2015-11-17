@@ -73,7 +73,7 @@ public:
     /**
      * @brief Called by the nordic stack when the discovery is over.
      */
-    void terminate(uint16_t handle);
+    void terminate(uint16_t handle, ble_error_t err);
 
 private:
     nRF5xCharacteristicDescriptorDiscoverer(const nRF5xCharacteristicDescriptorDiscoverer&);
@@ -105,9 +105,10 @@ private:
             onDiscovery.call(&params);
         }
 
-        void terminate() { 
+        void terminate(ble_error_t err) { 
             CharacteristicDescriptorDiscovery::TerminationCallbackParams_t params = {
-                characteristic
+                characteristic,
+                err
             };
             onTerminate.call(&params);
         }
@@ -125,6 +126,8 @@ private:
     void removeDiscovery(Discovery* discovery);
     Discovery* getAvailableDiscoverySlot(); 
     bool isConnectionInUse(uint16_t connHandle);
+    static ble_error_t gattc_descriptors_discover(uint16_t connection_handle, uint16_t start_handle, uint16_t end_handle); 
+
 
     size_t maximumConcurrentConnectionsCount;
     Discovery *discoveryRunning;
