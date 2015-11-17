@@ -31,7 +31,6 @@
 #include "nRF5xGattServer.h"
 #include "nRF5xSecurityManager.h"
 
-#define BLE_STACK_SUPPORT_REQD
 extern "C" {
 #include "pstorage.h"
 #include "device_manager.h"
