@@ -18,6 +18,9 @@
     {
       "url": "https://spdx.org/licenses/Apache-2.0",
       "type": "Apache-2.0"
+    },
+    {
+      "type": "LicenseRef-softdevice_nrf51822_licence_agreement.txt"
     }
   ],
   "dependencies": {
