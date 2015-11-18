@@ -98,7 +98,7 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
         case BLE_GATTC_EVT_DESC_DISC_RSP: {
             uint16_t conn_handle = p_ble_evt->evt.gattc_evt.conn_handle;
             uint16_t status = p_ble_evt->evt.gattc_evt.gatt_status;
-            ble_gattc_evt_desc_disc_rsp_t discovered_descriptors = p_ble_evt->evt.gattc_evt.params.desc_disc_rsp;
+            const ble_gattc_evt_desc_disc_rsp_t& discovered_descriptors = p_ble_evt->evt.gattc_evt.params.desc_disc_rsp;
 
             switch(status) { 
                 case BLE_GATT_STATUS_SUCCESS:

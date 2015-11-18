@@ -38,8 +38,8 @@ nRF5xGattClient::launchServiceDiscovery(Gap::Handle_t                           
 
 ble_error_t nRF5xGattClient::discoverCharacteristicDescriptors(
     const DiscoveredCharacteristic& characteristic,
-    CharacteristicDescriptorDiscovery::DiscoveryCallback_t discoveryCallback,
-    CharacteristicDescriptorDiscovery::TerminationCallback_t terminationCallback)
+    const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
+    const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback)
 {
     return characteristicDescriptorDiscoverer.launch(
         characteristic, 

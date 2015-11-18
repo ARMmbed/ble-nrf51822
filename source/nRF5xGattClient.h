@@ -112,8 +112,8 @@ public:
      */
     virtual ble_error_t discoverCharacteristicDescriptors(
         const DiscoveredCharacteristic& characteristic,
-        CharacteristicDescriptorDiscovery::DiscoveryCallback_t discoveryCallback,
-        CharacteristicDescriptorDiscovery::TerminationCallback_t terminationCallback
+        const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
+        const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback
     );
 
     /**
