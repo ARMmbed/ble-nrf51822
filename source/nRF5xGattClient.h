@@ -120,13 +120,13 @@ public:
      * @brief Implementation of GattClient::isCharacteristicDiscoveryActive 
      * @see GattClient::isCharacteristicDiscoveryActive 
      */
-    virtual bool isCharacteristicDiscoveryActive(const DiscoveredCharacteristic& characteristic) const;
+    virtual bool isCharacteristicDescriptorsDiscoveryActive(const DiscoveredCharacteristic& characteristic) const;
 
     /**
      * @brief Implementation of GattClient::terminateCharacteristicDiscovery 
      * @see GattClient::terminateCharacteristicDiscovery 
      */
-    virtual void terminateCharacteristicDiscovery(const DiscoveredCharacteristic& characteristic);
+    virtual void terminateCharacteristicDescriptorsDiscovery(const DiscoveredCharacteristic& characteristic);
 
     virtual ble_error_t read(Gap::Handle_t connHandle, GattAttribute::Handle_t attributeHandle, uint16_t offset) const {
         uint32_t rc = sd_ble_gattc_read(connHandle, attributeHandle, offset);

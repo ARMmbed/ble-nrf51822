@@ -48,11 +48,11 @@ ble_error_t nRF5xGattClient::discoverCharacteristicDescriptors(
     );
 }
 
-bool nRF5xGattClient::isCharacteristicDiscoveryActive(const DiscoveredCharacteristic& characteristic) const {
+bool nRF5xGattClient::isCharacteristicDescriptorsDiscoveryActive(const DiscoveredCharacteristic& characteristic) const {
     return characteristicDescriptorDiscoverer.isActive(characteristic);   
 }
 
-void nRF5xGattClient::terminateCharacteristicDiscovery(const DiscoveredCharacteristic& characteristic) { 
+void nRF5xGattClient::terminateCharacteristicDescriptorsDiscovery(const DiscoveredCharacteristic& characteristic) { 
     return characteristicDescriptorDiscoverer.requestTerminate(characteristic);
 }
 
