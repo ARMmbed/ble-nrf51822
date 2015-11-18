@@ -26,7 +26,11 @@
 #include "ble/GapScanningParams.h"
 
 #include "nrf_soc.h"
+
+extern "C" {
 #include "ble_radio_notification.h"
+}
+
 #include "btle_security.h"
 
 void radioNotificationStaticCallback(bool param);
