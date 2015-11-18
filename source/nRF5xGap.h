@@ -109,12 +109,64 @@ public:
 #endif
 
 private:
+#ifdef YOTTA_CFG_MBED_OS
+    /*
+     * In mbed OS, all user-facing BLE events (interrupts) are posted to the
+     * MINAR scheduler to be executed as callbacks in thread mode. MINAR guards
+     * its critical sections from interrupts by acquiring CriticalSectionLock,
+     * which results in a call to sd_nvic_critical_region_enter(). Thus, it is
+     * safe to invoke MINAR APIs from interrupt context as long as those
+     * interrupts are blocked by sd_nvic_critical_region_enter().
+     *
+     * Radio notifications are a special case for the above. The Radio
+     * Notification IRQ is handled at a very high priority--higher than the
+     * level blocked by sd_nvic_critical_region_enter(). Thus Radio Notification
+     * events can preempt MINAR's critical sections. Using MINAR APIs (such as
+     * posting an event) directly in processRadioNotification() may result in a
+     * race condition ending in a hard-fault.
+     *
+     * The solution is to *not* call MINAR APIs directly from the Radio
+     * Notification handling; i.e. to do the bulk of RadioNotification
+     * processing at a reduced priority which respects MINAR's critical
+     * sections. Unfortunately, on a cortex-M0, there is no clean way to demote
+     * priority for the currently executing interrupt--we wouldn't want to
+     * demote the radio notification handling anyway because it is sensitive to
+     * timing, and the system expects to finish this handling very quickly. The
+     * workaround is to employ a Timeout to trigger
+     * postRadioNotificationCallback() after a very short delay (~0 us) and post
+     * the MINAR callback that context.
+     *
+     * !!!WARNING!!! Radio notifications are very time critical events. The
+     * current solution is expected to work under the assumption that
+     * postRadioNotificationCalback() will be executed BEFORE the next radio
+     * notification event is generated.
+     */
+
+    bool    radioNotificationCallbackParam; /* parameter to be passed into the Timeout-generated radio notification callback. */
+    Timeout radioNotificationTimeout;
+
+    /*
+     * A helper function to post radio notification callbacks through MINAR when using mbed OS.
+     */
+    void postRadioNotificationCallback(void) {
+        minar::Scheduler::postCallback(
+            mbed::util::FunctionPointer1<void, bool>(&radioNotificationCallback, &FunctionPointerWithContext<bool>::call).bind(radioNotificationCallbackParam)
+        );
+    }
+#endif /* #ifdef YOTTA_CFG_MBED_OS */
+
     /**
      * A helper function to process radio-notification events; to be called internally.
      * @param param [description]
      */
     void processRadioNotificationEvent(bool param) {
+#ifdef YOTTA_CFG_MBED_OS
+        /* When using mbed OS the callback to the user-defined function will be posted through minar */
+        radioNotificationCallbackParam = param;
+        radioNotificationTimeout.attach_us(this, &nRF5xGap::postRadioNotificationCallback, 0);
+#else
         radioNotificationCallback.call(param);
+#endif
     }
     friend void radioNotificationStaticCallback(bool param); /* allow invocations of processRadioNotificationEvent() */
 

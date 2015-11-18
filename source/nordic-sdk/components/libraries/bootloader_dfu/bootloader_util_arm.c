@@ -59,10 +59,10 @@ EXC_RETURN_CMD  EQU 0xFFFFFFF9  ; EXC_RETURN for ARM Cortex. When loaded to PC t
     MSR   MSP, R5               ; Set the main stack pointer to the applications MSP.
     LDR   R6, [R0, #0x04]       ; Load Reset handler into register 6.
 
+    MOV   R0, R6
     LDR   R2, =MASK_ZEROS       ; Load zeros to R2
     MRS   R3, IPSR              ; Load IPSR to R3 to check for handler or thread mode
     CMP   R2, R3                ; Compare, if 0 then we are in thread mode and can continue to reset handler of bootloader
-    MOV   R0, R6
     BNE   isr_abort             ; If not zero we need to exit current ISR and jump to reset handler of bootloader
 
     LDR   R4, =MASK_ONES        ; Load ones to R4 to be placed in Link Register.
@@ -98,10 +98,10 @@ static void bootloader_util_reset(uint32_t start_addr)
         "MSR   MSP, r5        \n\t"       /* Set the main stack pointer to the applications MSP.              */
         "LDR   r6,[r0, #0x04] \n\t"       /* Load Reset handler into register 0.                              */
 
+        "MOV   R0, R6         \n\t"
         "LDR   r2, =MASK_ZEROS\n\t"       /* Load zeros to R2                                                 */
         "MRS   r3, IPSR       \n\t"       /* Load IPSR to R3 to check for handler or thread mode              */
         "CMP   r2, r3         \n\t"       /* Compare, if 0 then we are in thread mode and can continue to reset handler of bootloader */
-        "MOV   R0, R6         \n\t"
         "BNE   isr_abort      \n\t"       /* If not zero we need to exit current ISR and jump to reset handler of bootloader */
 
         "LDR   r4, =MASK_ONES \n\t"       /* Load ones to R4 to be placed in Link Register.                   */
