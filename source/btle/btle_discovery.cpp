@@ -21,9 +21,9 @@
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
 void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 {
-    nRF5xServiceDiscovery &sdSingleton = nRF5xGattClient::getInstance().discovery;
+    nRF5xServiceDiscovery &sdSingleton = nRF5xGattClient::getInstance().discovery();
     nRF5xCharacteristicDescriptorDiscoverer &characteristicDescriptorDiscoverer = 
-        nRF5xGattClient::getInstance().characteristicDescriptorDiscoverer;
+        nRF5xGattClient::getInstance().characteristicDescriptorDiscoverer();
 
     switch (p_ble_evt->header.evt_id) {
         case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:

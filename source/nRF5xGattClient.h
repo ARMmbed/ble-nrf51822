@@ -88,14 +88,14 @@ public:
                                                const UUID                                 &matchingCharacteristicUUIDIn = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN));
 
     virtual void onServiceDiscoveryTermination(ServiceDiscovery::TerminationCallback_t callback) {
-        discovery.onTermination(callback);
+        _discovery.onTermination(callback);
     }
 
     /**
      * Is service-discovery currently active?
      */
     virtual bool isServiceDiscoveryActive(void) const {
-        return discovery.isActive();
+        return _discovery.isActive();
     }
 
     /**
@@ -103,7 +103,7 @@ public:
      * invocation of the TerminationCallback if service-discovery is active.
      */
     virtual void terminateServiceDiscovery(void) {
-        discovery.terminate();
+        _discovery.terminate();
     }
 
     /**
@@ -171,19 +171,25 @@ public:
     }
 
 public:
-    nRF5xGattClient() : discovery(this) {
+    nRF5xGattClient() : _discovery(this) {
         /* empty */
     }
 
-    friend void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
+    nRF5xServiceDiscovery& discovery() { 
+        return _discovery;
+    }
+
+    nRF5xCharacteristicDescriptorDiscoverer& characteristicDescriptorDiscoverer() { 
+        return _characteristicDescriptorDiscoverer;
+    }
 
 private:
     nRF5xGattClient(const nRF5xGattClient &);
     const nRF5xGattClient& operator=(const nRF5xGattClient &);
 
 private:
-    nRF5xServiceDiscovery discovery;
-    nRF5xCharacteristicDescriptorDiscoverer characteristicDescriptorDiscoverer;
+    nRF5xServiceDiscovery _discovery;
+    nRF5xCharacteristicDescriptorDiscoverer _characteristicDescriptorDiscoverer;
 
 #endif // if !S110
 };

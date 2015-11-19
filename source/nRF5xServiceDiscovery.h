@@ -94,6 +94,12 @@ public:
         terminateServiceDiscovery();
     }
 
+    void terminate(Gap::Handle_t connectionHandle) { 
+        if(connHandle == connectionHandle) { 
+            terminate();
+        }
+    }
+
     virtual void onTermination(ServiceDiscovery::TerminationCallback_t callback) {
         onTerminationCallback = callback;
     }

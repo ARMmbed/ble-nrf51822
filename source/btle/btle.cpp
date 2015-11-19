@@ -40,6 +40,10 @@
 #include "ble_hci.h"
 #include "btle_discovery.h"
 
+#include "nRF5xGattClient.h"
+#include "nRF5xServiceDiscovery.h"
+#include "nRF5xCharacteristicDescriptorDiscoverer.h"
+
 extern "C" void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
 void            app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name);
 
@@ -182,8 +186,13 @@ static void btle_handler(ble_evt_t *p_ble_evt)
                     reason = static_cast<Gap::DisconnectionReason_t>(p_ble_evt->evt.gap_evt.params.disconnected.reason);
                     break;
             }
+
+            // Close all pending discoveries for this connection
+            nRF5xGattClient& gattClient = nRF5xGattClient::getInstance();
+            gattClient.characteristicDescriptorDiscoverer().terminate(handle, BLE_ERROR_INVALID_STATE);
+            gattClient.discovery().terminate(handle);
+
             nRF5xGap::getInstance().processDisconnectionEvent(handle, reason);
-            // TODO: close pending discoveries
             break;
         }
 

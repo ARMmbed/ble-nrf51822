@@ -33,7 +33,7 @@ nRF5xGattClient::launchServiceDiscovery(Gap::Handle_t                           
                                         const UUID                                 &matchingServiceUUIDIn,
                                         const UUID                                 &matchingCharacteristicUUIDIn)
 {
-    return discovery.launch(connectionHandle, sc, cc, matchingServiceUUIDIn, matchingCharacteristicUUIDIn);
+    return _discovery.launch(connectionHandle, sc, cc, matchingServiceUUIDIn, matchingCharacteristicUUIDIn);
 }
 
 ble_error_t nRF5xGattClient::discoverCharacteristicDescriptors(
@@ -41,7 +41,7 @@ ble_error_t nRF5xGattClient::discoverCharacteristicDescriptors(
     const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
     const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback)
 {
-    return characteristicDescriptorDiscoverer.launch(
+    return _characteristicDescriptorDiscoverer.launch(
         characteristic, 
         discoveryCallback, 
         terminationCallback
@@ -49,11 +49,11 @@ ble_error_t nRF5xGattClient::discoverCharacteristicDescriptors(
 }
 
 bool nRF5xGattClient::isCharacteristicDescriptorsDiscoveryActive(const DiscoveredCharacteristic& characteristic) const {
-    return characteristicDescriptorDiscoverer.isActive(characteristic);   
+    return _characteristicDescriptorDiscoverer.isActive(characteristic);   
 }
 
 void nRF5xGattClient::terminateCharacteristicDescriptorsDiscovery(const DiscoveredCharacteristic& characteristic) { 
-    return characteristicDescriptorDiscoverer.requestTerminate(characteristic);
+    return _characteristicDescriptorDiscoverer.requestTerminate(characteristic);
 }
 
 #endif
