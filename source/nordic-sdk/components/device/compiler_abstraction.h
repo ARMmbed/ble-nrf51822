@@ -37,50 +37,63 @@
 #if defined ( __CC_ARM )
     
     #ifndef __ASM
-        #define __ASM               __asm                       /*!< asm keyword for ARM Compiler */
+        #define __ASM               __asm                       
     #endif
     
     #ifndef __INLINE
-        #define __INLINE            __inline                    /*!< inline keyword for ARM Compiler */
+        #define __INLINE            __inline                    
     #endif
     
     #ifndef __WEAK
-        #define __WEAK              __weak                      /*!< weak keyword for ARM Compiler */
+        #define __WEAK              __weak                      
     #endif
     
-    #define GET_SP()                __current_sp()              /*!> read current SP function for ARM Compiler */
+    #ifndef __ALIGN
+        #define __ALIGN(n)          __align(n)                  
+    #endif
+    
+    #define GET_SP()                __current_sp()              
   
 #elif defined ( __ICCARM__ )
     
     #ifndef __ASM
-        #define __ASM               __asm                       /*!< asm keyword for IAR Compiler */
+        #define __ASM               __asm                       
     #endif
     
     #ifndef __INLINE
-        #define __INLINE            inline                      /*!< inline keyword for IAR Compiler. Only available in High optimization mode! */
+        #define __INLINE            inline                      
     #endif
     
     #ifndef __WEAK
-        #define __WEAK              __weak                      /*!> define weak function for IAR Compiler */
+        #define __WEAK              __weak                      
+    #endif
+
+    /* Not defined for IAR since it requires a new line to work, and C preprocessor does not allow that. */
+    #ifndef __ALIGN
+        #define __ALIGN(n)          
     #endif
     
-    #define GET_SP()                __get_SP()                  /*!> read current SP function for IAR Compiler */
+    #define GET_SP()                __get_SP()                  
     
 #elif defined   ( __GNUC__ )
     
     #ifndef __ASM
-        #define __ASM               __asm__                     /*!< asm keyword for GNU Compiler */
+        #define __ASM               __asm                       
     #endif
     
     #ifndef __INLINE
-        #define __INLINE            inline                      /*!< inline keyword for GNU Compiler */
+        #define __INLINE            inline                      
     #endif
     
     #ifndef __WEAK
-        #define __WEAK              __attribute__((weak))       /*!< weak keyword for GNU Compiler */
+        #define __WEAK              __attribute__((weak))       
     #endif
     
-    #define GET_SP()                gcc_current_sp()            /*!> read current SP function for GNU Compiler */
+    #ifndef __ALIGN
+        #define __ALIGN(n)          __attribute__((aligned(n))) 
+    #endif
+    
+    #define GET_SP()                gcc_current_sp()            
 
     static inline unsigned int gcc_current_sp(void)
     {
@@ -91,18 +104,22 @@
 #elif defined   ( __TASKING__ )
         
     #ifndef __ASM        
-        #define __ASM               __asm                       /*!< asm keyword for TASKING Compiler */
+        #define __ASM               __asm                      
     #endif
     
     #ifndef __INLINE
-        #define __INLINE            inline                      /*!< inline keyword for TASKING Compiler */
+        #define __INLINE            inline                     
     #endif
     
     #ifndef __WEAK
-        #define __WEAK              __attribute__((weak))       /*!< weak keyword for TASKING Compiler */
+        #define __WEAK              __attribute__((weak))      
     #endif
     
-    #define GET_SP()                __get_MSP()                 /*!> read current SP function for TASKING Compiler */
+    #ifndef __ALIGN
+        #define __ALIGN(n)          __align(n)                  
+    #endif
+    
+    #define GET_SP()                __get_MSP()                
     
 #endif
 

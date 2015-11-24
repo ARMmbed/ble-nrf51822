@@ -77,19 +77,31 @@
  * @{
  */
 #define DEVICE_MANAGER_ERR_BASE   (0x8000)
+#define MEMORY_MANAGER_ERR_BASE   (0x8100)
 /* @} */
+
+
+/**
+ * @defgroup sdk_iot_errors Codes reserved as identification for IoT errors.
+ * @{
+ */
+#define IOT_ERR_BASE_START        (0xA000)
+#define IOT_ERR_BASE_STOP         (0xAFFF)
+/* @} */
+ 
 
 /**
  * @defgroup sdk_common_errors Codes reserved as identification for common errors.
  * @{
  */
-#define MODULE_NOT_INITIALZED      (SDK_COMMON_ERROR_BASE+0x0000)
-#define MUTEX_INIT_FAILED          (SDK_COMMON_ERROR_BASE+0x0001)
-#define MUTEX_LOCK_FAILED          (SDK_COMMON_ERROR_BASE+0x0002)
-#define MUTEX_UNLOCK_FAILED        (SDK_COMMON_ERROR_BASE+0x0003)
-#define MUTEX_COND_INIT_FAILED     (SDK_COMMON_ERROR_BASE+0x0004)
-#define API_NOT_IMPLEMENTED        (SDK_COMMON_ERROR_BASE+0x0010)
-#define FEATURE_NOT_ENABLED        (SDK_COMMON_ERROR_BASE+0x0011)
+#define MODULE_NOT_INITIALZED      (SDK_COMMON_ERROR_BASE + 0x0000)
+#define MUTEX_INIT_FAILED          (SDK_COMMON_ERROR_BASE + 0x0001)
+#define MUTEX_LOCK_FAILED          (SDK_COMMON_ERROR_BASE + 0x0002)
+#define MUTEX_UNLOCK_FAILED        (SDK_COMMON_ERROR_BASE + 0x0003)
+#define MUTEX_COND_INIT_FAILED     (SDK_COMMON_ERROR_BASE + 0x0004)
+#define MODULE_ALREADY_INITIALIZED (SDK_COMMON_ERROR_BASE + 0x0005)
+#define API_NOT_IMPLEMENTED        (SDK_COMMON_ERROR_BASE + 0x0010)
+#define FEATURE_NOT_ENABLED        (SDK_COMMON_ERROR_BASE + 0x0011)
 /* @} */
 
 
@@ -97,10 +109,10 @@
  * @defgroup dm_specific_errors Error / status codes specific to device manager.
  * @{
  */
-#define DM_NO_APP_CONTEXT                (DEVICE_MANAGER_ERR_BASE+0x0040)
-#define DM_SERVICE_CONTEXT_NOT_APPLIED   (DEVICE_MANAGER_ERR_BASE+0x0041)
-#define DM_CONTEXT_INFO_LOST             (DEVICE_MANAGER_ERR_BASE+0x0042)
-#define DM_DEVICE_CONTEXT_FULL           (DEVICE_MANAGER_ERR_BASE+0x0043)
+#define DM_NO_APP_CONTEXT                (DEVICE_MANAGER_ERR_BASE + 0x0040)
+#define DM_SERVICE_CONTEXT_NOT_APPLIED   (DEVICE_MANAGER_ERR_BASE + 0x0041)
+#define DM_CONTEXT_INFO_LOST             (DEVICE_MANAGER_ERR_BASE + 0x0042)
+#define DM_DEVICE_CONTEXT_FULL           (DEVICE_MANAGER_ERR_BASE + 0x0043)
 /* @} */
 
 /**

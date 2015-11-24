@@ -32,22 +32,23 @@
   
 /** @file
  *
- * @defgroup nrf_dfu_app_handler DFU BLE packet handling in Application
+ * @defgroup nrf_dfu_app_handler DFU BLE packet handling in application
  * @{
  *
- * @brief DFU BLE packet handling for application.
+ * @brief Handling of DFU BLE packets in the application.
  *
- * @details This module implements handling of DFU packets transmitted over BLE for switching from 
- *          application mode to Bootloader running full DFU service.
- *          This module only handles the StartDFU packet allowing for any BLE application to expose
- *          support for the DFU service.
- *          Actual DFU service will execute in dedicated environment after a BLE disconnect and 
- *          reset of the nRF51 chip.
- *          The host must then reconnect and can continue the update procedure with access to full
- *          DFU service.
+ * @details This module implements the handling of DFU packets for switching 
+ *          from an application to the bootloader and start DFU mode. The DFU
+ *          packets are transmitted over BLE. 
+ *          This module handles only the StartDFU packet, which allows a BLE 
+ *          application to expose support for the DFU Service.
+ *          The actual DFU Service runs in a dedicated environment after a BLE 
+ *          disconnect and reset of the nRF51 device. 
+ *          The host must reconnect and continue the update procedure with 
+ *          access to the full DFU Service.
  *
- * @note The application must propagate dfu events to the DFU App handler module by calling
- *       dfu_app_on_dfu_evt() from the @ref ble_dfu_evt_handler_t callback.
+ * @note The application must propagate DFU events to this module by calling
+ *       @ref dfu_app_on_dfu_evt from the @ref ble_dfu_evt_handler_t callback.
  */
  
 #ifndef DFU_APP_HANDLER_H__
@@ -58,40 +59,47 @@
 #include "bootloader_types.h"
 #include "device_manager.h"
 
-/**@brief DFU Application reset prepare function. This function is a callback which allows the 
+#define DFU_APP_ATT_TABLE_POS     0                     /**< Position for the ATT table changed setting. */
+#define DFU_APP_ATT_TABLE_CHANGED 1                     /**< Value indicating that the ATT table might have changed. This value will be set in the application-specific context in Device Manager when entering DFU mode. */
+
+/**@brief DFU application reset_prepare function. This function is a callback that allows the 
  *        application to prepare for an upcoming application reset. 
  */
 typedef void (*dfu_app_reset_prepare_t)(void);
 
-/**@brief   Function for handling of \ref ble_dfu_evt_t from DFU Service. 
+/**@brief   Function for handling events from the DFU Service. 
  *
- * @details The application must inject this function into the DFU service or propagate DFU events
- *          to dfu_app_handler module by calling this function in application specific DFU event 
+ * @details The application must inject this function into the DFU Service or propagate DFU events 
+ *          to the dfu_app_handler module by calling this function in the application-specific DFU event 
  *          handler.
  * 
- * @param[in] p_dfu              Pointer to the DFU Service structure for which the include event 
- *                               relates.
+ * @param[in] p_dfu  Pointer to the DFU Service structure to which the include event relates.
  * @param[in] p_evt  Pointer to the DFU event.
  */
 void dfu_app_on_dfu_evt(ble_dfu_t * p_dfu, ble_dfu_evt_t * p_evt);
 
-/**@brief Function for registering for reset prepare calls. 
+/**@brief Function for registering a function to prepare a reset.
  *
- * @details The function provided will be executed before reseting the system into Bootloader/DFU
- *          mode. By setting this function the caller will be notified prior to the reset and can
- *          thus prepare the application for reset. As example the application can gracefully
- *          disconnect any peers on BLE, turning of LEDS, ensure all pending flash operations
- *          has completed, etc.
+ * @details The provided function is executed before resetting the system into bootloader/DFU
+ *          mode. By registering this function, the caller is notified before the reset and can
+ *          thus prepare the application for reset. For example, the application can gracefully
+ *          disconnect any peers on BLE, turn of LEDS, ensure that all pending flash operations
+ *          have completed, and so on.
  *
- * @param[in] reset_prepare_func  Function to be execute prior to a reset.
+ * @param[in] reset_prepare_func  Function to be executed before a reset.
  */
 void dfu_app_reset_prepare_set(dfu_app_reset_prepare_t reset_prepare_func);
 
-/**@brief Function for setting Device manager handle for current BLE connection.
+/**@brief Function for setting the Device Manager application instance.
  *
- * @param[in] p_dm_handle  Pointer to device manager handle of current connection.
+ * @details This function allows to set the @ref dm_application_instance_t value that is returned by the 
+ *          Device Manager when the application registers using @ref dm_register.
+ *          If this function is not called, it is not be possible to share bonding information
+ *          from the application to the bootloader/DFU when entering DFU mode.
+ *
+ * @param[in] app_instance Value for the application instance in use.
  */
-void dfu_app_set_dm_handle(dm_handle_t const * p_dm_handle);
+void dfu_app_dm_appl_instance_set(dm_application_instance_t app_instance);
 
 #endif // DFU_APP_HANDLER_H__
 

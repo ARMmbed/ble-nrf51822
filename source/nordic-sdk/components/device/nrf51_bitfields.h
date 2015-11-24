@@ -32,9 +32,7 @@
 #ifndef __NRF51_BITS_H
 #define __NRF51_BITS_H
 
-/*lint ++flb "Enter library region */
-
-#include <core_cm0.h>
+/*lint ++flb "Enter library region" */
 
 /* Peripheral: AAR */
 /* Description: Accelerated Address Resolver. */
@@ -822,6 +820,7 @@
 #define AMLI_RAMPRI_AAR_RAM0_Pri12 (0xCUL) /*!< Priority 12. */
 #define AMLI_RAMPRI_AAR_RAM0_Pri14 (0xEUL) /*!< Priority 14. */
 
+
 /* Peripheral: CCM */
 /* Description: AES CCM Mode Encryption. */
 
@@ -1066,8 +1065,8 @@
 /* Bits 7..0 : External Xtal frequency selection. */
 #define CLOCK_XTALFREQ_XTALFREQ_Pos (0UL) /*!< Position of XTALFREQ field. */
 #define CLOCK_XTALFREQ_XTALFREQ_Msk (0xFFUL << CLOCK_XTALFREQ_XTALFREQ_Pos) /*!< Bit mask of XTALFREQ field. */
-#define CLOCK_XTALFREQ_XTALFREQ_16MHz (0xFFUL) /*!< 16MHz xtal is used as source for the HFCLK oscillator. */
 #define CLOCK_XTALFREQ_XTALFREQ_32MHz (0x00UL) /*!< 32MHz xtal is used as source for the HFCLK oscillator. */
+#define CLOCK_XTALFREQ_XTALFREQ_16MHz (0xFFUL) /*!< 16MHz xtal is used as source for the HFCLK oscillator. */
 
 
 /* Peripheral: ECB */
@@ -1126,8 +1125,8 @@
 /* Bits 7..0 : Pre-programmed factory code present. */
 #define FICR_PPFC_PPFC_Pos (0UL) /*!< Position of PPFC field. */
 #define FICR_PPFC_PPFC_Msk (0xFFUL << FICR_PPFC_PPFC_Pos) /*!< Bit mask of PPFC field. */
-#define FICR_PPFC_PPFC_NotPresent (0xFFUL) /*!< Not present. */
 #define FICR_PPFC_PPFC_Present (0x00UL) /*!< Present. */
+#define FICR_PPFC_PPFC_NotPresent (0xFFUL) /*!< Not present. */
 
 /* Register: FICR_CONFIGID */
 /* Description: Configuration identifier. */
@@ -1163,60 +1162,6 @@
 #define FICR_OVERRIDEEN_NRF_1MBIT_Msk (0x1UL << FICR_OVERRIDEEN_NRF_1MBIT_Pos) /*!< Bit mask of NRF_1MBIT field. */
 #define FICR_OVERRIDEEN_NRF_1MBIT_Override (0UL) /*!< Override the default values for NRF_1Mbit mode. */
 #define FICR_OVERRIDEEN_NRF_1MBIT_NotOverride (1UL) /*!< Do not override the default values for NRF_1Mbit mode. */
-
-/* Register: FICR_INFO_PART */
-/* Description: Part code */
-
-/* Bits 31..0 : Part code */
-#define FICR_INFO_PART_PART_Pos (0UL) /*!< Position of PART field. */
-#define FICR_INFO_PART_PART_Msk (0xFFFFFFFFUL << FICR_INFO_PART_PART_Pos) /*!< Bit mask of PART field. */
-#define FICR_INFO_PART_PART_N51822 (0x51822UL) /*!< nRF51822 */
-#define FICR_INFO_PART_PART_N51422 (0x51422UL) /*!< nRF51422 */
-#define FICR_INFO_PART_PART_Unspecified (0xFFFFFFFFUL) /*!< Unspecified */
-
-/* Register: FICR_INFO_VARIANT */
-/* Description: Part variant */
-
-/* Bits 31..0 : Part variant */
-#define FICR_INFO_VARIANT_VARIANT_Pos (0UL) /*!< Position of VARIANT field. */
-#define FICR_INFO_VARIANT_VARIANT_Msk (0xFFFFFFFFUL << FICR_INFO_VARIANT_VARIANT_Pos) /*!< Bit mask of VARIANT field. */
-#define FICR_INFO_VARIANT_VARIANT_nRF51C (0x1002UL) /*!< nRF51-C (XLR3) */
-#define FICR_INFO_VARIANT_VARIANT_nRF51D (0x1003UL) /*!< nRF51-D (L3) */
-#define FICR_INFO_VARIANT_VARIANT_nRF51E (0x1004UL) /*!< nRF51-E (XLR3P) */
-#define FICR_INFO_VARIANT_VARIANT_Unspecified (0xFFFFFFFFUL) /*!< Unspecified */
-
-/* Register: FICR_INFO_PACKAGE */
-/* Description: Package option */
-
-/* Bits 31..0 : Package option */
-#define FICR_INFO_PACKAGE_PACKAGE_Pos (0UL) /*!< Position of PACKAGE field. */
-#define FICR_INFO_PACKAGE_PACKAGE_Msk (0xFFFFFFFFUL << FICR_INFO_PACKAGE_PACKAGE_Pos) /*!< Bit mask of PACKAGE field. */
-#define FICR_INFO_PACKAGE_PACKAGE_QFN48 (0x0000UL) /*!< 48-pin QFN with 31 GPIO */
-#define FICR_INFO_PACKAGE_PACKAGE_nRF51CSP56A (0x1000UL) /*!< nRF51x22 CDxx - WLCSP 56 balls */
-#define FICR_INFO_PACKAGE_PACKAGE_nRF51CSP62A (0x1001UL) /*!< nRF51x22 CExx - WLCSP 62 balls */
-#define FICR_INFO_PACKAGE_PACKAGE_nRF51CSP62B (0x1002UL) /*!< nRF51x22 CFxx - WLCSP 62 balls */
-#define FICR_INFO_PACKAGE_PACKAGE_nRF51CSP62C (0x1003UL) /*!< nRF51x22 CTxx - WLCSP 62 balls */
-#define FICR_INFO_PACKAGE_PACKAGE_Unspecified (0xFFFFFFFFUL) /*!< Unspecified */
-
-/* Register: FICR_INFO_RAM */
-/* Description: RAM variant */
-
-/* Bits 31..0 : RAM variant */
-#define FICR_INFO_RAM_RAM_Pos (0UL) /*!< Position of RAM field. */
-#define FICR_INFO_RAM_RAM_Msk (0xFFFFFFFFUL << FICR_INFO_RAM_RAM_Pos) /*!< Bit mask of RAM field. */
-#define FICR_INFO_RAM_RAM_Unspecified (0xFFFFFFFFUL) /*!< Unspecified */
-#define FICR_INFO_RAM_RAM_K16 (16UL) /*!< 16 kByte RAM. */
-#define FICR_INFO_RAM_RAM_K32 (32UL) /*!< 32 kByte RAM. */
-
-/* Register: FICR_INFO_FLASH */
-/* Description: Flash variant */
-
-/* Bits 31..0 : Flash variant */
-#define FICR_INFO_FLASH_FLASH_Pos (0UL) /*!< Position of FLASH field. */
-#define FICR_INFO_FLASH_FLASH_Msk (0xFFFFFFFFUL << FICR_INFO_FLASH_FLASH_Pos) /*!< Bit mask of FLASH field. */
-#define FICR_INFO_FLASH_FLASH_Unspecified (0xFFFFFFFFUL) /*!< Unspecified */
-#define FICR_INFO_FLASH_FLASH_K128 (128UL) /*!< 128 kByte FLASH. */
-#define FICR_INFO_FLASH_FLASH_K256 (256UL) /*!< 256 kByte FLASH. */
 
 
 /* Peripheral: GPIO */
@@ -2848,6 +2793,7 @@
 /* Bits 17..16 : Effects on output when in Task mode, or events on input that generates an event. */
 #define GPIOTE_CONFIG_POLARITY_Pos (16UL) /*!< Position of POLARITY field. */
 #define GPIOTE_CONFIG_POLARITY_Msk (0x3UL << GPIOTE_CONFIG_POLARITY_Pos) /*!< Bit mask of POLARITY field. */
+#define GPIOTE_CONFIG_POLARITY_None (0x00UL) /*!< No task or event. */
 #define GPIOTE_CONFIG_POLARITY_LoToHi (0x01UL) /*!< Low to high. */
 #define GPIOTE_CONFIG_POLARITY_HiToLo (0x02UL) /*!< High to low. */
 #define GPIOTE_CONFIG_POLARITY_Toggle (0x03UL) /*!< Toggle. */
@@ -3722,30 +3668,44 @@
 /* Bit 18 : Reset from wake-up from OFF mode detected by entering into debug interface mode. */
 #define POWER_RESETREAS_DIF_Pos (18UL) /*!< Position of DIF field. */
 #define POWER_RESETREAS_DIF_Msk (0x1UL << POWER_RESETREAS_DIF_Pos) /*!< Bit mask of DIF field. */
+#define POWER_RESETREAS_DIF_NotDetected (0UL) /*!< Reset not detected. */
+#define POWER_RESETREAS_DIF_Detected (1UL) /*!< Reset detected. */
 
 /* Bit 17 : Reset from wake-up from OFF mode detected by the use of ANADETECT signal from LPCOMP. */
 #define POWER_RESETREAS_LPCOMP_Pos (17UL) /*!< Position of LPCOMP field. */
 #define POWER_RESETREAS_LPCOMP_Msk (0x1UL << POWER_RESETREAS_LPCOMP_Pos) /*!< Bit mask of LPCOMP field. */
+#define POWER_RESETREAS_LPCOMP_NotDetected (0UL) /*!< Reset not detected. */
+#define POWER_RESETREAS_LPCOMP_Detected (1UL) /*!< Reset detected. */
 
 /* Bit 16 : Reset from wake-up from OFF mode detected by the use of DETECT signal from GPIO. */
 #define POWER_RESETREAS_OFF_Pos (16UL) /*!< Position of OFF field. */
 #define POWER_RESETREAS_OFF_Msk (0x1UL << POWER_RESETREAS_OFF_Pos) /*!< Bit mask of OFF field. */
+#define POWER_RESETREAS_OFF_NotDetected (0UL) /*!< Reset not detected. */
+#define POWER_RESETREAS_OFF_Detected (1UL) /*!< Reset detected. */
 
 /* Bit 3 : Reset from CPU lock-up detected. */
 #define POWER_RESETREAS_LOCKUP_Pos (3UL) /*!< Position of LOCKUP field. */
 #define POWER_RESETREAS_LOCKUP_Msk (0x1UL << POWER_RESETREAS_LOCKUP_Pos) /*!< Bit mask of LOCKUP field. */
+#define POWER_RESETREAS_LOCKUP_NotDetected (0UL) /*!< Reset not detected. */
+#define POWER_RESETREAS_LOCKUP_Detected (1UL) /*!< Reset detected. */
 
 /* Bit 2 : Reset from AIRCR.SYSRESETREQ detected. */
 #define POWER_RESETREAS_SREQ_Pos (2UL) /*!< Position of SREQ field. */
 #define POWER_RESETREAS_SREQ_Msk (0x1UL << POWER_RESETREAS_SREQ_Pos) /*!< Bit mask of SREQ field. */
+#define POWER_RESETREAS_SREQ_NotDetected (0UL) /*!< Reset not detected. */
+#define POWER_RESETREAS_SREQ_Detected (1UL) /*!< Reset detected. */
 
 /* Bit 1 : Reset from watchdog detected. */
 #define POWER_RESETREAS_DOG_Pos (1UL) /*!< Position of DOG field. */
 #define POWER_RESETREAS_DOG_Msk (0x1UL << POWER_RESETREAS_DOG_Pos) /*!< Bit mask of DOG field. */
+#define POWER_RESETREAS_DOG_NotDetected (0UL) /*!< Reset not detected. */
+#define POWER_RESETREAS_DOG_Detected (1UL) /*!< Reset detected. */
 
 /* Bit 0 : Reset from pin-reset detected. */
 #define POWER_RESETREAS_RESETPIN_Pos (0UL) /*!< Position of RESETPIN field. */
 #define POWER_RESETREAS_RESETPIN_Msk (0x1UL << POWER_RESETREAS_RESETPIN_Pos) /*!< Bit mask of RESETPIN field. */
+#define POWER_RESETREAS_RESETPIN_NotDetected (0UL) /*!< Reset not detected. */
+#define POWER_RESETREAS_RESETPIN_Detected (1UL) /*!< Reset detected. */
 
 /* Register: POWER_RAMSTATUS */
 /* Description: Ram status register. */
@@ -5215,14 +5175,14 @@
 /* Bits 7..0 : Radio output power. Decision point: TXEN task. */
 #define RADIO_TXPOWER_TXPOWER_Pos (0UL) /*!< Position of TXPOWER field. */
 #define RADIO_TXPOWER_TXPOWER_Msk (0xFFUL << RADIO_TXPOWER_TXPOWER_Pos) /*!< Bit mask of TXPOWER field. */
-#define RADIO_TXPOWER_TXPOWER_Pos4dBm (0x04UL) /*!< +4dBm. */
 #define RADIO_TXPOWER_TXPOWER_0dBm (0x00UL) /*!< 0dBm. */
-#define RADIO_TXPOWER_TXPOWER_Neg4dBm (0xFCUL) /*!< -4dBm. */
-#define RADIO_TXPOWER_TXPOWER_Neg8dBm (0xF8UL) /*!< -8dBm. */
-#define RADIO_TXPOWER_TXPOWER_Neg12dBm (0xF4UL) /*!< -12dBm. */
-#define RADIO_TXPOWER_TXPOWER_Neg16dBm (0xF0UL) /*!< -16dBm. */
-#define RADIO_TXPOWER_TXPOWER_Neg20dBm (0xECUL) /*!< -20dBm. */
+#define RADIO_TXPOWER_TXPOWER_Pos4dBm (0x04UL) /*!< +4dBm. */
 #define RADIO_TXPOWER_TXPOWER_Neg30dBm (0xD8UL) /*!< -30dBm. */
+#define RADIO_TXPOWER_TXPOWER_Neg20dBm (0xECUL) /*!< -20dBm. */
+#define RADIO_TXPOWER_TXPOWER_Neg16dBm (0xF0UL) /*!< -16dBm. */
+#define RADIO_TXPOWER_TXPOWER_Neg12dBm (0xF4UL) /*!< -12dBm. */
+#define RADIO_TXPOWER_TXPOWER_Neg8dBm (0xF8UL) /*!< -8dBm. */
+#define RADIO_TXPOWER_TXPOWER_Neg4dBm (0xFCUL) /*!< -4dBm. */
 
 /* Register: RADIO_MODE */
 /* Description: Data rate and modulation. */
@@ -6096,20 +6056,6 @@
 #define SPIM_ENABLE_ENABLE_Disabled (0x00UL) /*!< Disabled SPIM. */
 #define SPIM_ENABLE_ENABLE_Enabled (0x07UL) /*!< Enable SPIM. */
 
-/* Register: SPIM_RXDDATA */
-/* Description: RXD register. */
-
-/* Bits 7..0 : RX data received. Double buffered. */
-#define SPIM_RXDDATA_RXD_Pos (0UL) /*!< Position of RXD field. */
-#define SPIM_RXDDATA_RXD_Msk (0xFFUL << SPIM_RXDDATA_RXD_Pos) /*!< Bit mask of RXD field. */
-
-/* Register: SPIM_TXDDATA */
-/* Description: TXD register. */
-
-/* Bits 7..0 : TX data to send. Double buffered. */
-#define SPIM_TXDDATA_TXD_Pos (0UL) /*!< Position of TXD field. */
-#define SPIM_TXDDATA_TXD_Msk (0xFFUL << SPIM_TXDDATA_TXD_Pos) /*!< Bit mask of TXD field. */
-
 /* Register: SPIM_FREQUENCY */
 /* Description: SPI frequency. */
 
@@ -6123,43 +6069,6 @@
 #define SPIM_FREQUENCY_FREQUENCY_M2 (0x20000000UL) /*!< 2 Mbps. */
 #define SPIM_FREQUENCY_FREQUENCY_M4 (0x40000000UL) /*!< 4 Mbps. */
 #define SPIM_FREQUENCY_FREQUENCY_M8 (0x80000000UL) /*!< 8 Mbps. */
-
-/* Register: SPIM_CONFIG */
-/* Description: Configuration register. */
-
-/* Bit 2 : Serial clock (SCK) polarity. */
-#define SPIM_CONFIG_CPOL_Pos (2UL) /*!< Position of CPOL field. */
-#define SPIM_CONFIG_CPOL_Msk (0x1UL << SPIM_CONFIG_CPOL_Pos) /*!< Bit mask of CPOL field. */
-#define SPIM_CONFIG_CPOL_ActiveHigh (0UL) /*!< Active high. */
-#define SPIM_CONFIG_CPOL_ActiveLow (1UL) /*!< Active low. */
-
-/* Bit 1 : Serial clock (SCK) phase. */
-#define SPIM_CONFIG_CPHA_Pos (1UL) /*!< Position of CPHA field. */
-#define SPIM_CONFIG_CPHA_Msk (0x1UL << SPIM_CONFIG_CPHA_Pos) /*!< Bit mask of CPHA field. */
-#define SPIM_CONFIG_CPHA_Leading (0UL) /*!< Sample on leading edge of the clock. Shift serial data on trailing edge. */
-#define SPIM_CONFIG_CPHA_Trailing (1UL) /*!< Sample on trailing edge of the clock. Shift serial data on leading edge. */
-
-/* Bit 0 : Bit order. */
-#define SPIM_CONFIG_ORDER_Pos (0UL) /*!< Position of ORDER field. */
-#define SPIM_CONFIG_ORDER_Msk (0x1UL << SPIM_CONFIG_ORDER_Pos) /*!< Bit mask of ORDER field. */
-#define SPIM_CONFIG_ORDER_MsbFirst (0UL) /*!< Most significant bit transmitted out first. */
-#define SPIM_CONFIG_ORDER_LsbFirst (1UL) /*!< Least significant bit transmitted out first. */
-
-/* Register: SPIM_ORC */
-/* Description: Over-read character. */
-
-/* Bits 7..0 : Over-read character. */
-#define SPIM_ORC_ORC_Pos (0UL) /*!< Position of ORC field. */
-#define SPIM_ORC_ORC_Msk (0xFFUL << SPIM_ORC_ORC_Pos) /*!< Bit mask of ORC field. */
-
-/* Register: SPIM_POWER */
-/* Description: Peripheral power control. */
-
-/* Bit 0 : Peripheral power control. */
-#define SPIM_POWER_POWER_Pos (0UL) /*!< Position of POWER field. */
-#define SPIM_POWER_POWER_Msk (0x1UL << SPIM_POWER_POWER_Pos) /*!< Bit mask of POWER field. */
-#define SPIM_POWER_POWER_Disabled (0UL) /*!< Module power disabled. */
-#define SPIM_POWER_POWER_Enabled (1UL) /*!< Module power enabled. */
 
 /* Register: SPIM_RXD_PTR */
 /* Description: Data pointer. */
@@ -6202,6 +6111,43 @@
 /* Bits 7..0 : Number of bytes sent in the last transaction. */
 #define SPIM_TXD_AMOUNT_AMOUNT_Pos (0UL) /*!< Position of AMOUNT field. */
 #define SPIM_TXD_AMOUNT_AMOUNT_Msk (0xFFUL << SPIM_TXD_AMOUNT_AMOUNT_Pos) /*!< Bit mask of AMOUNT field. */
+
+/* Register: SPIM_CONFIG */
+/* Description: Configuration register. */
+
+/* Bit 2 : Serial clock (SCK) polarity. */
+#define SPIM_CONFIG_CPOL_Pos (2UL) /*!< Position of CPOL field. */
+#define SPIM_CONFIG_CPOL_Msk (0x1UL << SPIM_CONFIG_CPOL_Pos) /*!< Bit mask of CPOL field. */
+#define SPIM_CONFIG_CPOL_ActiveHigh (0UL) /*!< Active high. */
+#define SPIM_CONFIG_CPOL_ActiveLow (1UL) /*!< Active low. */
+
+/* Bit 1 : Serial clock (SCK) phase. */
+#define SPIM_CONFIG_CPHA_Pos (1UL) /*!< Position of CPHA field. */
+#define SPIM_CONFIG_CPHA_Msk (0x1UL << SPIM_CONFIG_CPHA_Pos) /*!< Bit mask of CPHA field. */
+#define SPIM_CONFIG_CPHA_Leading (0UL) /*!< Sample on leading edge of the clock. Shift serial data on trailing edge. */
+#define SPIM_CONFIG_CPHA_Trailing (1UL) /*!< Sample on trailing edge of the clock. Shift serial data on leading edge. */
+
+/* Bit 0 : Bit order. */
+#define SPIM_CONFIG_ORDER_Pos (0UL) /*!< Position of ORDER field. */
+#define SPIM_CONFIG_ORDER_Msk (0x1UL << SPIM_CONFIG_ORDER_Pos) /*!< Bit mask of ORDER field. */
+#define SPIM_CONFIG_ORDER_MsbFirst (0UL) /*!< Most significant bit transmitted out first. */
+#define SPIM_CONFIG_ORDER_LsbFirst (1UL) /*!< Least significant bit transmitted out first. */
+
+/* Register: SPIM_ORC */
+/* Description: Over-read character. */
+
+/* Bits 7..0 : Over-read character. */
+#define SPIM_ORC_ORC_Pos (0UL) /*!< Position of ORC field. */
+#define SPIM_ORC_ORC_Msk (0xFFUL << SPIM_ORC_ORC_Pos) /*!< Bit mask of ORC field. */
+
+/* Register: SPIM_POWER */
+/* Description: Peripheral power control. */
+
+/* Bit 0 : Peripheral power control. */
+#define SPIM_POWER_POWER_Pos (0UL) /*!< Position of POWER field. */
+#define SPIM_POWER_POWER_Msk (0x1UL << SPIM_POWER_POWER_Pos) /*!< Bit mask of POWER field. */
+#define SPIM_POWER_POWER_Disabled (0UL) /*!< Module power disabled. */
+#define SPIM_POWER_POWER_Enabled (1UL) /*!< Module power enabled. */
 
 
 /* Peripheral: SPIS */
@@ -6671,6 +6617,13 @@
 #define TWI_ERRORSRC_ANACK_Present (1UL) /*!< Error present. */
 #define TWI_ERRORSRC_ANACK_Clear (1UL) /*!< Clear error on write. */
 
+/* Bit 0 : Byte received in RXD register before read of the last received byte (data loss). */
+#define TWI_ERRORSRC_OVERRUN_Pos (0UL) /*!< Position of OVERRUN field. */
+#define TWI_ERRORSRC_OVERRUN_Msk (0x1UL << TWI_ERRORSRC_OVERRUN_Pos) /*!< Bit mask of OVERRUN field. */
+#define TWI_ERRORSRC_OVERRUN_NotPresent (0UL) /*!< Error not present. */
+#define TWI_ERRORSRC_OVERRUN_Present (1UL) /*!< Error present. */
+#define TWI_ERRORSRC_OVERRUN_Clear (1UL) /*!< Clear error on write. */
+
 /* Register: TWI_ENABLE */
 /* Description: Enable two-wire master. */
 
@@ -6723,21 +6676,6 @@
 
 /* Peripheral: UART */
 /* Description: Universal Asynchronous Receiver/Transmitter. */
-
-/* Register: UART_SHORTS */
-/* Description: Shortcuts for UART. */
-
-/* Bit 4 : Shortcut between NCTS event and the STOPRX task. */
-#define UART_SHORTS_NCTS_STOPRX_Pos (4UL) /*!< Position of NCTS_STOPRX field. */
-#define UART_SHORTS_NCTS_STOPRX_Msk (0x1UL << UART_SHORTS_NCTS_STOPRX_Pos) /*!< Bit mask of NCTS_STOPRX field. */
-#define UART_SHORTS_NCTS_STOPRX_Disabled (0UL) /*!< Shortcut disabled. */
-#define UART_SHORTS_NCTS_STOPRX_Enabled (1UL) /*!< Shortcut enabled. */
-
-/* Bit 3 : Shortcut between CTS event and the STARTRX task. */
-#define UART_SHORTS_CTS_STARTRX_Pos (3UL) /*!< Position of CTS_STARTRX field. */
-#define UART_SHORTS_CTS_STARTRX_Msk (0x1UL << UART_SHORTS_CTS_STARTRX_Pos) /*!< Bit mask of CTS_STARTRX field. */
-#define UART_SHORTS_CTS_STARTRX_Disabled (0UL) /*!< Shortcut disabled. */
-#define UART_SHORTS_CTS_STARTRX_Enabled (1UL) /*!< Shortcut enabled. */
 
 /* Register: UART_INTENSET */
 /* Description: Interrupt enable set register. */
@@ -6903,7 +6841,7 @@
 #define UART_BAUDRATE_BAUDRATE_Baud230400 (0x03AFB000UL) /*!< 230400 baud. */
 #define UART_BAUDRATE_BAUDRATE_Baud250000 (0x04000000UL) /*!< 250000 baud. */
 #define UART_BAUDRATE_BAUDRATE_Baud460800 (0x075F7000UL) /*!< 460800 baud. */
-#define UART_BAUDRATE_BAUDRATE_Baud921600 (0x0EBEDFA4UL) /*!< 921600 baud. */
+#define UART_BAUDRATE_BAUDRATE_Baud921600 (0x0EBED000UL) /*!< 921600 baud. */
 #define UART_BAUDRATE_BAUDRATE_Baud1M (0x10000000UL) /*!< 1M baud. */
 
 /* Register: UART_CONFIG */
@@ -6940,14 +6878,14 @@
 /* Bits 15..8 : Readback protect all code in the device. */
 #define UICR_RBPCONF_PALL_Pos (8UL) /*!< Position of PALL field. */
 #define UICR_RBPCONF_PALL_Msk (0xFFUL << UICR_RBPCONF_PALL_Pos) /*!< Bit mask of PALL field. */
-#define UICR_RBPCONF_PALL_Disabled (0xFFUL) /*!< Disabled. */
 #define UICR_RBPCONF_PALL_Enabled (0x00UL) /*!< Enabled. */
+#define UICR_RBPCONF_PALL_Disabled (0xFFUL) /*!< Disabled. */
 
 /* Bits 7..0 : Readback protect region 0. Will be ignored if pre-programmed factory code is present on the chip. */
 #define UICR_RBPCONF_PR0_Pos (0UL) /*!< Position of PR0 field. */
 #define UICR_RBPCONF_PR0_Msk (0xFFUL << UICR_RBPCONF_PR0_Pos) /*!< Bit mask of PR0 field. */
-#define UICR_RBPCONF_PR0_Disabled (0xFFUL) /*!< Disabled. */
 #define UICR_RBPCONF_PR0_Enabled (0x00UL) /*!< Enabled. */
+#define UICR_RBPCONF_PR0_Disabled (0xFFUL) /*!< Disabled. */
 
 /* Register: UICR_XTALFREQ */
 /* Description: Reset value for CLOCK XTALFREQ register. */
@@ -6955,8 +6893,8 @@
 /* Bits 7..0 : Reset value for CLOCK XTALFREQ register. */
 #define UICR_XTALFREQ_XTALFREQ_Pos (0UL) /*!< Position of XTALFREQ field. */
 #define UICR_XTALFREQ_XTALFREQ_Msk (0xFFUL << UICR_XTALFREQ_XTALFREQ_Pos) /*!< Bit mask of XTALFREQ field. */
-#define UICR_XTALFREQ_XTALFREQ_16MHz (0xFFUL) /*!< 16MHz Xtal is used. */
 #define UICR_XTALFREQ_XTALFREQ_32MHz (0x00UL) /*!< 32MHz Xtal is used. */
+#define UICR_XTALFREQ_XTALFREQ_16MHz (0xFFUL) /*!< 16MHz Xtal is used. */
 
 /* Register: UICR_FWID */
 /* Description: Firmware ID. */

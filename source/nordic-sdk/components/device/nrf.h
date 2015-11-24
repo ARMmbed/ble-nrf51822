@@ -29,23 +29,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+
 #ifndef NRF_H
 #define NRF_H
 
-#ifndef _WIN32
-
-/* Family selection for main includes. NRF51 must be selected. */
-#ifdef NRF51
-    #include "nrf51.h"
-    #include "nrf51_bitfields.h"
-    #include "nrf51_deprecated.h"
+#if defined(_WIN32)         
+    /* Do not include nrf51 specific files when building for PC host */
+#elif defined(__unix)       
+    /* Do not include nrf51 specific files when building for PC host */
+#elif defined(__APPLE__)    
+    /* Do not include nrf51 specific files when building for PC host */
 #else
-    #error "Device family must be defined. See nrf.h."
-#endif /* NRF51 */
 
-#include "compiler_abstraction.h"
+    /* Family selection for family includes. */
+    #if defined (NRF51)
+        #include "nrf51.h"
+        #include "nrf51_bitfields.h"
+        #include "nrf51_deprecated.h"
+    #else
+        #error "Device family must be defined. See nrf.h."
+    #endif /* NRF51 */
 
-#endif /* _WIN32 */
+    #include "compiler_abstraction.h"
+
+#endif /* _WIN32 || __unix || __APPLE__ */
 
 #endif /* NRF_H */
 

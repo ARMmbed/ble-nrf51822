@@ -44,6 +44,7 @@
 #include "compiler_abstraction.h"
 #include "nordic_common.h"
 #ifdef DEBUG
+#include "bsp.h"
 
 /* global error variables - in order to prevent removal by optimizers */
 uint32_t m_error_code;
@@ -71,7 +72,7 @@ __WEAK void app_error_handler(uint32_t error_code, uint32_t line_num, const uint
 #ifndef DEBUG
     NVIC_SystemReset();
 #else
-    
+
 #ifdef BSP_DEFINES_ONLY 
     LEDS_ON(LEDS_MASK);
 #else
@@ -86,6 +87,11 @@ __WEAK void app_error_handler(uint32_t error_code, uint32_t line_num, const uint
     //ble_debug_assert_handler(error_code, line_num, p_file_name);
 #endif // BSP_DEFINES_ONLY
 
+    // The following variable helps Keil keep the call stack visible, in addition, it can be set to
+    // 0 in the debugger to continue executing code after the error check.
+    volatile bool loop = true;
+    UNUSED_VARIABLE(loop);
+
     m_error_code = error_code;
     m_line_num = line_num;
     m_p_file_name = p_file_name;
@@ -94,7 +100,8 @@ __WEAK void app_error_handler(uint32_t error_code, uint32_t line_num, const uint
     UNUSED_VARIABLE(m_line_num);
     UNUSED_VARIABLE(m_p_file_name);
     __disable_irq();
-    while(1) ;
+
+    while(loop);
 #endif // DEBUG
 }
 /*lint -restore */
