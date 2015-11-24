@@ -45,7 +45,7 @@
 #ifndef DFU_BANK_INTERNAL_H__
 #define DFU_BANK_INTERNAL_H__
 
-#include "dfu_types.h"
+#include <dfu_types.h>
 
 /**@brief States of the DFU state machine. */
 typedef enum

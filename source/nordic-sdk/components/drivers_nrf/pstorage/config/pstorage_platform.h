@@ -41,10 +41,6 @@
 
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif // #ifdef __cplusplus
-
 #define PSTORAGE_FLASH_PAGE_SIZE    ((uint16_t)NRF_FICR->CODEPAGESIZE)   /**< Size of one flash page. */
 #define PSTORAGE_FLASH_EMPTY_MASK    0xFFFFFFFF                          /**< Bit mask that defines an empty address in flash. */
 
@@ -79,10 +75,6 @@ typedef uint16_t pstorage_size_t;      /** Size of length and offset fields. */
 
 /**@brief Handles Flash Access Result Events. To be called in the system event dispatcher of the application. */
 void pstorage_sys_event_handler (uint32_t sys_evt);
-
-#ifdef __cplusplus
-}
-#endif // #ifdef __cplusplus
 
 #endif // PSTORAGE_PL_H__
 
