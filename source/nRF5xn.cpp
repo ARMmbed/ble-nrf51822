@@ -22,7 +22,9 @@
 #include "btle/btle.h"
 #include "nrf_delay.h"
 
+extern "C" {
 #include "softdevice_handler.h"
+}
 
 /**
  * The singleton which represents the nRF51822 transport for the BLE.
