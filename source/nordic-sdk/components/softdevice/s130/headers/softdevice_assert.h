@@ -29,23 +29,41 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef NRF_H
-#define NRF_H
 
-#ifndef _WIN32
+/** @brief Utilities for verifying program logic
+ */
 
-/* Family selection for main includes. NRF51 must be selected. */
-#ifdef NRF51
-    #include "nrf51.h"
-    #include "nrf51_bitfields.h"
-    #include "nrf51_deprecated.h"
-#else
-    #error "Device family must be defined. See nrf.h."
-#endif /* NRF51 */
+#ifndef SOFTDEVICE_ASSERT_H_
+#define SOFTDEVICE_ASSERT_H_
 
-#include "compiler_abstraction.h"
+#include <stdint.h>
 
-#endif /* _WIN32 */
+/** @brief This function handles assertions.
+ *
+ *
+ * @note
+ * This function is called when an assertion has triggered.
+ * 
+ *
+ * @param line_num The line number where the assertion is called
+ * @param file_name Pointer to the file name
+ */
+void assert_softdevice_callback(uint16_t line_num, const uint8_t *file_name);
 
-#endif /* NRF_H */
 
+/*lint -emacro(506, ASSERT) */ /* Suppress "Constant value Boolean */ 
+/*lint -emacro(774, ASSERT) */ /* Suppress "Boolean within 'if' always evaluates to True" */ \
+/** @brief Check intended for production code
+ *
+ * Check passes if "expr" evaluates to true. */
+#define ASSERT(expr) \
+if (expr)                                                                     \
+{                                                                             \
+}                                                                             \
+else                                                                          \
+{                                                                             \
+  assert_softdevice_callback((uint16_t)__LINE__, (uint8_t *)__FILE__);        \
+  /*lint -unreachable */                                                      \
+}
+
+#endif /* SOFTDEVICE_ASSERT_H_ */

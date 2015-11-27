@@ -49,7 +49,7 @@
   { \
     __asm( \
         "svc %0\n" \
-        "bx r14" : : "I" ((uint32_t)number) : "r0" \
+        "bx r14" : : "I" ((uint32_t) number) : "r0" \
     ); \
   }    \
   _Pragma("GCC diagnostic pop")

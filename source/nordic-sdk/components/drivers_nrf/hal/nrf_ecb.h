@@ -44,25 +44,25 @@
  * @ingroup nrf_drivers
  * @brief Driver for the nRF51 AES Electronic Code Book (ECB) peripheral.
  *
- * In order to encrypt and decrypt data the peripheral must be powered on
- * using nrf_ecb_init() and then the key set using nrf_ecb_set_key.
+ * To encrypt and decrypt data, the peripheral must first be powered on
+ * using @ref nrf_ecb_init. Next, the key must be set using @ref nrf_ecb_set_key.
  */
 
 #include <stdint.h>
 
 /**
- * Initialize and power on the ECB peripheral.
+ * @brief Function for initializing and powering on the ECB peripheral.
  *
- * Allocates memory for the ECBDATAPTR.
- * @retval true Initialization was successful.
- * @retval false Powering up failed.
+ * This function allocates memory for the ECBDATAPTR.
+ * @retval true If initialization was successful.
+ * @retval false If powering on failed.
  */
 bool nrf_ecb_init(void);
 
 /**
- * Encrypt/decrypt 16-byte data using current key.
+ * @brief Function for encrypting and decrypting 16-byte data using current key.
  *
- * The function avoids unnecessary copying of data if the point to the 
+ * This function avoids unnecessary copying of data if the parameters point to the 
  * correct locations in the ECB data structure.
  *
  * @param dst Result of encryption/decryption. 16 bytes will be written. 
@@ -74,9 +74,9 @@ bool nrf_ecb_init(void);
 bool nrf_ecb_crypt(uint8_t * dst, const uint8_t * src);
 
 /**
- * Set the key to be used for encryption/decryption.
+ * @brief Function for setting the key to be used for encryption and decryption.
  *
- * @param key Pointer to key. 16 bytes will be read.
+ * @param key Pointer to the key. 16 bytes will be read.
  */
 void nrf_ecb_set_key(const uint8_t * key);
 

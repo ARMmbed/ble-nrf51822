@@ -63,7 +63,7 @@
 #include "dfu_init.h"
 #include <stdint.h>
 #include <string.h>
-#include "dfu_types.h"
+#include <dfu_types.h>
 #include "nrf_error.h"
 #include "crc16.h"
 

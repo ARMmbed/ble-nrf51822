@@ -32,9 +32,9 @@
 /**
   @defgroup nrf_sdm_api SoftDevice Manager API
   @{
-
+     
   @brief APIs for SoftDevice management.
-
+ 
 */
 
 /* Header guard */
@@ -50,15 +50,15 @@
  * @{ */
 
 /** @brief SoftDevice Manager SVC Base number. */
-#define SDM_SVC_BASE 0x10
+#define SDM_SVC_BASE 0x10   
 
 /** @} */
 
-/** @brief Defines the SoftDevice Information Structure location (address) as an offset from
+/** @brief Defines the SoftDevice Information Structure location (address) as an offset from 
 the start of the softdevice (without MBR)*/
 #define SOFTDEVICE_INFO_STRUCT_OFFSET (0x2000)
 
-/** @brief Defines the usual size reserverd for the MBR when a softdevice is written to flash.
+/** @brief Defines the usual size reserverd for the MBR when a softdevice is written to flash. 
 This is the offset where the first byte of the softdevice hex file is written.*/
 #define MBR_SIZE (0x1000)
 
@@ -134,7 +134,7 @@ typedef uint32_t nrf_clock_lfclksrc_t;
  * perform a reset, using e.g. CMSIS NVIC_SystemReset().
  *
  * @note This callback is executed in HardFault context, thus SVC functions cannot be called from the SoftDevice assert callback.
- *
+ *       
  * @param[in] pc The program counter of the failed assert.
  * @param[in] line_number Line number where the assert failed.
  * @param[in] file_name File name where the assert failed.
@@ -156,7 +156,7 @@ typedef void (*softdevice_assertion_handler_t)(uint32_t pc, uint16_t line_number
  *
  * @note This function has no effect when returning with an error.
  *
- * @post If return code is ::NRF_SUCCESS
+ * @post If return code is ::NRF_SUCCESS 
  *       - SoC library and protocol stack APIs are made available.
  *       - A portion of RAM will be unavailable (see relevant SDS documentation).
  *       - Some peripherals will be unavailable or available only through the SoC API (see relevant SDS documentation).
@@ -176,7 +176,7 @@ typedef void (*softdevice_assertion_handler_t)(uint32_t pc, uint16_t line_number
 SVCALL(SD_SOFTDEVICE_ENABLE, uint32_t, sd_softdevice_enable(nrf_clock_lfclksrc_t clock_source, softdevice_assertion_handler_t assertion_handler));
 
 /**@brief Disables the SoftDevice and by extension the protocol stack.
- *
+ * 
  * Idempotent function to disable the SoftDevice.
  *
  * @post SoC library and protocol stack APIs are made unavailable.
@@ -199,14 +199,14 @@ SVCALL(SD_SOFTDEVICE_DISABLE, uint32_t, sd_softdevice_disable(void));
 SVCALL(SD_SOFTDEVICE_IS_ENABLED, uint32_t, sd_softdevice_is_enabled(uint8_t * p_softdevice_enabled));
 
 /**@brief Sets the base address of the interrupt vector table for interrupts forwarded from the SoftDevice
- *
+ * 
  * This function is only intended to be called when a bootloader is enabled.
  *
  * @param[in] address The base address of the interrupt vector table for forwarded interrupts.
-
+ 
  * @retval ::NRF_SUCCESS
  */
-SVCALL(SD_SOFTDEVICE_VECTOR_TABLE_BASE_SET, uint32_t, sd_softdevice_vector_table_base_set(uint32_t address));
+SVCALL(SD_SOFTDEVICE_VECTOR_TABLE_BASE_SET, uint32_t, sd_softdevice_vector_table_base_set(uint32_t address)); 
 
 /** @} */
 

@@ -44,7 +44,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "bootloader_types.h"
-#include "dfu_types.h"
+#include <dfu_types.h>
 
 /**@brief Function for initializing the Bootloader.
  * 

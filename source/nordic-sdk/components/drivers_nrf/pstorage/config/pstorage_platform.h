@@ -40,19 +40,25 @@
 #define PSTORAGE_PL_H__
 
 #include <stdint.h>
+#include "nrf.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif // #ifdef __cplusplus
+static __INLINE uint16_t pstorage_flash_page_size()
+{
+  return (uint16_t)NRF_FICR->CODEPAGESIZE;
+}
 
-#define PSTORAGE_FLASH_PAGE_SIZE    ((uint16_t)NRF_FICR->CODEPAGESIZE)   /**< Size of one flash page. */
+#define PSTORAGE_FLASH_PAGE_SIZE     pstorage_flash_page_size()          /**< Size of one flash page. */
 #define PSTORAGE_FLASH_EMPTY_MASK    0xFFFFFFFF                          /**< Bit mask that defines an empty address in flash. */
 
-#define PSTORAGE_FLASH_PAGE_END                                     \
-        ((NRF_UICR->BOOTLOADERADDR != PSTORAGE_FLASH_EMPTY_MASK)    \
-        ? (NRF_UICR->BOOTLOADERADDR / PSTORAGE_FLASH_PAGE_SIZE)     \
-        : NRF_FICR->CODESIZE)
+static __INLINE uint32_t pstorage_flash_page_end()
+{
+   uint32_t bootloader_addr = NRF_UICR->BOOTLOADERADDR;
+  
+   return ((bootloader_addr != PSTORAGE_FLASH_EMPTY_MASK) ?
+           (bootloader_addr/ PSTORAGE_FLASH_PAGE_SIZE) : NRF_FICR->CODESIZE);
+}
 
+#define PSTORAGE_FLASH_PAGE_END     pstorage_flash_page_end()
 
 #define PSTORAGE_MAX_APPLICATIONS   1                                                           /**< Maximum number of applications that can be registered with the module, configurable based on system requirements. */
 #define PSTORAGE_MIN_BLOCK_SIZE     0x0010                                                      /**< Minimum size of block that can be registered with the module. Should be configured based on system requirements, recommendation is not have this value to be at least size of word. */
@@ -79,10 +85,6 @@ typedef uint16_t pstorage_size_t;      /** Size of length and offset fields. */
 
 /**@brief Handles Flash Access Result Events. To be called in the system event dispatcher of the application. */
 void pstorage_sys_event_handler (uint32_t sys_evt);
-
-#ifdef __cplusplus
-}
-#endif // #ifdef __cplusplus
 
 #endif // PSTORAGE_PL_H__
 

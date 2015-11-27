@@ -31,7 +31,6 @@
  */
 
 #include "device_manager.h"
-// #include "app_trace.h"
 #include "pstorage.h"
 #include "ble_hci.h"
 #include "app_error.h"
@@ -803,13 +802,16 @@ static ret_code_t device_instance_find(ble_gap_addr_t const * p_addr, uint32_t *
 
     err_code = NRF_ERROR_NOT_FOUND;
     
-    DM_TRC("[DM]: Searching for device 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X.\r\n",
-           p_addr->addr[0], 
-           p_addr->addr[1], 
-           p_addr->addr[2], 
-           p_addr->addr[3],
-           p_addr->addr[4], 
-           p_addr->addr[5]);
+    if (NULL != p_addr)
+    {
+        DM_TRC("[DM]: Searching for device 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X.\r\n",
+               p_addr->addr[0],
+               p_addr->addr[1],
+               p_addr->addr[2],
+               p_addr->addr[3],
+               p_addr->addr[4],
+               p_addr->addr[5]);
+    }
 
     for (index = 0; index < DEVICE_MANAGER_MAX_BONDS; index++)
     {
