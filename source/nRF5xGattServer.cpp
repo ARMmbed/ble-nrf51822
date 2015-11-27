@@ -69,7 +69,7 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
 
         /* Skip any incompletely defined, read-only characteristics. */
         if ((p_char->getValueAttribute().getValuePtr() == NULL) &&
-            (p_char->getValueAttribute().getInitialLength() == 0) &&
+            (p_char->getValueAttribute().getLength() == 0) &&
             (p_char->getProperties() == GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)) {
             continue;
         }
@@ -95,7 +95,7 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
                                               p_char->getProperties(),
                                               p_char->getRequiredSecurity(),
                                               p_char->getValueAttribute().getValuePtr(),
-                                              p_char->getValueAttribute().getInitialLength(),
+                                              p_char->getValueAttribute().getLength(),
                                               p_char->getValueAttribute().getMaxLength(),
                                               userDescriptionDescriptorValuePtr,
                                               userDescriptionDescriptorValueLen,
@@ -127,7 +127,7 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
                    custom_add_in_descriptor(BLE_GATT_HANDLE_INVALID,
                                             &nordicUUID,
                                             p_desc->getValuePtr(),
-                                            p_desc->getInitialLength(),
+                                            p_desc->getLength(),
                                             p_desc->getMaxLength(),
                                             &nrfDescriptorHandles[descriptorCount]),
                 BLE_ERROR_PARAM_OUT_OF_RANGE);
