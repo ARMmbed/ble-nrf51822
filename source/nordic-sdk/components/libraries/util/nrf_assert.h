@@ -39,9 +39,6 @@
 
 #include <stdint.h>
 #include "compiler_abstraction.h"
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #if defined(DEBUG_NRF) || defined(DEBUG_NRF_USER)
 
@@ -81,9 +78,5 @@ else                                                                          \
 #define ASSERT(expr) //!< Assert empty when disabled
 __WEAK void assert_nrf_callback(uint16_t line_num, const uint8_t *file_name);
 #endif /* defined(DEBUG_NRF) || defined(DEBUG_NRF_USER) */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NRF_ASSERT_H_ */

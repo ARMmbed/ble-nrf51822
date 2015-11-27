@@ -30,12 +30,11 @@
  *
  */
 
-
  /* Attention!
 *  To maintain compliance with Nordic Semiconductor ASA’s Bluetooth profile
 *  qualification listings, this section of source code must not be modified.
 */
-
+ 
 #ifndef BLE_SENSOR_LOCATION_H__
 #define BLE_SENSOR_LOCATION_H__
 

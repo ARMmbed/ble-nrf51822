@@ -90,6 +90,7 @@
 #define BLE_UUID_TYPE_VENDOR_BEGIN  0x02 /**< Vendor UUID types start at this index (128-bit). */
 /** @} */
 
+
 #if 0 /* The following have been duplicated in blecommon.h */
 /** @defgroup BLE_APPEARANCES Bluetooth Appearance values
  *  @note Retrieved from http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.gap.appearance.xml
@@ -176,7 +177,7 @@
 
 /** @brief 128 bit UUID values. */
 typedef struct
-{
+{ 
     unsigned char uuid128[16]; /**< Little-Endian UUID bytes. */
 } ble_uuid128_t;
 

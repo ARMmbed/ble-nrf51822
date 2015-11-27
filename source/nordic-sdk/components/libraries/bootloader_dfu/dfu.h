@@ -41,7 +41,7 @@
 #ifndef DFU_H__
 #define DFU_H__
 
-#include "dfu_types.h"
+#include <dfu_types.h>
 #include <stdbool.h>
 #include <stdint.h>
 

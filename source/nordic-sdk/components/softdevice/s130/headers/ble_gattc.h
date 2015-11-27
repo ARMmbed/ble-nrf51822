@@ -179,10 +179,10 @@ typedef struct
 } ble_gattc_evt_desc_disc_rsp_t;
 
 /**@brief GATT read by UUID handle value pair. */
-typedef struct
+typedef struct 
 {
   uint16_t            handle;          /**< Attribute Handle. */
-  uint8_t             *p_value;        /**< Pointer to value, variable length (length available as value_len in @ref ble_gattc_evt_char_val_by_uuid_read_rsp_t).
+  uint8_t             *p_value;        /**< Pointer to value, variable length (length available as value_len in @ref ble_gattc_evt_char_val_by_uuid_read_rsp_t). 
                                             Please note that this pointer is absolute to the memory provided by the user when retrieving the event,
                                             so it will effectively point to a location inside the handle_value array. */
 } ble_gattc_handle_value_t;
@@ -263,7 +263,7 @@ typedef struct
 
 /**@brief Initiate or continue a GATT Primary Service Discovery procedure.
  *
- * @details This function initiates or resumes a Primary Service discovery procedure, starting from the supplied handle.
+ * @details This function initiates or resumes a Primary Service discovery procedure, starting from the supplied handle. 
  *          If the last service has not been reached, this function must be called again with an updated start handle value to continue the search.
  *
  * @note If any of the discovered services have 128-bit UUIDs which are not present in the table provided to ble_vs_uuids_assign, a UUID structure with
@@ -358,7 +358,7 @@ SVCALL(SD_BLE_GATTC_CHAR_VALUE_BY_UUID_READ, uint32_t, sd_ble_gattc_char_value_b
 /**@brief Initiate or continue a GATT Read (Long) Characteristic or Descriptor procedure.
  *
  * @details This function initiates or resumes a GATT Read (Long) Characteristic or Descriptor procedure. If the Characteristic or Descriptor
- *          to be read is longer than ATT_MTU - 1, this function must be called multiple times with appropriate offset to read the
+ *          to be read is longer than ATT_MTU - 1, this function must be called multiple times with appropriate offset to read the 
  *          complete value.
  *
  * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.
@@ -376,7 +376,7 @@ SVCALL(SD_BLE_GATTC_READ, uint32_t, sd_ble_gattc_read(uint16_t conn_handle, uint
 
 /**@brief Initiate a GATT Read Multiple Characteristic Values procedure.
  *
- * @details This function initiates a GATT Read Multiple Characteristic Values procedure.
+ * @details This function initiates a GATT Read Multiple Characteristic Values procedure. 
  *
  * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.
  * @param[in] p_handles A pointer to the handle(s) of the attribute(s) to be read.
@@ -393,11 +393,11 @@ SVCALL(SD_BLE_GATTC_CHAR_VALUES_READ, uint32_t, sd_ble_gattc_char_values_read(ui
 
 /**@brief Perform a Write (Characteristic Value or Descriptor, with or without response, signed or not, long or reliable) procedure.
  *
- * @details This function can perform all write procedures described in GATT.
+ * @details This function can perform all write procedures described in GATT. 
  *
- * @note    It is important to note that a write without response will <b>consume an application buffer</b>, and will therefore
- *          generate a @ref BLE_EVT_TX_COMPLETE event when the packet has been transmitted. A write (with response) on the other hand will use the
- *          standard client internal buffer and thus will only generate a @ref BLE_GATTC_EVT_WRITE_RSP event as soon as the write response
+ * @note    It is important to note that a write without response will <b>consume an application buffer</b>, and will therefore 
+ *          generate a @ref BLE_EVT_TX_COMPLETE event when the packet has been transmitted. A write (with response) on the other hand will use the 
+ *          standard client internal buffer and thus will only generate a @ref BLE_GATTC_EVT_WRITE_RSP event as soon as the write response 
  *          has been received from the peer. Please see the documentation of @ref sd_ble_tx_buffer_count_get for more details.
  *
  * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.

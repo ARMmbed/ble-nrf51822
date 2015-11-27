@@ -66,7 +66,7 @@
 /**@brief The SVC numbers used by the SVC functions in the SoC library. */
 enum BOOTLOADER_SVCS
 {
-    DFU_BLE_SVC_SET_PEER_DATA = BOOTLOADER_SVC_BASE,    /**< SVC number for the setting of peer data call. */
+    DFU_BLE_SVC_PEER_DATA_SET = BOOTLOADER_SVC_BASE,    /**< SVC number for the setting of peer data call. */
     BOOTLOADER_SVC_LAST
 };
 
@@ -74,7 +74,7 @@ enum BOOTLOADER_SVCS
  *
  * @details This structure contains peer data needed for connection to a bonded device during DFU.
  *          The peer data must be provided by the application to the bootloader during buttonless
- *          update. See @ref dfu_ble_svc_set_peer_data. It contains bond information about the
+ *          update. See @ref dfu_ble_svc_peer_data_set. It contains bond information about the
  *          desired DFU peer.
  */
 typedef struct
@@ -93,7 +93,7 @@ typedef struct
  * @retval NRF_ERROR_NULL If a NULL pointer was provided as argument.
  * @retval NRF_SUCCESS    If the function completed successfully.
  */
-SVCALL(DFU_BLE_SVC_SET_PEER_DATA, uint32_t, dfu_ble_svc_set_peer_data(dfu_ble_peer_data_t * p_peer_data));
+SVCALL(DFU_BLE_SVC_PEER_DATA_SET, uint32_t, dfu_ble_svc_peer_data_set(dfu_ble_peer_data_t * p_peer_data));
 
 #endif // DFU_BLE_SVC_H__
 

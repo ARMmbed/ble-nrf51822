@@ -60,10 +60,6 @@
 #include "ble_stack_handler_types.h"
 #include "ant_stack_handler_types.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif // #ifdef __cplusplus
-
 #define SOFTDEVICE_SCHED_EVT_SIZE       0                                                 /**< Size of button events being passed through the scheduler (is to be used for computing the maximum size of scheduler events). For SoftDevice events, this size is 0, since the events are being pulled in the event handler. */
 #define SYS_EVT_MSG_BUF_SIZE            sizeof(uint32_t)                                  /**< Size of System (SOC) event message buffer. */
 
@@ -89,7 +85,8 @@ typedef void (*sys_evt_handler_t) (uint32_t evt_id);
  *            reinitialization).
  */
 /*lint -emacro(506, SOFTDEVICE_HANDLER_INIT) */ /* Suppress "Constant value Boolean */
-#define SOFTDEVICE_HANDLER_INIT(CLOCK_SOURCE, EVT_HANDLER)                                         \
+#define SOFTDEVICE_HANDLER_INIT(CLOCK_SOURCE,                                                      \
+                                EVT_HANDLER)                                                     \
     do                                                                                             \
     {                                                                                              \
         static uint32_t BLE_EVT_BUFFER[CEIL_DIV(BLE_STACK_EVT_MSG_BUF_SIZE, sizeof(uint32_t))];    \
@@ -97,7 +94,7 @@ typedef void (*sys_evt_handler_t) (uint32_t evt_id);
         ERR_CODE = softdevice_handler_init((CLOCK_SOURCE),                                         \
                                            BLE_EVT_BUFFER,                                         \
                                            sizeof(BLE_EVT_BUFFER),                                 \
-                                           EVT_HANDLER);                                           \
+                                           EVT_HANDLER);      \
         APP_ERROR_CHECK(ERR_CODE);                                                                 \
     } while (0)
 
@@ -116,7 +113,7 @@ typedef void (*sys_evt_handler_t) (uint32_t evt_id);
  *                                 used, this buffer must be provided by the application. The
  *                                 buffer must be large enough to hold the biggest stack event the
  *                                 application is supposed to handle. The buffer must be aligned to
- *                                 a 4 byte boundary. This parameter is unused if BLE stack support
+ *                                 a 4 byte boundary. This parameter is unused if BLE stack support 
  *                                 is not required.
  * @param[in]  ble_evt_buffer_size Size of SoftDevice BLE event buffer. This parameter is unused if
  *                                 BLE stack support is not required.
@@ -166,10 +163,6 @@ void intern_softdevice_events_execute(void);
 
 
 /**@endcond */
-
-#ifdef __cplusplus
-}
-#endif // #ifdef __cplusplus
 
 #endif // SOFTDEVICE_HANDLER_H__
 

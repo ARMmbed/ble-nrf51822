@@ -37,13 +37,14 @@
 #include "nordic_common.h"
 #include "nrf_error.h"
 #include "nrf_assert.h"
-// #include "nrf.h"
+#include "nrf.h"
 #include "nrf_soc.h"
 #include "app_util.h"
 
 #define INVALID_OPCODE     0x00                            /**< Invalid op code identifier. */
 #define SOC_MAX_WRITE_SIZE 1024                            /**< Maximum write size allowed for a single call to \ref sd_flash_write as specified in the SoC API. */
 #define RAW_MODE_APP_ID    (PSTORAGE_MAX_APPLICATIONS + 1) /**< Application id for raw mode. */
+#define SD_CMD_MAX_TRIES   3                               /**< Number of times to try a softdevice flash operation when the @ref NRF_EVT_FLASH_OPERATION_ERROR sys_evt is received. */
 
 /**
  * @defgroup api_param_check API Parameters check macros.
@@ -212,6 +213,7 @@ typedef struct
 typedef struct
 {
     uint8_t              op_code;       /**< Identifies flash access operation being queued. Element is free if op-code is INVALID_OPCODE. */
+    uint8_t              n_tries;     /**< Number of times this command has been retried after failing. */
     pstorage_size_t      size;          /**< Identifies size in bytes requested for the operation. */
     pstorage_size_t      offset;        /**< Offset requested by the application for access operation. */
     pstorage_handle_t    storage_addr;  /**< Address/Identifier for persistent memory. */
@@ -265,7 +267,7 @@ static uint32_t cmd_process(void);
  *
  * @param[in] result Result of event being notified.
  */
-static void app_notify(uint32_t result);
+static void app_notify(uint32_t result, cmd_queue_element_t * p_elem);
 
 
 /**
@@ -349,6 +351,7 @@ static uint32_t cmd_queue_enqueue(uint8_t             opcode,
         }
 
         m_cmd_queue.cmd[write_index].op_code      = opcode;
+        m_cmd_queue.cmd[write_index].n_tries      = 0;
         m_cmd_queue.cmd[write_index].p_data_addr  = p_data_addr;
         m_cmd_queue.cmd[write_index].storage_addr = (*p_storage_addr);
         m_cmd_queue.cmd[write_index].size         = size;
@@ -385,7 +388,7 @@ static uint32_t cmd_queue_dequeue(void)
     retval = NRF_SUCCESS;
 
     // If any flash operation is enqueued, schedule.
-    if (m_cmd_queue.count > 0)
+    if ((m_cmd_queue.count > 0) && (m_cmd_queue.flash_access == false))
     {
         retval = cmd_process();
         if (retval != NRF_SUCCESS)
@@ -412,31 +415,32 @@ static uint32_t cmd_queue_dequeue(void)
  * @brief Routine to notify application of any errors.
  *
  * @param[in] result Result of event being notified.
+ * @param[in] p_elem Pointer to the element for which this result was received. 
  */
-static void app_notify(uint32_t result)
+static void app_notify(uint32_t result, cmd_queue_element_t * p_elem)
 {
     pstorage_ntf_cb_t ntf_cb;
-    uint8_t           op_code = m_cmd_queue.cmd[m_cmd_queue.rp].op_code;
+    uint8_t           op_code = p_elem->op_code;
 
 #ifdef PSTORAGE_RAW_MODE_ENABLE
-    if (m_cmd_queue.cmd[m_cmd_queue.rp].storage_addr.module_id == RAW_MODE_APP_ID)
+    if (p_elem->storage_addr.module_id == RAW_MODE_APP_ID)
     {
         ntf_cb = m_raw_app_table.cb;
     }
     else
 #endif // PSTORAGE_RAW_MODE_ENABLE
     {
-        ntf_cb = m_app_table[m_cmd_queue.cmd[m_cmd_queue.rp].storage_addr.module_id].cb;
+        ntf_cb = m_app_table[p_elem->storage_addr.module_id].cb;
     }
 
     // Indicate result to client.
     // For PSTORAGE_CLEAR_OP_CODE no size is returned as the size field is used only internally
     // for clients registering multiple pages.
-    ntf_cb(&m_cmd_queue.cmd[m_cmd_queue.rp].storage_addr,
+    ntf_cb(&p_elem->storage_addr,
            op_code,
            result,
-           m_cmd_queue.cmd[m_cmd_queue.rp].p_data_addr,
-           m_cmd_queue.cmd[m_cmd_queue.rp].size);
+           p_elem->p_data_addr,
+           p_elem->size);
 }
 
 
@@ -475,7 +479,7 @@ void pstorage_sys_event_handler(uint32_t sys_evt)
             retval = cmd_queue_dequeue();
             if (retval != NRF_SUCCESS)
             {
-                app_notify(retval);
+                app_notify(retval, &m_cmd_queue.cmd[m_cmd_queue.rp]);
             }
             return;
         }
@@ -509,12 +513,10 @@ void pstorage_sys_event_handler(uint32_t sys_evt)
                     clear_all_finished ||
                     store_finished)
                 {
+                    uint8_t queue_rp = m_cmd_queue.rp;
+
                     m_swap_state = STATE_INIT;
 
-                    app_notify(retval);
-
-                    // Initialize/free the element as it is now processed.
-                    cmd_queue_element_init(m_cmd_queue.rp);
                     m_round_val = 0;
                     m_cmd_queue.count--;
                     m_cmd_queue.rp++;
@@ -523,19 +525,41 @@ void pstorage_sys_event_handler(uint32_t sys_evt)
                     {
                         m_cmd_queue.rp -= PSTORAGE_CMD_QUEUE_SIZE;
                     }
+
+                    app_notify(retval, &m_cmd_queue.cmd[queue_rp]);
+
+                    // Initialize/free the element as it is now processed.
+                    cmd_queue_element_init(queue_rp);
                 }
                 // Schedule any queued flash access operations.
                 retval = cmd_queue_dequeue();
 
                 if (retval != NRF_SUCCESS)
                 {
-                    app_notify(retval);
+                    app_notify(retval, &m_cmd_queue.cmd[m_cmd_queue.rp]);
                 }
             }
             break;
 
             case NRF_EVT_FLASH_OPERATION_ERROR:
-                app_notify(NRF_ERROR_TIMEOUT);
+                // Current command timed out and was not started in SoftDevice.
+                p_cmd = &m_cmd_queue.cmd[m_cmd_queue.rp];
+
+                ASSERT(p_cmd->n_tries < SD_CMD_MAX_TRIES);
+                if (++p_cmd->n_tries == SD_CMD_MAX_TRIES)
+                {
+                    // If we have already attempted SD_CMD_MAX_TRIES times, give up.
+                    app_notify(NRF_ERROR_TIMEOUT, &m_cmd_queue.cmd[m_cmd_queue.rp]);
+                }
+                else
+                {
+                    // Retry operation
+                    retval = cmd_process();
+                    if (retval != NRF_SUCCESS && retval != NRF_ERROR_BUSY)
+                    {
+                        app_notify(retval, p_cmd);
+                    }
+                }
                 break;
 
             default:
@@ -885,7 +909,7 @@ uint32_t pstorage_register(pstorage_module_param_t * p_module_param,
     NULL_PARAM_CHECK(p_module_param);
     NULL_PARAM_CHECK(p_block_id);
     NULL_PARAM_CHECK(p_module_param->cb);
-    BLOCK_SIZE_CHECK(p_module_param->block_size);
+    BLOCK_SIZE_CHECK(p_module_param->block_size);    
     BLOCK_COUNT_CHECK(p_module_param->block_count, p_module_param->block_size);
 
     // Block size should be a multiple of word size.
@@ -923,7 +947,7 @@ uint32_t pstorage_register(pstorage_module_param_t * p_module_param,
         }
         m_next_page_addr += PSTORAGE_FLASH_PAGE_SIZE;
     }
-    while (total_size >= PSTORAGE_FLASH_PAGE_SIZE);
+    while (total_size > 0);
 
     m_app_table[m_next_app_instance].num_of_pages = page_count;
     m_next_app_instance++;

@@ -52,10 +52,11 @@
  *
  * @param[out] p_peer_data Peer data set by application to be used for DFU connection.
  *
- * @retval NRF_SUCCES             If peer data is valid and can be used for connection.
+ * @retval NRF_SUCCESS            If peer data is valid and can be used for connection.
+ * @retval NRF_ERROR_NULL         If p_peer_data is a NULL pointer.
  * @retval NRF_ERROR_INVALID_DATA If peer data is not available or invalid.
  */
-uint32_t dfu_ble_get_peer_data(dfu_ble_peer_data_t * p_peer_data);
+uint32_t dfu_ble_peer_data_get(dfu_ble_peer_data_t * p_peer_data);
 
 #endif // DFU_BLE_SVC_INTERNAL_H__
 

@@ -70,8 +70,8 @@ enum BLE_GAP_SVCS
   SD_BLE_GAP_ENCRYPT,                          /**< Initiate encryption procedure. */
   SD_BLE_GAP_SEC_INFO_REPLY,                   /**< Reply with Security Information. */
   SD_BLE_GAP_CONN_SEC_GET,                     /**< Obtain connection security level. */
-  SD_BLE_GAP_RSSI_START,                       /**< Start reporting of changes in RSSI. */
-  SD_BLE_GAP_RSSI_STOP,                        /**< Stop reporting of changes in RSSI. */
+  SD_BLE_GAP_RSSI_START,                       /**< Start reporting of changes in RSSI. */ 
+  SD_BLE_GAP_RSSI_STOP,                        /**< Stop reporting of changes in RSSI. */ 
   SD_BLE_GAP_SCAN_START,                       /**< Start Scanning. */
   SD_BLE_GAP_SCAN_STOP,                        /**< Stop Scanning. */
   SD_BLE_GAP_CONNECT,                          /**< Connect. */
@@ -123,7 +123,7 @@ enum BLE_GAP_OPTS
 #define BLE_ERROR_GAP_UUID_LIST_MISMATCH            (NRF_GAP_ERR_BASE + 0x000)  /**< UUID list does not contain an integral number of UUIDs. */
 #define BLE_ERROR_GAP_DISCOVERABLE_WITH_WHITELIST   (NRF_GAP_ERR_BASE + 0x001)  /**< Use of Whitelist not permitted with discoverable advertising. */
 #define BLE_ERROR_GAP_INVALID_BLE_ADDR              (NRF_GAP_ERR_BASE + 0x002)  /**< The upper two bits of the address do not correspond to the specified address type. */
-#define BLE_ERROR_GAP_WHITELIST_IN_USE              (NRF_GAP_ERR_BASE + 0x003)  /**< Attempt to overwrite the whitelist while already in use by another operation. */
+#define BLE_ERROR_GAP_WHITELIST_IN_USE              (NRF_GAP_ERR_BASE + 0x003)  /**< Attempt to overwrite the whitelist while already in use by another operation. */ 
 /**@} */
 
 
@@ -191,7 +191,7 @@ enum BLE_GAP_OPTS
 #define BLE_GAP_AD_TYPE_PUBLIC_TARGET_ADDRESS               0x17 /**< Public Target Address. */
 #define BLE_GAP_AD_TYPE_RANDOM_TARGET_ADDRESS               0x18 /**< Random Target Address. */
 #define BLE_GAP_AD_TYPE_APPEARANCE                          0x19 /**< Appearance. */
-#define BLE_GAP_AD_TYPE_ADVERTISING_INTERVAL                0x1A /**< Advertising Interval. */
+#define BLE_GAP_AD_TYPE_ADVERTISING_INTERVAL                0x1A /**< Advertising Interval. */ 
 #define BLE_GAP_AD_TYPE_LE_BLUETOOTH_DEVICE_ADDRESS         0x1B /**< LE Bluetooth Device Address. */
 #define BLE_GAP_AD_TYPE_LE_ROLE                             0x1C /**< LE Role. */
 #define BLE_GAP_AD_TYPE_SIMPLE_PAIRING_HASH_C256            0x1D /**< Simple Pairing Hash C-256. */
@@ -460,7 +460,7 @@ typedef struct
   uint8_t             irk_count;       /**< Count of IRKs in array, up to @ref BLE_GAP_WHITELIST_IRK_MAX_COUNT. */
 } ble_gap_whitelist_t;
 
-/**@brief Channel mask for RF channels used in advertising and scanning. */
+/**@brief Channel mask for RF channels used in advertising and scanning. */ 
 typedef struct
 {
   uint8_t ch_37_off : 1;  /**< Setting this bit to 1 will turn off advertising on channel 37 */
@@ -827,12 +827,12 @@ typedef struct
  *        - A private address refresh cycle.
  *
  * @note  The specified address cycle interval is used when the address cycle mode is
- *        @ref BLE_GAP_ADDR_CYCLE_MODE_AUTO. If 0 is given, the address will not be automatically
+ *        @ref BLE_GAP_ADDR_CYCLE_MODE_AUTO. If 0 is given, the address will not be automatically 
  *        refreshed at all. The default interval is @ref BLE_GAP_DEFAULT_PRIVATE_ADDR_CYCLE_INTERVAL_S.
  *
  * @note  If the current address cycle mode is @ref BLE_GAP_ADDR_CYCLE_MODE_AUTO, the address will immediately be
  *        refreshed when a custom privacy option is set. A new address can be generated manually by calling
- *        @ref sd_ble_gap_address_set with the same type again.
+ *        @ref sd_ble_gap_address_set with the same type again. 
  *
  * @note  If the IRK is updated, the new IRK becomes the one to be distributed in all
  *        bonding procedures performed after @ref sd_ble_opt_set returns.
@@ -870,7 +870,7 @@ typedef struct
  *        This can be used with @ref sd_ble_opt_set to enable and disable
  *        compatibility modes. Compatibility modes are disabled by default.
  *
- *  @note  Compatibility mode 1 enables interoperability with devices that do not support
+ *  @note  Compatibility mode 1 enables interoperability with devices that do not support 
  *         a value of 0 for the WinOffset parameter in the Link Layer CONNECT_REQ packet.
  *
  *  @retval ::NRF_SUCCESS Set successfully.
@@ -903,7 +903,7 @@ typedef union
  * @note If the address cycle mode is @ref BLE_GAP_ADDR_CYCLE_MODE_AUTO, the address type is required to
  * be @ref BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE or
  * @ref BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE. The given address is ignored and the
- * SoftDevice will generate a new private address automatically every
+ * SoftDevice will generate a new private address automatically every 
  * @ref BLE_GAP_DEFAULT_PRIVATE_ADDR_CYCLE_INTERVAL_S seconds. If this API
  * call is used again with the same parameters, the SoftDevice will immediately
  * generate a new private address to replace the current address.
@@ -953,9 +953,9 @@ SVCALL(SD_BLE_GAP_ADDRESS_GET, uint32_t, sd_ble_gap_address_get(ble_gap_addr_t *
  *
  * @note The format of the advertising data will be checked by this call to ensure interoperability.
  *       Limitations imposed by this API call to the data provided include having a flags data type in the scan response data and
- *       duplicating the local name in the advertising data and scan response data.
+ *       duplicating the local name in the advertising data and scan response data. 
  *
- * @note To clear the advertising data and set it to a 0-length packet, simply provide a valid pointer (p_data/p_sr_data) with its corresponding
+ * @note To clear the advertising data and set it to a 0-length packet, simply provide a valid pointer (p_data/p_sr_data) with its corresponding 
  *        length (dlen/srdlen) set to 0.
  *
  * @note The call will fail if p_data and p_sr_data are both NULL since this would have no effect.
@@ -1140,7 +1140,7 @@ SVCALL(SD_BLE_GAP_DEVICE_NAME_GET, uint32_t, sd_ble_gap_device_name_get(uint8_t 
  *                         In the peripheral role, only the timeout, bond and mitm fields of this structure are used.
  *                         In the central role, this pointer may be NULL to reject a Security Request.
  *
- * @details In the central role, this function will send an SMP Pairing Request (or an SMP Pairing Failed if rejected),
+ * @details In the central role, this function will send an SMP Pairing Request (or an SMP Pairing Failed if rejected), 
  *          otherwise in the peripheral role, an SMP Security Request will be sent.
  *
  * @note    Calling this function may result in the following events depending on the outcome and parameters: @ref BLE_GAP_EVT_SEC_PARAMS_REQUEST,
@@ -1164,13 +1164,13 @@ SVCALL(SD_BLE_GAP_AUTHENTICATE, uint32_t, sd_ble_gap_authenticate(uint16_t conn_
  * @param[in] sec_status Security status, see @ref BLE_GAP_SEC_STATUS.
  * @param[in] p_sec_params Pointer to a @ref ble_gap_sec_params_t security parameters structure. In the central role this must be set to NULL, as the parameters have
  *                         already been provided during a previous call to @ref sd_ble_gap_authenticate.
- * @param[in,out] p_sec_keyset Pointer to a @ref ble_gap_sec_keyset_t security keyset structure. Any keys distributed as a result of the ongoing security procedure
- *                         will be stored into the memory referenced by the pointers inside this structure. The keys will be stored and available to the application
+ * @param[in,out] p_sec_keyset Pointer to a @ref ble_gap_sec_keyset_t security keyset structure. Any keys distributed as a result of the ongoing security procedure 
+ *                         will be stored into the memory referenced by the pointers inside this structure. The keys will be stored and available to the application 
  *                         upon reception of a @ref BLE_GAP_EVT_AUTH_STATUS event.
- *                         The pointer to the ID key data distributed by the <b>local device</b> constitutes however an exception. It can either point to ID key data
- *                         filled in by the user before calling this function, in which case a user-supplied Bluetooth address and IRK will be distributed,
- *                         or the pointer to the ID key data structure can be NULL, in which case the device's configured (or default, if none is configured)
- *                         Bluetooth address and IRK will be distributed.
+ *                         The pointer to the ID key data distributed by the <b>local device</b> constitutes however an exception. It can either point to ID key data 
+ *                         filled in by the user before calling this function, in which case a user-supplied Bluetooth address and IRK will be distributed, 
+ *                         or the pointer to the ID key data structure can be NULL, in which case the device's configured (or default, if none is configured) 
+ *                         Bluetooth address and IRK will be distributed. 
  *
  * @details This function is only used to reply to a @ref BLE_GAP_EVT_SEC_PARAMS_REQUEST, calling it at other times will result in an @ref NRF_ERROR_INVALID_STATE.
  * @note    If the call returns an error code, the request is still pending, and the reply call may be repeated with corrected parameters.
@@ -1255,7 +1255,7 @@ SVCALL(SD_BLE_GAP_SEC_INFO_REPLY, uint32_t, sd_ble_gap_sec_info_reply(uint16_t c
 SVCALL(SD_BLE_GAP_CONN_SEC_GET, uint32_t, sd_ble_gap_conn_sec_get(uint16_t conn_handle, ble_gap_conn_sec_t *p_conn_sec));
 
 
-/**@brief Start reporting the received signal strength to the application.
+/**@brief Start reporting the received signal strength to the application. 
  *
  * A new event is reported whenever the RSSI value changes, until @ref sd_ble_gap_rssi_stop is called.
  *
@@ -1272,7 +1272,7 @@ SVCALL(SD_BLE_GAP_RSSI_START, uint32_t, sd_ble_gap_rssi_start(uint16_t conn_hand
 
 /**@brief Stop reporting the received signal strength.
  *
- * @note An RSSI change detected before the call but not yet received by the application
+ * @note An RSSI change detected before the call but not yet received by the application 
  * may be reported after @ref sd_ble_gap_rssi_stop has been called.
  *
  * @param[in] conn_handle Connection handle.
@@ -1327,7 +1327,7 @@ SVCALL(SD_BLE_GAP_SCAN_STOP, uint32_t, sd_ble_gap_scan_stop(void));
 
 /**@brief Create a connection (GAP Link Establishment).
  *
- * @note To use the currently active whitelist set p_scan_params->p_whitelist to NULL.
+ * @note To use the currently active whitelist set p_scan_params->p_whitelist to NULL.    
  *
  * @param[in] p_peer_addr   Pointer to peer address. If the selective bit is set in @ref ble_gap_scan_params_t, then this must be NULL.
  * @param[in] p_scan_params Pointer to scan parameters structure.
