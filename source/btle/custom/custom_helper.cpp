@@ -202,7 +202,7 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
                                      uint8_t                   properties,
                                      SecurityManager::SecurityMode_t       requiredSecurity,
                                      uint8_t                  *p_data,
-                                     uint16_t                  min_length,
+                                     uint16_t                  length,
                                      uint16_t                  max_length,
                                      const uint8_t            *userDescriptionDescriptorValuePtr,
                                      uint16_t                  userDescriptionDescriptorValueLen,
@@ -242,7 +242,8 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
     attr_md.wr_auth = writeAuthorization;
 
     attr_md.vloc = BLE_GATTS_VLOC_STACK;
-    attr_md.vlen = (min_length == max_length) ? 0 : 1;
+    /* Always set variable size */
+    attr_md.vlen = 1;
 
     if (char_props.read || char_props.notify || char_props.indicate) {
         switch (requiredSecurity) {
@@ -292,7 +293,7 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
 
     attr_char_value.p_uuid    = p_uuid;
     attr_char_value.p_attr_md = &attr_md;
-    attr_char_value.init_len  = min_length;
+    attr_char_value.init_len  = length;
     attr_char_value.max_len   = max_length;
     attr_char_value.p_value   = p_data;
 
@@ -325,7 +326,7 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
 error_t custom_add_in_descriptor(uint16_t    char_handle,
                                              ble_uuid_t *p_uuid,
                                              uint8_t    *p_data,
-                                             uint16_t    min_length,
+                                             uint16_t    length,
                                              uint16_t    max_length,
                                              uint16_t   *p_desc_handle)
 {
@@ -333,7 +334,8 @@ error_t custom_add_in_descriptor(uint16_t    char_handle,
     ble_gatts_attr_md_t   desc_md = {0};
 
     desc_md.vloc = BLE_GATTS_VLOC_STACK;
-    desc_md.vlen = (min_length == max_length) ? 0 : 1;
+    /* Always set variable size */
+    desc_md.vlen = 1;
 
     /* Make it readable and writable */
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&desc_md.read_perm);
@@ -343,7 +345,7 @@ error_t custom_add_in_descriptor(uint16_t    char_handle,
 
     attr_desc.p_uuid    = p_uuid;
     attr_desc.p_attr_md = &desc_md;
-    attr_desc.init_len  = min_length;
+    attr_desc.init_len  = length;
     attr_desc.max_len   = max_length;
     attr_desc.p_value   = p_data;
 
