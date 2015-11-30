@@ -97,6 +97,7 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
                                               p_char->getValueAttribute().getValuePtr(),
                                               p_char->getValueAttribute().getLength(),
                                               p_char->getValueAttribute().getMaxLength(),
+                                              p_char->getValueAttribute().hasVariableLength(),
                                               userDescriptionDescriptorValuePtr,
                                               userDescriptionDescriptorValueLen,
                                               p_char->isReadAuthorizationEnabled(),
@@ -129,6 +130,7 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
                                             p_desc->getValuePtr(),
                                             p_desc->getLength(),
                                             p_desc->getMaxLength(),
+                                            p_desc->hasVariableLength(),
                                             &nrfDescriptorHandles[descriptorCount]),
                 BLE_ERROR_PARAM_OUT_OF_RANGE);
 
