@@ -25,7 +25,7 @@
   ],
   "dependencies": {
     "ble": "^2.1.7",
-    "nrf51-sdk": "^0.0.1"
+    "nrf51-sdk": "^1.0.0"
   },
   "extraIncludes": [
     "source/btle",
