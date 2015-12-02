@@ -374,15 +374,30 @@ uint16_t nRF5xGap::getConnectionHandle(void)
 /**************************************************************************/
 ble_error_t nRF5xGap::setAddress(AddressType_t type, const Address_t address)
 {
-    if (type > ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE) {
+    uint8_t cycle_mode;
+    ble_gap_addr_t dev_addr;
+
+    /* When using Public or Static addresses, the cycle mode must be None.
+       When using Random Private addresses, the cycle mode must be Auto.
+       In auto mode, the given address is ignored.
+    */
+    if ((type == ADDR_TYPE_PUBLIC) || (type == ADDR_TYPE_RANDOM_STATIC))
+    {
+        cycle_mode = BLE_GAP_ADDR_CYCLE_MODE_NONE;
+        memcpy(dev_addr.addr, address, ADDR_LEN);
+    }
+    else if ((type == ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE) || (type == ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE))
+    {
+        cycle_mode = BLE_GAP_ADDR_CYCLE_MODE_AUTO;
+        // address is ignored when in auto mode
+    }
+    else
+    {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
-    ble_gap_addr_t dev_addr;
     dev_addr.addr_type = type;
-    memcpy(dev_addr.addr, address, ADDR_LEN);
-
-    ASSERT_INT(ERROR_NONE, sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_NONE, &dev_addr), BLE_ERROR_PARAM_OUT_OF_RANGE);
+    ASSERT_INT(ERROR_NONE, sd_ble_gap_address_set(cycle_mode, &dev_addr), BLE_ERROR_PARAM_OUT_OF_RANGE);
 
     return BLE_ERROR_NONE;
 }
