@@ -251,10 +251,7 @@ nRF5xServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val_
     if (state == DISCOVER_SERVICE_UUIDS) {
         if ((response->count == 1) && (response->value_len == UUID::LENGTH_OF_LONG_UUID)) {
             UUID::LongUUIDBytes_t uuid;
-
-            for (unsigned i = 0; i < UUID::LENGTH_OF_LONG_UUID; i++) {
-                uuid[i] = response->handle_value[0].p_value[i];
-            }
+            memcpy(uuid, response->handle_value[0].p_value, UUID::LENGTH_OF_LONG_UUID);
 
             unsigned serviceIndex = serviceUUIDDiscoveryQueue.dequeue();
             services[serviceIndex].setupLongUUID(uuid);
@@ -267,9 +264,7 @@ nRF5xServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val_
         if ((response->count == 1) && (response->value_len == UUID::LENGTH_OF_LONG_UUID + 1 /* props */ + 2 /* value handle */)) {
             UUID::LongUUIDBytes_t uuid;
 
-            for (unsigned i = 0; i < UUID::LENGTH_OF_LONG_UUID; i++) {
-                uuid[i] = response->handle_value[0].p_value[3 + i];
-            }
+            memcpy(uuid, &(response->handle_value[0].p_value[3]), UUID::LENGTH_OF_LONG_UUID);
 
             unsigned charIndex = charUUIDDiscoveryQueue.dequeue();
             characteristics[charIndex].setupLongUUID(uuid);
