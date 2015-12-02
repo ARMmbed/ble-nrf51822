@@ -24,7 +24,7 @@
     }
   ],
   "dependencies": {
-    "ble": "^2.0.0"
+    "ble": "^2.1.6"
   },
   "extraIncludes": [
     "source/btle",
