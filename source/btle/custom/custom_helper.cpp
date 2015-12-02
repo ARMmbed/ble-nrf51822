@@ -191,6 +191,8 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
     @param[in]  char_props        The characteristic properties, as
                                   defined by ble_gatt_char_props_t
     @param[in]  max_length        The maximum length of this characeristic
+    @param[in]  has_variable_len  Whether the characteristic data has
+                                  variable length.
     @param[out] p_char_handle
 
     @returns
@@ -204,6 +206,7 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
                                      uint8_t                  *p_data,
                                      uint16_t                  length,
                                      uint16_t                  max_length,
+                                     bool                      has_variable_len,
                                      const uint8_t            *userDescriptionDescriptorValuePtr,
                                      uint16_t                  userDescriptionDescriptorValueLen,
                                      bool                      readAuthorization,
@@ -243,7 +246,7 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
 
     attr_md.vloc = BLE_GATTS_VLOC_STACK;
     /* Always set variable size */
-    attr_md.vlen = 1;
+    attr_md.vlen = has_variable_len;
 
     if (char_props.read || char_props.notify || char_props.indicate) {
         switch (requiredSecurity) {
@@ -318,24 +321,27 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
                                   since 1 is typically used by the primary
                                   service).
     @param[in]  max_length        The maximum length of this descriptor
+    @param[in]  has_variable_len  Whether the characteristic data has
+                                  variable length.
 
     @returns
     @retval     ERROR_NONE        Everything executed normally
 */
 /**************************************************************************/
 error_t custom_add_in_descriptor(uint16_t    char_handle,
-                                             ble_uuid_t *p_uuid,
-                                             uint8_t    *p_data,
-                                             uint16_t    length,
-                                             uint16_t    max_length,
-                                             uint16_t   *p_desc_handle)
+                                 ble_uuid_t *p_uuid,
+                                 uint8_t    *p_data,
+                                 uint16_t    length,
+                                 uint16_t    max_length,
+                                 bool        has_variable_len,
+                                 uint16_t   *p_desc_handle)
 {
     /* Descriptor metadata */
     ble_gatts_attr_md_t   desc_md = {0};
 
     desc_md.vloc = BLE_GATTS_VLOC_STACK;
     /* Always set variable size */
-    desc_md.vlen = 1;
+    desc_md.vlen = has_variable_len;
 
     /* Make it readable and writable */
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&desc_md.read_perm);
