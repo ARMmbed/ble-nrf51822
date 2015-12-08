@@ -16,6 +16,6 @@ message("suppressing warnings from ble-nrf51822")
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     set_target_properties(ble-nrf51822
-        PROPERTIES COMPILE_FLAGS "-Wno-sign-compare -Wno-unused-variable -Wno-unused-parameter -Wno-unused-function -Wno-missing-field-initializers"
+        PROPERTIES COMPILE_FLAGS "-Wno-sign-compare -Wno-unused-variable -Wno-unused-parameter -Wno-missing-field-initializers"
     )
 endif()
