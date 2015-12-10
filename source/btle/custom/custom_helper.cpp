@@ -148,9 +148,8 @@ uint8_t custom_add_uuid_base(uint8_t const *const p_uuid_base)
     ble_uuid128_t base_uuid;
     uint8_t       uuid_type = 0;
 
-    /* Reverse the bytes since ble_uuid128_t is LSB */
     for (unsigned i = 0; i < UUID::LENGTH_OF_LONG_UUID; i++) {
-        base_uuid.uuid128[i] = p_uuid_base[UUID::LENGTH_OF_LONG_UUID - 1 - i];
+        base_uuid.uuid128[i] = p_uuid_base[i];
     }
 
     ASSERT_INT( ERROR_NONE, sd_ble_uuid_vs_add( &base_uuid, &uuid_type ), 0);
@@ -168,9 +167,8 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
 {
     UUID::LongUUIDBytes_t uuid_base_le;
 
-    /* Reverse the bytes since ble_uuid128_t is LSB */
     for (uint8_t i = 0; i < UUID::LENGTH_OF_LONG_UUID; i++) {
-        uuid_base_le[i] = p_uuid_base[UUID::LENGTH_OF_LONG_UUID - 1 - i];
+        uuid_base_le[i] = p_uuid_base[i];
     }
 
     ASSERT_STATUS( sd_ble_uuid_decode(UUID::LENGTH_OF_LONG_UUID, uuid_base_le, p_uuid));

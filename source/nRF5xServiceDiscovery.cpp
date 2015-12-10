@@ -254,7 +254,7 @@ nRF5xServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val_
             memcpy(uuid, response->handle_value[0].p_value, UUID::LENGTH_OF_LONG_UUID);
 
             unsigned serviceIndex = serviceUUIDDiscoveryQueue.dequeue();
-            services[serviceIndex].setupLongUUID(uuid);
+            services[serviceIndex].setupLongUUID(uuid, UUID::LSB);
 
             serviceUUIDDiscoveryQueue.triggerFirst();
         } else {
@@ -267,7 +267,7 @@ nRF5xServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_char_val_
             memcpy(uuid, &(response->handle_value[0].p_value[3]), UUID::LENGTH_OF_LONG_UUID);
 
             unsigned charIndex = charUUIDDiscoveryQueue.dequeue();
-            characteristics[charIndex].setupLongUUID(uuid);
+            characteristics[charIndex].setupLongUUID(uuid, UUID::LSB);
 
             charUUIDDiscoveryQueue.triggerFirst();
         } else {
