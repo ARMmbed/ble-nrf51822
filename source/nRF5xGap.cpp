@@ -382,7 +382,7 @@ uint16_t nRF5xGap::getConnectionHandle(void)
     return m_connectionHandle;
 }
 
-/**************5************************************************************/
+/**************************************************************************/
 /*!
     @brief      Sets the BLE device address
 
