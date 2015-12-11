@@ -112,6 +112,9 @@ public:
     }
 #endif
 
+protected:
+    virtual ble_error_t cleanup(void);
+
 private:
     bool    radioNotificationCallbackParam; /* parameter to be passed into the Timeout-generated radio notification callback. */
     Timeout radioNotificationTimeout;

@@ -147,6 +147,25 @@ public:
         }
     }
 
+protected:
+    /**
+     * @brief  Clear nRF5xGattClient's state.
+     *
+     * @return
+     *           BLE_ERROR_NONE if successful.
+     */
+    virtual ble_error_t cleanup(void) {
+        /* Clear all state that is from the parent, including private members */
+        if (GattClient::cleanup() != BLE_ERROR_NONE) {
+            return BLE_ERROR_INVALID_STATE;
+        }
+
+        /* Clear derived class members */
+        discovery.cleanup();
+
+        return BLE_ERROR_NONE;
+    }
+
 public:
     nRF5xGattClient() : discovery(this) {
         /* empty */

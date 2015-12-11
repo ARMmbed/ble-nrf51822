@@ -23,8 +23,10 @@
 #include "nRF5xGap.h"
 
 nRF5xGattServer &nRF5xGattServer::getInstance(void) {
-    static nRF5xGattServer m_instance;
-    return m_instance;
+    if (gattServerInstance == NULL) {
+        gattServerInstance = new nRF5xGattServer();
+    }
+    return (nRF5xGattServer &) *gattServerInstance;
 }
 
 /**************************************************************************/
@@ -306,6 +308,33 @@ ble_error_t nRF5xGattServer::areUpdatesEnabled(Gap::Handle_t connectionHandle, c
     if ((cccdValue & BLE_GATT_HVX_NOTIFICATION) || (cccdValue & BLE_GATT_HVX_INDICATION)) {
         *enabledP = true;
     }
+
+    return BLE_ERROR_NONE;
+}
+
+/**************************************************************************/
+/*!
+    @brief  Clear nRF5xGattServer's state.
+
+    @returns    ble_error_t
+
+    @retval     BLE_ERROR_NONE
+                Everything executed properly
+*/
+/**************************************************************************/
+ble_error_t nRF5xGattServer::cleanup(void)
+{
+    /* Clear all state that is from the parent, including private members */
+    if (GattServer::cleanup() != BLE_ERROR_NONE) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    /* Clear derived class members */
+    memset(p_characteristics,        0, sizeof(p_characteristics));
+    memset(p_descriptors,            0, sizeof(p_descriptors));
+    memset(nrfCharacteristicHandles, 0, sizeof(ble_gatts_char_handles_t));
+    memset(nrfDescriptorHandles,     0, sizeof(nrfDescriptorHandles));
+    descriptorCount = 0;
 
     return BLE_ERROR_NONE;
 }

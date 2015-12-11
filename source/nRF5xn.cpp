@@ -104,14 +104,42 @@ ble_error_t nRF5xn::init(BLE::InstanceID_t instanceID, FunctionPointerWithContex
     return BLE_ERROR_NONE;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Purge the BLE stack of GATT and GAP state.
+
+    @returns    ble_error_t
+
+    @retval     BLE_ERROR_NONE
+                Everything executed properly
+
+    @note  When using S110, GattClient::shutdown() will not be called
+           since Gatt client features are not supported.
+*/
+/**************************************************************************/
 ble_error_t nRF5xn::shutdown(void)
 {
     if (!initialized) {
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     }
 
+    /* Shutdown the SoftDevice */
     if(softdevice_handler_sd_disable() != NRF_SUCCESS) {
         return BLE_STACK_BUSY;
+    }
+
+    /* Shutdown the BLE API and nRF51 glue code */
+#if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
+    if (GattServer::shutdown()      != BLE_ERROR_NONE ||
+        SecurityManager::shutdown() != BLE_ERROR_NONE ||
+        GattClient::shutdown()      != BLE_ERROR_NONE ||
+        Gap::shutdown()             != BLE_ERROR_NONE) {
+#else
+    if (GattServer::shutdown()      != BLE_ERROR_NONE ||
+        SecurityManager::shutdown() != BLE_ERROR_NONE ||
+        Gap::shutdown()             != BLE_ERROR_NONE) {
+#endif
+        return BLE_ERROR_INVALID_STATE;
     }
 
     initialized = false;

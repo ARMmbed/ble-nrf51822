@@ -42,6 +42,9 @@ public:
     void eventCallback(void);
     void hwCallback(ble_evt_t *p_ble_evt);
 
+protected:
+    virtual ble_error_t cleanup(void);
+
 private:
     const static unsigned BLE_TOTAL_CHARACTERISTICS = 20;
     const static unsigned BLE_TOTAL_DESCRIPTORS     = 8;

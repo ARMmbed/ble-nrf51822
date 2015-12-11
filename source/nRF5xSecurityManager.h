@@ -47,6 +47,21 @@ public:
         return btle_purgeAllBondingState();
     }
 
+    /**
+     * @brief  Clear nRF5xSecurityManager's state.
+     *
+     * @return
+     *           BLE_ERROR_NONE if successful.
+     */
+    virtual ble_error_t cleanup(void)
+    {
+        if (SecurityManager::cleanup() != BLE_ERROR_NONE) {
+            return BLE_ERROR_INVALID_STATE;
+        }
+
+        return BLE_ERROR_NONE;
+    }
+
 public:
     nRF5xSecurityManager() {
         /* empty */

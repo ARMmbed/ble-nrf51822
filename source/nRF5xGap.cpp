@@ -23,6 +23,9 @@
 
 nRF5xGap &nRF5xGap::getInstance() {
     static nRF5xGap m_instance;
+    if (gapInstance == NULL) {
+        gapInstance = &m_instance;
+    }
     return m_instance;
 }
 
@@ -338,6 +341,29 @@ ble_error_t nRF5xGap::updateConnectionParams(Handle_t handle, const ConnectionPa
 
 /**************************************************************************/
 /*!
+    @brief  Clear nRF5xGap's state.
+
+    @returns    ble_error_t
+
+    @retval     BLE_ERROR_NONE
+                Everything executed properly
+*/
+/**************************************************************************/
+ble_error_t nRF5xGap::cleanup(void)
+{
+    /* Clear all state that is from the parent, including private members */
+    if (Gap::cleanup() != BLE_ERROR_NONE) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    /* Clear derived class members */
+    m_connectionHandle = BLE_CONN_HANDLE_INVALID;
+
+    return BLE_ERROR_NONE;
+}
+
+/**************************************************************************/
+/*!
     @brief  Sets the 16-bit connection handle
 */
 /**************************************************************************/
@@ -356,7 +382,7 @@ uint16_t nRF5xGap::getConnectionHandle(void)
     return m_connectionHandle;
 }
 
-/**************************************************************************/
+/**************5************************************************************/
 /*!
     @brief      Sets the BLE device address
 

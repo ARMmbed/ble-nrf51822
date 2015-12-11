@@ -18,11 +18,10 @@
 
 nRF5xGattClient &
 nRF5xGattClient::getInstance(void) {
-    static nRF5xGattClient* nRFGattClientSingleton = NULL;
-    if (nRFGattClientSingleton == NULL) {
-        nRFGattClientSingleton = new nRF5xGattClient();
+    if (gattClientInstance == NULL) {
+        gattClientInstance = new nRF5xGattClient();
     }
-    return *nRFGattClientSingleton;
+    return (nRF5xGattClient &) *gattClientInstance;
 }
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
