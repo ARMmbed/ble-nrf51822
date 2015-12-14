@@ -32,16 +32,33 @@ extern "C" {
 static nRF5xn deviceInstance;
 
 /**
+ * The singleton for nRF5xGap. This has been kept static because it is
+ * always needed for any application that uses BLE.
+ */
+nRF5xGap nRF5xn::_gapInstance;
+
+/**
  * BLE-API requires an implementation of the following function in order to
  * obtain its transport handle.
  */
 BLEInstanceBase *
 createBLEInstance(void)
 {
-    return (&deviceInstance);
+    return &nRF5xn::Instance(BLE::DEFAULT_INSTANCE);
 }
 
-nRF5xn::nRF5xn(void) : initialized(false), instanceID(BLE::DEFAULT_INSTANCE)
+nRF5xn& nRF5xn::Instance(BLE::InstanceID_t instanceId)
+{
+    return deviceInstance;
+}
+
+nRF5xn::nRF5xn(void) :
+    initialized(false),
+    instanceID(BLE::DEFAULT_INSTANCE),
+    gapInstance(NULL),
+    gattServerInstance(NULL),
+    gattClientInstance(NULL),
+    securityManagerInstance(NULL)
 {
 }
 
@@ -123,22 +140,38 @@ ble_error_t nRF5xn::shutdown(void)
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     }
 
-    /* Shutdown the SoftDevice */
+    /*
+     * Shutdown the SoftDevice first. This is because we need to disable all
+     * interrupts. Otherwise if we clear the BLE API and glue code first there
+     * will be many NULL references and no config information which could lead
+     * to errors if the shutdown process is interrupted.
+     */
     if(softdevice_handler_sd_disable() != NRF_SUCCESS) {
         return BLE_STACK_BUSY;
     }
 
+
     /* Shutdown the BLE API and nRF51 glue code */
+    if (gattServerInstance != NULL &&
+        gattServerInstance->reset() != BLE_ERROR_NONE) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    if (securityManagerInstance != NULL &&
+        securityManagerInstance->reset() != BLE_ERROR_NONE) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    /* S110 does not support BLE client features, nothing to reset. */
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
-    if (GattServer::shutdown()      != BLE_ERROR_NONE ||
-        SecurityManager::shutdown() != BLE_ERROR_NONE ||
-        GattClient::shutdown()      != BLE_ERROR_NONE ||
-        Gap::shutdown()             != BLE_ERROR_NONE) {
-#else
-    if (GattServer::shutdown()      != BLE_ERROR_NONE ||
-        SecurityManager::shutdown() != BLE_ERROR_NONE ||
-        Gap::shutdown()             != BLE_ERROR_NONE) {
+    if (gattClientInstance != NULL &&
+        gattClientInstance->reset() != BLE_ERROR_NONE) {
+        return BLE_ERROR_INVALID_STATE;
+    }
 #endif
+
+    if (gapInstance != NULL &&
+        gapInstance->reset() != BLE_ERROR_NONE) {
         return BLE_ERROR_INVALID_STATE;
     }
 

@@ -44,8 +44,6 @@ void radioNotificationStaticCallback(bool param);
 class nRF5xGap : public Gap
 {
 public:
-    static nRF5xGap &getInstance();
-
     /* Functions that must be implemented from Gap */
     virtual ble_error_t setAddress(AddressType_t  type,  const Address_t address);
     virtual ble_error_t getAddress(AddressType_t *typeP, Address_t address);
@@ -75,6 +73,8 @@ public:
     virtual ble_error_t getPreferredConnectionParams(ConnectionParams_t *params);
     virtual ble_error_t setPreferredConnectionParams(const ConnectionParams_t *params);
     virtual ble_error_t updateConnectionParams(Handle_t handle, const ConnectionParams_t *params);
+
+    virtual ble_error_t reset(void);
 
     virtual ble_error_t initRadioNotification(void) {
         if (ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, radioNotificationStaticCallback) == NRF_SUCCESS) {
@@ -111,9 +111,6 @@ public:
         return BLE_STACK_BUSY;
     }
 #endif
-
-protected:
-    virtual ble_error_t cleanup(void);
 
 private:
     bool    radioNotificationCallbackParam; /* parameter to be passed into the Timeout-generated radio notification callback. */
@@ -199,6 +196,12 @@ private:
 
 private:
     uint16_t m_connectionHandle;
+
+    /*
+     * Allow instantiation from nRF5xn when required.
+     */
+    friend class nRF5xn;
+
     nRF5xGap() {
         m_connectionHandle = BLE_CONN_HANDLE_INVALID;
     }

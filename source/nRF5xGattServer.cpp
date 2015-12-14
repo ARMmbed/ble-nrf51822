@@ -20,14 +20,7 @@
 #include "common/common.h"
 #include "btle/custom/custom_helper.h"
 
-#include "nRF5xGap.h"
-
-nRF5xGattServer &nRF5xGattServer::getInstance(void) {
-    if (gattServerInstance == NULL) {
-        gattServerInstance = new nRF5xGattServer();
-    }
-    return (nRF5xGattServer &) *gattServerInstance;
-}
+#include "nRF5xn.h"
 
 /**************************************************************************/
 /*!
@@ -243,7 +236,8 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
         hvx_params.p_len  = &len;
 
         if (connectionHandle == BLE_CONN_HANDLE_INVALID) { /* use the default connection handle if the caller hasn't specified a valid connectionHandle. */
-            connectionHandle = nRF5xGap::getInstance().getConnectionHandle();
+            nRF5xGap &gap = (nRF5xGap &) nRF5xn::Instance(BLE::DEFAULT_INSTANCE).getGap();
+            connectionHandle = gap.getConnectionHandle();
         }
         error_t error = (error_t) sd_ble_gatts_hvx(connectionHandle, &hvx_params);
         if (error != ERROR_NONE) {
@@ -282,7 +276,8 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
 ble_error_t nRF5xGattServer::areUpdatesEnabled(const GattCharacteristic &characteristic, bool *enabledP)
 {
     /* Forward the call with the default connection handle. */
-    return areUpdatesEnabled(nRF5xGap::getInstance().getConnectionHandle(), characteristic, enabledP);
+    nRF5xGap &gap = (nRF5xGap &) nRF5xn::Instance(BLE::DEFAULT_INSTANCE).getGap();
+    return areUpdatesEnabled(gap.getConnectionHandle(), characteristic, enabledP);
 }
 
 ble_error_t nRF5xGattServer::areUpdatesEnabled(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP)
@@ -322,10 +317,10 @@ ble_error_t nRF5xGattServer::areUpdatesEnabled(Gap::Handle_t connectionHandle, c
                 Everything executed properly
 */
 /**************************************************************************/
-ble_error_t nRF5xGattServer::cleanup(void)
+ble_error_t nRF5xGattServer::reset(void)
 {
     /* Clear all state that is from the parent, including private members */
-    if (GattServer::cleanup() != BLE_ERROR_NONE) {
+    if (GattServer::reset() != BLE_ERROR_NONE) {
         return BLE_ERROR_INVALID_STATE;
     }
 

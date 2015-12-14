@@ -27,8 +27,6 @@
 class nRF5xGattServer : public GattServer
 {
 public:
-    static nRF5xGattServer &getInstance();
-
     /* Functions that must be implemented from GattServer */
     virtual ble_error_t addService(GattService &);
     virtual ble_error_t read(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
@@ -37,13 +35,12 @@ public:
     virtual ble_error_t write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
     virtual ble_error_t areUpdatesEnabled(const GattCharacteristic &characteristic, bool *enabledP);
     virtual ble_error_t areUpdatesEnabled(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP);
+    virtual ble_error_t reset(void);
 
     /* nRF51 Functions */
     void eventCallback(void);
     void hwCallback(ble_evt_t *p_ble_evt);
 
-protected:
-    virtual ble_error_t cleanup(void);
 
 private:
     const static unsigned BLE_TOTAL_CHARACTERISTICS = 20;
@@ -88,6 +85,11 @@ private:
     GattAttribute            *p_descriptors[BLE_TOTAL_DESCRIPTORS];
     uint8_t                   descriptorCount;
     uint16_t                  nrfDescriptorHandles[BLE_TOTAL_DESCRIPTORS];
+
+    /*
+     * Allow instantiation from nRF5xn when required.
+     */
+    friend class nRF5xn;
 
     nRF5xGattServer() : GattServer(), p_characteristics(), nrfCharacteristicHandles(), p_descriptors(), descriptorCount(0), nrfDescriptorHandles() {
         /* empty */

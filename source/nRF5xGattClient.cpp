@@ -16,14 +16,6 @@
 
 #include "nRF5xGattClient.h"
 
-nRF5xGattClient &
-nRF5xGattClient::getInstance(void) {
-    if (gattClientInstance == NULL) {
-        gattClientInstance = new nRF5xGattClient();
-    }
-    return (nRF5xGattClient &) *gattClientInstance;
-}
-
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
 ble_error_t
 nRF5xGattClient::launchServiceDiscovery(Gap::Handle_t                               connectionHandle,

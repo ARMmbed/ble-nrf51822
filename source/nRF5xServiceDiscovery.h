@@ -105,9 +105,9 @@ public:
      * @return
      *           BLE_ERROR_NONE if successful.
      */
-    virtual ble_error_t cleanup(void) {
+    virtual ble_error_t reset(void) {
         /* Clear all state that is from the parent, including private members */
-        if (ServiceDiscovery::cleanup() != BLE_ERROR_NONE) {
+        if (ServiceDiscovery::reset() != BLE_ERROR_NONE) {
             return BLE_ERROR_INVALID_STATE;
         }
 
