@@ -39,6 +39,10 @@ public:
         return btle_getLinkSecurity(connectionHandle, securityStatusP);
     }
 
+    virtual ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
+        return btle_setLinkSecurity(connectionHandle, securityMode);
+    }
+
     virtual ble_error_t purgeAllBondingState(void) {
         return btle_purgeAllBondingState();
     }

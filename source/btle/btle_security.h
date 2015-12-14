@@ -48,9 +48,22 @@ ble_error_t btle_initializeSecurity(bool                                      en
  * @param[out] securityStatusP
  *               security status.
  *
- * @return BLE_SUCCESS Or appropriate error code indicating reason for failure.
+ * @return BLE_ERROR_NONE Or appropriate error code indicating reason for failure.
  */
 ble_error_t btle_getLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager::LinkSecurityStatus_t *securityStatusP);
+
+/**
+ * Set the security mode on a connection. Useful for elevating the security mode
+ * once certain conditions are met, e.g., a particular service is found.
+ *
+ * @param[in]  connectionHandle
+ *               Handle to identify the connection.
+ * @param[in]  securityMode
+ *               security mode.
+ *
+ * @return BLE_ERROR_NONE Or appropriate error code indicating reason for failure.
+ */
+ble_error_t btle_setLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager::SecurityMode_t securityMode);
 
 /**
  * Function for deleting all peer device context and all related bonding

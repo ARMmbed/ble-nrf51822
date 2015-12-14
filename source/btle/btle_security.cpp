@@ -15,16 +15,34 @@
  */
 
 #include "btle.h"
-#include "pstorage.h"
 
 #include "nRF5xGap.h"
 #include "nRF5xSecurityManager.h"
 
+extern "C" {
+#include "pstorage.h"
 #include "device_manager.h"
+}
+
 #include "btle_security.h"
 
 static dm_application_instance_t applicationInstance;
 static ret_code_t dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t event_result);
+
+// default security parameters
+static ble_gap_sec_params_t securityParameters = {
+    .bond          = true,         /**< Perform bonding. */
+    .mitm          = true,         /**< Man In The Middle protection required. */
+    .io_caps       = SecurityManager::IO_CAPS_NONE, /**< IO capabilities, see @ref BLE_GAP_IO_CAPS. */
+    .oob           = 0,            /**< Out Of Band data available. */
+    .min_key_size  = 16,           /**< Minimum encryption key size in octets between 7 and 16. If 0 then not applicable in this instance. */
+    .max_key_size  = 16,           /**< Maximum encryption key size in octets between min_key_size and 16. */
+    .kdist_periph  = {
+      .enc  = 1,                   /**< Long Term Key and Master Identification. */
+      .id   = 1,                   /**< Identity Resolving Key and Identity Address Information. */
+      .sign = 1,                   /**< Connection Signature Resolving Key. */
+    },                             /**< Key distribution bitmap: keys that the peripheral device will distribute. */
+};
 
 ble_error_t
 btle_initializeSecurity(bool                                      enableBonding,
@@ -68,22 +86,15 @@ btle_initializeSecurity(bool                                      enableBonding,
         return BLE_ERROR_UNSPECIFIED;
     }
 
+    // update default security parameters with function call parameters
+    securityParameters.bond = enableBonding;
+    securityParameters.mitm = requireMITM;
+    securityParameters.io_caps = iocaps;
+
     const dm_application_param_t dm_param = {
         .evt_handler  = dm_handler,
         .service_type = DM_PROTOCOL_CNTXT_GATT_CLI_ID,
-        .sec_param    = {
-            .bond          = enableBonding,/**< Perform bonding. */
-            .mitm          = requireMITM,  /**< Man In The Middle protection required. */
-            .io_caps       = iocaps,       /**< IO capabilities, see @ref BLE_GAP_IO_CAPS. */
-            .oob           = 0,            /**< Out Of Band data available. */
-            .min_key_size  = 16,           /**< Minimum encryption key size in octets between 7 and 16. If 0 then not applicable in this instance. */
-            .max_key_size  = 16,           /**< Maximum encryption key size in octets between min_key_size and 16. */
-            .kdist_periph  = {
-              .enc  = 1,                     /**< Long Term Key and Master Identification. */
-              .id   = 1,                     /**< Identity Resolving Key and Identity Address Information. */
-              .sign = 1,                     /**< Connection Signature Resolving Key. */
-            },                             /**< Key distribution bitmap: keys that the peripheral device will distribute. */
-        }
+        .sec_param    = securityParameters
     };
 
     if ((rc = dm_register(&applicationInstance, &dm_param)) != NRF_SUCCESS) {
@@ -146,6 +157,48 @@ btle_getLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager::LinkSecuri
     }
 
     return BLE_ERROR_NONE;
+}
+
+ble_error_t
+btle_setLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager::SecurityMode_t securityMode)
+{
+    // use default and updated parameters as starting point
+    // and modify structure based on security mode.
+    ble_gap_sec_params_t params = securityParameters;
+
+    switch (securityMode) {
+        case SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK:
+            /**< Require no protection, open link. */
+            securityParameters.bond = false;
+            securityParameters.mitm = false;
+            break;
+
+        case SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM:
+            /**< Require encryption, but no MITM protection. */
+            securityParameters.bond = true;
+            securityParameters.mitm = false;
+            break;
+
+        // not yet implemented security modes
+        case SecurityManager::SECURITY_MODE_NO_ACCESS:
+        case SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM:
+            /**< Require encryption and MITM protection. */
+        case SecurityManager::SECURITY_MODE_SIGNED_NO_MITM:
+            /**< Require signing or encryption, but no MITM protection. */
+        case SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM:
+            /**< Require signing or encryption, and MITM protection. */
+        default:
+            return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    // update security settings for given connection
+    uint32_t result = sd_ble_gap_authenticate(connectionHandle, &params);
+
+    if (result == NRF_SUCCESS) {
+        return BLE_ERROR_NONE;
+    } else {
+        return BLE_ERROR_UNSPECIFIED;
+    }
 }
 
 ret_code_t
