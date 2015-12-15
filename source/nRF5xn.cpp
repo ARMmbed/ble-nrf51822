@@ -152,27 +152,36 @@ ble_error_t nRF5xn::shutdown(void)
 
 
     /* Shutdown the BLE API and nRF51 glue code */
-    if (gattServerInstance != NULL &&
-        gattServerInstance->reset() != BLE_ERROR_NONE) {
-        return BLE_ERROR_INVALID_STATE;
+    ble_error_t error;
+
+    if (gattServerInstance != NULL) {
+        error = gattServerInstance->reset();
+        if (error != BLE_ERROR_NONE) {
+            return error;
+        }
     }
 
-    if (securityManagerInstance != NULL &&
-        securityManagerInstance->reset() != BLE_ERROR_NONE) {
-        return BLE_ERROR_INVALID_STATE;
+    if (securityManagerInstance != NULL) {
+        error = securityManagerInstance->reset();
+        if (error != BLE_ERROR_NONE) {
+            return error;
+        }
     }
 
     /* S110 does not support BLE client features, nothing to reset. */
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
-    if (gattClientInstance != NULL &&
-        gattClientInstance->reset() != BLE_ERROR_NONE) {
-        return BLE_ERROR_INVALID_STATE;
+    if (gattClientInstance != NULL) {
+        error = gattClientInstance->reset();
+        if (error != BLE_ERROR_NONE) {
+            return error;
+        }
     }
 #endif
 
-    if (gapInstance != NULL &&
-        gapInstance->reset() != BLE_ERROR_NONE) {
-        return BLE_ERROR_INVALID_STATE;
+    /* Gap instance is always present */
+    error = gapInstance->reset();
+    if (error != BLE_ERROR_NONE) {
+        return error;
     }
 
     initialized = false;
