@@ -17,7 +17,11 @@
 #ifndef __NRF5x_GAP_H__
 #define __NRF5x_GAP_H__
 
-#include "mbed.h"
+#ifdef YOTTA_CFG_MBED_OS
+    #include "mbed-drivers/mbed.h"
+#else
+    #include "mbed.h"
+#endif
 #include "ble/blecommon.h"
 #include "ble.h"
 #include "ble/GapAdvertisingParams.h"

@@ -15,7 +15,11 @@
  */
 
 #include "nRF5xGattServer.h"
-#include "mbed.h"
+#ifdef YOTTA_CFG_MBED_OS
+    #include "mbed-drivers/mbed.h"
+#else
+    #include "mbed.h"
+#endif
 
 #include "common/common.h"
 #include "btle/custom/custom_helper.h"

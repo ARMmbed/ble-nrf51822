@@ -15,7 +15,11 @@
  */
 
 #include "nRF5xn.h"
-#include "mbed.h"
+#ifdef YOTTA_CFG_MBED_OS
+    #include "mbed-drivers/mbed.h"
+#else
+    #include "mbed.h"
+#endif
 #include "ble/BLE.h"
 
 #include "common/common.h"
