@@ -49,8 +49,8 @@ nRF5xServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHan
             break;
     }
 
-    if(err) {
-        terminateCharacteristicDiscovery(err);        
+    if (err) {
+        terminateCharacteristicDiscovery(err);
     }
     return err;
 }
@@ -123,31 +123,31 @@ nRF5xServiceDiscovery::setupDiscoveredCharacteristics(const ble_gattc_evt_char_d
 void
 nRF5xServiceDiscovery::progressCharacteristicDiscovery(void)
 {
-    if(state != CHARACTERISTIC_DISCOVERY_ACTIVE) {
+    if (state != CHARACTERISTIC_DISCOVERY_ACTIVE) {
         return;
     }
 
-    if(remainingCharacteristic != nRF5xDiscoveredCharacteristic() && numCharacteristics > 0) { 
-        remainingCharacteristic.setLastHandle(characteristics[0].getDeclHandle() - 1);
+    if ((discoveredCharacteristic != nRF5xDiscoveredCharacteristic()) && (numCharacteristics > 0)) {
+        discoveredCharacteristic.setLastHandle(characteristics[0].getDeclHandle() - 1);
 
         if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
-            ((matchingCharacteristicUUID == remainingCharacteristic.getUUID()) &&
+            ((matchingCharacteristicUUID == discoveredCharacteristic.getUUID()) &&
              (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)))) {
             if (characteristicCallback) {
-                characteristicCallback(&remainingCharacteristic);
+                characteristicCallback(&discoveredCharacteristic);
             }
         }
     }
 
-    for(uint8_t i = 0; i < numCharacteristics; ++i) {
-        if(state != CHARACTERISTIC_DISCOVERY_ACTIVE) {
+    for (uint8_t i = 0; i < numCharacteristics; ++i) {
+        if (state != CHARACTERISTIC_DISCOVERY_ACTIVE) {
             return;
         }
 
-        if(i == numCharacteristics - 1) { 
-            remainingCharacteristic = characteristics[i];
+        if (i == (numCharacteristics - 1)) {
+            discoveredCharacteristic = characteristics[i];
             break;
-        } else { 
+        } else {
             characteristics[i].setLastHandle(characteristics[i + 1].getDeclHandle() - 1);
         }
 
@@ -160,10 +160,9 @@ nRF5xServiceDiscovery::progressCharacteristicDiscovery(void)
         }
     }
 
-    if(state != CHARACTERISTIC_DISCOVERY_ACTIVE) {
+    if (state != CHARACTERISTIC_DISCOVERY_ACTIVE) {
         return;
     }
-
 
     Gap::Handle_t startHandle = (numCharacteristics > 0) ? characteristics[numCharacteristics - 1].getValueHandle() + 1 : SRV_DISC_END_HANDLE;
     Gap::Handle_t endHandle   = services[serviceIndex].getEndHandle();

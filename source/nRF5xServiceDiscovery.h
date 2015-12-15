@@ -94,8 +94,8 @@ public:
         terminateServiceDiscovery();
     }
 
-    void terminate(Gap::Handle_t connectionHandle) { 
-        if(connHandle == connectionHandle) { 
+    void terminate(Gap::Handle_t connectionHandle) {
+        if(connHandle == connectionHandle) {
             terminate();
         }
     }
@@ -116,7 +116,7 @@ private:
     void removeFirstServiceNeedingUUIDDiscovery(void);
 
     void terminateServiceDiscovery(void) {
-        remainingCharacteristic = nRF5xDiscoveredCharacteristic();
+        discoveredCharacteristic = nRF5xDiscoveredCharacteristic();
 
         bool wasActive = isActive();
         state = INACTIVE;
@@ -128,20 +128,20 @@ private:
 
     void terminateCharacteristicDiscovery(ble_error_t err) {
         if (state == CHARACTERISTIC_DISCOVERY_ACTIVE) {
-            if(remainingCharacteristic != nRF5xDiscoveredCharacteristic()) { 
+            if(discoveredCharacteristic != nRF5xDiscoveredCharacteristic()) {
                if(err == BLE_ERROR_NONE) {
                     // fullfill the last characteristic
-                    remainingCharacteristic.setLastHandle(services[serviceIndex].getEndHandle());
+                    discoveredCharacteristic.setLastHandle(services[serviceIndex].getEndHandle());
 
                     if ((matchingCharacteristicUUID == UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)) ||
-                        ((matchingCharacteristicUUID == remainingCharacteristic.getUUID()) &&
+                        ((matchingCharacteristicUUID == discoveredCharacteristic.getUUID()) &&
                          (matchingServiceUUID != UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)))) {
                         if (characteristicCallback) {
-                            characteristicCallback(&remainingCharacteristic);
+                            characteristicCallback(&discoveredCharacteristic);
                         }
                     }
                }
-               remainingCharacteristic = nRF5xDiscoveredCharacteristic();
+               discoveredCharacteristic = nRF5xDiscoveredCharacteristic();
             }
 
             state = SERVICE_DISCOVERY_ACTIVE;
@@ -322,7 +322,18 @@ private:
 
     TerminationCallback_t       onTerminationCallback;
 
-    nRF5xDiscoveredCharacteristic remainingCharacteristic;
+    /*
+     * The currently discovered characteristic. Discovery of a characteristic
+     * is a two phase process.
+     * First, declaration handle is fetched, it provide the UUID, the value handle and
+     * the properties of a characteristic.
+     * Second, the next declaration handle is fetched, with its declaration handle, it is
+     * possible to compute the last handle of the discovered characteristic and fill the
+     * missing part of the object.
+     * If there is no remaining characteristic to discover, the last handle of the
+     * discovered characteristic will be set to the last handle of its enclosing service.
+     */
+    nRF5xDiscoveredCharacteristic discoveredCharacteristic;
 };
 
 #endif /*__NRF_SERVICE_DISCOVERY_H__*/
