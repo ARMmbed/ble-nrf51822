@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-#include "mbed.h"
+#ifdef YOTTA_CFG_MBED_OS
+    #include "mbed-drivers/mbed.h"
+#else
+    #include "mbed.h"
+#endif
 #include "nRF5xn.h"
 #include "ble/blecommon.h"
 #include "nrf_soc.h"
