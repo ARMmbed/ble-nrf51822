@@ -367,7 +367,7 @@ uint16_t nRF5xGap::getConnectionHandle(void)
     @code
 
     uint8_t device_address[6] = { 0xca, 0xfe, 0xf0, 0xf0, 0xf0, 0xf0 };
-    nrf.getGap().setAddress(Gap::ADDR_TYPE_RANDOM_STATIC, device_address);
+    nrf.getGap().setAddress(Gap::BLEProtocol::AddressType::RANDOM_STATIC, device_address);
 
     @endcode
 */
@@ -381,12 +381,12 @@ ble_error_t nRF5xGap::setAddress(AddressType_t type, const Address_t address)
        When using Random Private addresses, the cycle mode must be Auto.
        In auto mode, the given address is ignored.
     */
-    if ((type == ADDR_TYPE_PUBLIC) || (type == ADDR_TYPE_RANDOM_STATIC))
+    if ((type == BLEProtocol::AddressType::PUBLIC) || (type == BLEProtocol::AddressType::RANDOM_STATIC))
     {
         cycle_mode = BLE_GAP_ADDR_CYCLE_MODE_NONE;
         memcpy(dev_addr.addr, address, ADDR_LEN);
     }
-    else if ((type == ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE) || (type == ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE))
+    else if ((type == BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE) || (type == BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE))
     {
         cycle_mode = BLE_GAP_ADDR_CYCLE_MODE_AUTO;
         // address is ignored when in auto mode

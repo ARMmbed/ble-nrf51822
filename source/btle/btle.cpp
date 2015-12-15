@@ -154,8 +154,8 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             const ble_gap_addr_t *own  = &p_ble_evt->evt.gap_evt.params.connected.own_addr;
             nRF5xGap::getInstance().processConnectionEvent(handle,
                                                            role,
-                                                           static_cast<Gap::AddressType_t>(peer->addr_type), peer->addr,
-                                                           static_cast<Gap::AddressType_t>(own->addr_type),  own->addr,
+                                                           static_cast<BLEProtocol::AddressType::Type>(peer->addr_type), peer->addr,
+                                                           static_cast<BLEProtocol::AddressType::Type>(own->addr_type),  own->addr,
                                                            params);
             break;
         }
