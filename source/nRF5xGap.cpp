@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-#include "nRF5xGap.h"
+#include "nRF5xn.h"
 #include "mbed.h"
+#include "ble/BLE.h"
 
 #include "common/common.h"
 #include "ble_advdata.h"
 #include "ble_hci.h"
 
-nRF5xGap &nRF5xGap::getInstance() {
-    static nRF5xGap m_instance;
-    return m_instance;
-}
-
 void radioNotificationStaticCallback(bool param) {
-    nRF5xGap::getInstance().processRadioNotificationEvent(param);
+    nRF5xGap &gap = (nRF5xGap &) nRF5xn::Instance(BLE::DEFAULT_INSTANCE).getGap();
+    gap.processRadioNotificationEvent(param);
 }
 
 /**************************************************************************/
@@ -334,6 +331,29 @@ ble_error_t nRF5xGap::updateConnectionParams(Handle_t handle, const ConnectionPa
     } else {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
+}
+
+/**************************************************************************/
+/*!
+    @brief  Clear nRF5xGap's state.
+
+    @returns    ble_error_t
+
+    @retval     BLE_ERROR_NONE
+                Everything executed properly
+*/
+/**************************************************************************/
+ble_error_t nRF5xGap::reset(void)
+{
+    /* Clear all state that is from the parent, including private members */
+    if (Gap::reset() != BLE_ERROR_NONE) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    /* Clear derived class members */
+    m_connectionHandle = BLE_CONN_HANDLE_INVALID;
+
+    return BLE_ERROR_NONE;
 }
 
 /**************************************************************************/

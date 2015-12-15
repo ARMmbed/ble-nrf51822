@@ -16,8 +16,7 @@
 
 #include "btle.h"
 
-#include "nRF5xGap.h"
-#include "nRF5xSecurityManager.h"
+#include "nRF5xn.h"
 
 extern "C" {
 #include "pstorage.h"
@@ -204,17 +203,20 @@ btle_setLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager::SecurityMo
 ret_code_t
 dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t event_result)
 {
+    nRF5xn               &ble             = nRF5xn::Instance(BLE::DEFAULT_INSTANCE);
+    nRF5xSecurityManager &securityManager = (nRF5xSecurityManager &) ble.getSecurityManager();
+
     switch (p_event->event_id) {
         case DM_EVT_SECURITY_SETUP: /* started */ {
             const ble_gap_sec_params_t *peerParams = &p_event->event_param.p_gap_param->params.sec_params_request.peer_params;
-            nRF5xSecurityManager::getInstance().processSecuritySetupInitiatedEvent(p_event->event_param.p_gap_param->conn_handle,
+            securityManager.processSecuritySetupInitiatedEvent(p_event->event_param.p_gap_param->conn_handle,
                                                                                    peerParams->bond,
                                                                                    peerParams->mitm,
                                                                                    (SecurityManager::SecurityIOCapabilities_t)peerParams->io_caps);
             break;
         }
         case DM_EVT_SECURITY_SETUP_COMPLETE:
-            nRF5xSecurityManager::getInstance().
+            securityManager.
                 processSecuritySetupCompletedEvent(p_event->event_param.p_gap_param->conn_handle,
                                                    (SecurityManager::SecurityCompletionStatus_t)(p_event->event_param.p_gap_param->params.auth_status.auth_status));
             break;
@@ -248,11 +250,11 @@ dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t ev
                     break;
             }
 
-            nRF5xSecurityManager::getInstance().processLinkSecuredEvent(p_event->event_param.p_gap_param->conn_handle, resolvedSecurityMode);
+            securityManager.processLinkSecuredEvent(p_event->event_param.p_gap_param->conn_handle, resolvedSecurityMode);
             break;
         }
         case DM_EVT_DEVICE_CONTEXT_STORED:
-            nRF5xSecurityManager::getInstance().processSecurityContextStoredEvent(p_event->event_param.p_gap_param->conn_handle);
+            securityManager.processSecurityContextStoredEvent(p_event->event_param.p_gap_param->conn_handle);
             break;
         default:
             break;

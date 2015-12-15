@@ -38,10 +38,22 @@ static nRF5xn deviceInstance;
 BLEInstanceBase *
 createBLEInstance(void)
 {
-    return (&deviceInstance);
+    return &nRF5xn::Instance(BLE::DEFAULT_INSTANCE);
 }
 
-nRF5xn::nRF5xn(void) : initialized(false), instanceID(BLE::DEFAULT_INSTANCE)
+nRF5xn& nRF5xn::Instance(BLE::InstanceID_t instanceId)
+{
+    return deviceInstance;
+}
+
+nRF5xn::nRF5xn(void) :
+    initialized(false),
+    instanceID(BLE::DEFAULT_INSTANCE),
+    _gapInstance(),
+    gapInstance(NULL),
+    gattServerInstance(NULL),
+    gattClientInstance(NULL),
+    securityManagerInstance(NULL)
 {
 }
 
@@ -104,14 +116,67 @@ ble_error_t nRF5xn::init(BLE::InstanceID_t instanceID, FunctionPointerWithContex
     return BLE_ERROR_NONE;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Purge the BLE stack of GATT and GAP state.
+
+    @returns    ble_error_t
+
+    @retval     BLE_ERROR_NONE
+                Everything executed properly
+
+    @note  When using S110, GattClient::shutdown() will not be called
+           since Gatt client features are not supported.
+*/
+/**************************************************************************/
 ble_error_t nRF5xn::shutdown(void)
 {
     if (!initialized) {
         return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     }
 
+    /*
+     * Shutdown the SoftDevice first. This is because we need to disable all
+     * interrupts. Otherwise if we clear the BLE API and glue code first there
+     * will be many NULL references and no config information which could lead
+     * to errors if the shutdown process is interrupted.
+     */
     if(softdevice_handler_sd_disable() != NRF_SUCCESS) {
         return BLE_STACK_BUSY;
+    }
+
+
+    /* Shutdown the BLE API and nRF51 glue code */
+    ble_error_t error;
+
+    if (gattServerInstance != NULL) {
+        error = gattServerInstance->reset();
+        if (error != BLE_ERROR_NONE) {
+            return error;
+        }
+    }
+
+    if (securityManagerInstance != NULL) {
+        error = securityManagerInstance->reset();
+        if (error != BLE_ERROR_NONE) {
+            return error;
+        }
+    }
+
+    /* S110 does not support BLE client features, nothing to reset. */
+#if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
+    if (gattClientInstance != NULL) {
+        error = gattClientInstance->reset();
+        if (error != BLE_ERROR_NONE) {
+            return error;
+        }
+    }
+#endif
+
+    /* Gap instance is always present */
+    error = gapInstance->reset();
+    if (error != BLE_ERROR_NONE) {
+        return error;
     }
 
     initialized = false;
