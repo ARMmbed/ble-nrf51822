@@ -166,10 +166,10 @@ private:
     BLE::InstanceID_t instanceID;
 
 private:
-    static nRF5xGap _gapInstance; /**< Gap instance whose reference is returned from a call to
-                                   * getGap(). Unlike the GattClient, GattServer and
-                                   * SecurityManager, Gap is always needed in a BLE application.
-                                   * Therefore it is allocated statically. */
+    mutable nRF5xGap _gapInstance; /**< Gap instance whose reference is returned from a call to
+                                    * getGap(). Unlike the GattClient, GattServer and
+                                    * SecurityManager, Gap is always needed in a BLE application.
+                                    * Therefore it is allocated statically. */
 
 private:
     mutable nRF5xGap             *gapInstance;             /**< Pointer to the Gap object instance.

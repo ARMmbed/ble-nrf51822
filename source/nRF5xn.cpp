@@ -32,12 +32,6 @@ extern "C" {
 static nRF5xn deviceInstance;
 
 /**
- * The singleton for nRF5xGap. This has been kept static because it is
- * always needed for any application that uses BLE.
- */
-nRF5xGap nRF5xn::_gapInstance;
-
-/**
  * BLE-API requires an implementation of the following function in order to
  * obtain its transport handle.
  */
@@ -55,6 +49,7 @@ nRF5xn& nRF5xn::Instance(BLE::InstanceID_t instanceId)
 nRF5xn::nRF5xn(void) :
     initialized(false),
     instanceID(BLE::DEFAULT_INSTANCE),
+    _gapInstance(),
     gapInstance(NULL),
     gattServerInstance(NULL),
     gattClientInstance(NULL),
