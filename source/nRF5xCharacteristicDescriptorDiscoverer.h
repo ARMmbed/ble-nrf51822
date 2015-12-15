@@ -105,12 +105,13 @@ private:
      * @brief Discovery process, it store the DiscoveredCharacteristic, the
      * discovery callback and the termination callback.
      */
-    struct Discovery {
+    class Discovery {
+    public:
         /**
          * @brief Construct an empty discovery, such can be considerate as a not running discovery.
          * @note #isEmpty function will return true
          */
-        Discovery() : characteristic(), onDiscovery(), onTerminate() { }
+        Discovery();
 
         /**
          * @brief Construct a valid discovery process.
@@ -121,15 +122,7 @@ private:
          *
          * @note #isEmpty function will return false
          */
-        Discovery(const DiscoveredCharacteristic& c, const DiscoveryCallback_t& dCb, const TerminationCallback_t& tCb) :
-            characteristic(c),
-            onDiscovery(dCb),
-            onTerminate(tCb) {
-        }
-
-        DiscoveredCharacteristic characteristic;
-        DiscoveryCallback_t onDiscovery;
-        TerminationCallback_t onTerminate;
+        Discovery(const DiscoveredCharacteristic& c, const DiscoveryCallback_t& dCb, const TerminationCallback_t& tCb);
 
         /**
          * @brief Process the discovery of a descriptor.
@@ -137,62 +130,50 @@ private:
          * @param handle The attribute handle of the descriptor found
          * @param uuid The UUID of the descriptor found.
          */
-        void process(GattAttribute::Handle_t handle, const UUID& uuid) {
-            CharacteristicDescriptorDiscovery::DiscoveryCallbackParams_t params = {
-                characteristic,
-                DiscoveredCharacteristicDescriptor(
-                    characteristic.getGattClient(),
-                    characteristic.getConnectionHandle(),
-                    handle,
-                    uuid
-                )
-            };
-            onDiscovery.call(&params);
-        }
+        void process(GattAttribute::Handle_t handle, const UUID& uuid);
 
         /**
          * @brief Terminate the discovery process.
          *
          * @param err Error associate with the termination
-         *
          * @note after this call #isEmpty function will return true.
          */
-        void terminate(ble_error_t err) {
-            CharacteristicDescriptorDiscovery::TerminationCallbackParams_t params = {
-                characteristic,
-                err
-            };
-
-            onTerminate.call(&params);
-        }
+        void terminate(ble_error_t err);
 
         /**
          * @brief check if the discovery process is empty or not. Empty discovery are
          * not running.
+         *
          * @detail Discovery are empty after:
          *     - a default construction
          *     - a copy construction form a default constructed
          *     - an assignment from a default constructed Discovery
          * @return true if the Discovery is empty and false otherwise.
          */
-        bool isEmpty() const {
-            return *this == Discovery();
-        }
+        bool isEmpty() const;
+
+        /**
+         * @brief return the characteristic from whom descriptors are discovered.
+         * @return the characteristic from whom descriptors are discovered.
+         */
+        const DiscoveredCharacteristic& getCharacteristic() const;
 
         /**
          * @brief equal to operator, test if two discovery process are equal
+         *
          * @param lhs left hand side of the expression
          * @param rhs right hand side of the expression
          * @return true if lhs == rhs
          */
         friend bool operator==(const Discovery& lhs, const Discovery& rhs) {
             return lhs.characteristic == rhs.characteristic &&
-                lhs.onDiscovery == rhs.onDiscovery &&
-                lhs.onTerminate == rhs.onTerminate;
+                   lhs.onDiscovery == rhs.onDiscovery &&
+                   lhs.onTerminate == rhs.onTerminate;
         }
 
         /**
          * @brief not equal to operator, test if two discovery process are not equal
+         *
          * @param lhs left hand side of the expression
          * @param rhs right hand side of the expression
          * @return true if lhs != rhs
@@ -200,6 +181,11 @@ private:
         friend bool operator!=(const Discovery& lhs, const Discovery& rhs) {
             return !(lhs == rhs);
         }
+
+    private:
+        DiscoveredCharacteristic characteristic;
+        DiscoveryCallback_t onDiscovery;
+        TerminationCallback_t onTerminate;
     };
 
     // find a running discovery process

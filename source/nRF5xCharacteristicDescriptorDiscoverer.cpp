@@ -18,7 +18,6 @@
 #include "mbed-drivers/mbed_error.h"
 #include "ble/DiscoveredCharacteristicDescriptor.h"
 
-
 nRF5xCharacteristicDescriptorDiscoverer::nRF5xCharacteristicDescriptorDiscoverer() :
     discoveryRunning() {
     // nothing to do
@@ -73,7 +72,7 @@ ble_error_t nRF5xCharacteristicDescriptorDiscoverer::launch(
 
 bool nRF5xCharacteristicDescriptorDiscoverer::isActive(const DiscoveredCharacteristic& characteristic) const {
     for(size_t i = 0; i < MAXIMUM_CONCURRENT_CONNECTIONS_COUNT; ++i) {
-        if(discoveryRunning[i].characteristic == characteristic) {
+        if(discoveryRunning[i].getCharacteristic() == characteristic) {
             return true;
         }
     }
@@ -103,7 +102,7 @@ void nRF5xCharacteristicDescriptorDiscoverer::process(uint16_t connectionHandle,
 
     // prepare the next discovery request (if needed)
     uint16_t startHandle = descriptors.descs[descriptors.count - 1].handle + 1;
-    uint16_t endHandle = discovery->characteristic.getLastHandle();
+    uint16_t endHandle = discovery->getCharacteristic().getLastHandle();
 
     if(startHandle > endHandle) {
         terminate(discovery, BLE_ERROR_NONE);
@@ -135,12 +134,11 @@ void nRF5xCharacteristicDescriptorDiscoverer::terminate(Discovery* discovery, bl
     tmp.terminate(err);
 }
 
-
-
 nRF5xCharacteristicDescriptorDiscoverer::Discovery*
 nRF5xCharacteristicDescriptorDiscoverer::findRunningDiscovery(const DiscoveredCharacteristic& characteristic) {
     for(size_t i = 0; i < MAXIMUM_CONCURRENT_CONNECTIONS_COUNT; ++i) {
-        if(discoveryRunning[i].characteristic == characteristic && discoveryRunning[i].isEmpty() == false) {
+        if((discoveryRunning[i].getCharacteristic() == characteristic) &&
+           (discoveryRunning[i].isEmpty() == false)) {
             return &discoveryRunning[i];
         }
     }
@@ -150,14 +148,13 @@ nRF5xCharacteristicDescriptorDiscoverer::findRunningDiscovery(const DiscoveredCh
 nRF5xCharacteristicDescriptorDiscoverer::Discovery*
 nRF5xCharacteristicDescriptorDiscoverer::findRunningDiscovery(uint16_t handle) {
     for(size_t i = 0; i < MAXIMUM_CONCURRENT_CONNECTIONS_COUNT; ++i) {
-        if(discoveryRunning[i].characteristic.getConnectionHandle() == handle &&
-           discoveryRunning[i].isEmpty() == false) {
+        if((discoveryRunning[i].getCharacteristic().getConnectionHandle() == handle) &&
+           (discoveryRunning[i].isEmpty() == false)) {
             return &discoveryRunning[i];
         }
     }
     return NULL;
 }
-
 
 nRF5xCharacteristicDescriptorDiscoverer::Discovery*
 nRF5xCharacteristicDescriptorDiscoverer::getAvailableDiscoverySlot() {
@@ -194,4 +191,46 @@ ble_error_t nRF5xCharacteristicDescriptorDiscoverer::gattc_descriptors_discover(
         default:
             return BLE_ERROR_UNSPECIFIED;
     }
+}
+
+// implementation of nRF5xCharacteristicDescriptorDiscoverer::Discovery
+
+nRF5xCharacteristicDescriptorDiscoverer::Discovery::Discovery() :
+    characteristic(), onDiscovery(), onTerminate() {
+}
+
+nRF5xCharacteristicDescriptorDiscoverer::Discovery::Discovery(
+    const DiscoveredCharacteristic& c, const DiscoveryCallback_t& dCb, const TerminationCallback_t& tCb) :
+    characteristic(c), onDiscovery(dCb), onTerminate(tCb) {
+}
+
+void nRF5xCharacteristicDescriptorDiscoverer::Discovery::process(
+    GattAttribute::Handle_t handle, const UUID& uuid) {
+    CharacteristicDescriptorDiscovery::DiscoveryCallbackParams_t params = {
+        characteristic,
+        DiscoveredCharacteristicDescriptor(
+            characteristic.getGattClient(),
+            characteristic.getConnectionHandle(),
+            handle,
+            uuid
+        )
+    };
+    onDiscovery.call(&params);
+}
+
+void nRF5xCharacteristicDescriptorDiscoverer::Discovery::terminate(ble_error_t err) {
+    CharacteristicDescriptorDiscovery::TerminationCallbackParams_t params = {
+        characteristic,
+        err
+    };
+
+    onTerminate.call(&params);
+}
+
+bool nRF5xCharacteristicDescriptorDiscoverer::Discovery::isEmpty() const {
+    return *this == Discovery();
+}
+
+const DiscoveredCharacteristic& nRF5xCharacteristicDescriptorDiscoverer::Discovery::getCharacteristic() const {
+    return characteristic;
 }
