@@ -145,7 +145,7 @@ ble_error_t nRF5xn::shutdown(void)
      * will be many NULL references and no config information which could lead
      * to errors if the shutdown process is interrupted.
      */
-    if(softdevice_handler_sd_disable() != NRF_SUCCESS) {
+    if (softdevice_handler_sd_disable() != NRF_SUCCESS) {
         return BLE_STACK_BUSY;
     }
 
