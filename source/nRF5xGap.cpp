@@ -173,8 +173,8 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 
     adv_para.type        = params.getAdvertisingType();
     adv_para.p_peer_addr = NULL;                           // Undirected advertisement
-    adv_para.fp          = BLE_GAP_ADV_FP_ANY;
-    adv_para.p_whitelist = NULL;
+    adv_para.fp          = params.getWhiteList() ? BLE_GAP_ADV_FP_FILTER_BOTH : BLE_GAP_ADV_FP_ANY;
+    adv_para.p_whitelist = (ble_gap_whitelist_t *)params.getWhiteList();
     adv_para.interval    = params.getIntervalInADVUnits(); // advertising interval (in units of 0.625 ms)
     adv_para.timeout     = params.getTimeout();
 
