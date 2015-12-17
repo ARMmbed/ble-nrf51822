@@ -17,7 +17,6 @@
 #ifndef _PROJECTCONFIG_H_
 #define _PROJECTCONFIG_H_
 
-#include "ble/blecommon.h"
 #include "ble/GapAdvertisingData.h"
 
 /*=========================================================================
