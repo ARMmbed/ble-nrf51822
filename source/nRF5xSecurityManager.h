@@ -25,8 +25,6 @@
 class nRF5xSecurityManager : public SecurityManager
 {
 public:
-    static nRF5xSecurityManager &getInstance();
-
     /* Functions that must be implemented from SecurityManager */
     virtual ble_error_t init(bool                     enableBonding,
                              bool                     requireMITM,
@@ -39,11 +37,35 @@ public:
         return btle_getLinkSecurity(connectionHandle, securityStatusP);
     }
 
+    virtual ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
+        return btle_setLinkSecurity(connectionHandle, securityMode);
+    }
+
     virtual ble_error_t purgeAllBondingState(void) {
         return btle_purgeAllBondingState();
     }
 
+    /**
+     * @brief  Clear nRF5xSecurityManager's state.
+     *
+     * @return
+     *           BLE_ERROR_NONE if successful.
+     */
+    virtual ble_error_t reset(void)
+    {
+        if (SecurityManager::reset() != BLE_ERROR_NONE) {
+            return BLE_ERROR_INVALID_STATE;
+        }
+
+        return BLE_ERROR_NONE;
+    }
+
 public:
+    /*
+     * Allow instantiation from nRF5xn when required.
+     */
+    friend class nRF5xn;
+
     nRF5xSecurityManager() {
         /* empty */
     }

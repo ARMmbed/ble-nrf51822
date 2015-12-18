@@ -17,7 +17,11 @@
 #ifndef __NRF5x_GAP_H__
 #define __NRF5x_GAP_H__
 
-#include "mbed.h"
+#ifdef YOTTA_CFG_MBED_OS
+    #include "mbed-drivers/mbed.h"
+#else
+    #include "mbed.h"
+#endif
 #include "ble/blecommon.h"
 #include "ble.h"
 #include "ble/GapAdvertisingParams.h"
@@ -44,8 +48,6 @@ void radioNotificationStaticCallback(bool param);
 class nRF5xGap : public Gap
 {
 public:
-    static nRF5xGap &getInstance();
-
     /* Functions that must be implemented from Gap */
     virtual ble_error_t setAddress(AddressType_t  type,  const Address_t address);
     virtual ble_error_t getAddress(AddressType_t *typeP, Address_t address);
@@ -57,7 +59,7 @@ public:
 
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
     virtual ble_error_t stopAdvertising(void);
-    virtual ble_error_t connect(const Address_t, Gap::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
+    virtual ble_error_t connect(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
     virtual ble_error_t disconnect(Handle_t connectionHandle, DisconnectionReason_t reason);
     virtual ble_error_t disconnect(DisconnectionReason_t reason);
 
@@ -76,6 +78,8 @@ public:
     virtual ble_error_t setPreferredConnectionParams(const ConnectionParams_t *params);
     virtual ble_error_t updateConnectionParams(Handle_t handle, const ConnectionParams_t *params);
 
+    virtual ble_error_t reset(void);
+
     virtual ble_error_t initRadioNotification(void) {
         if (ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, radioNotificationStaticCallback) == NRF_SUCCESS) {
             return BLE_ERROR_NONE;
@@ -89,8 +93,8 @@ public:
     virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams) {
         ble_gap_scan_params_t scanParams = {
             .active      = scanningParams.getActiveScanning(), /**< If 1, perform active scanning (scan requests). */
-            .selective   = 0,    /**< If 1, ignore unknown devices (non whitelisted). */
-            .p_whitelist = NULL, /**< Pointer to whitelist, NULL if none is given. */
+            .selective   = scanningParams.getWhitelist() ? (uint8_t)1 : (uint8_t)0, /**< If 1, ignore unknown devices (non whitelisted). */
+            .p_whitelist = (ble_gap_whitelist_t*)scanningParams.getWhitelist(), /**< Pointer to whitelist, NULL if none is given. */
             .interval    = scanningParams.getInterval(),  /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
             .window      = scanningParams.getWindow(),    /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
             .timeout     = scanningParams.getTimeout(),   /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
@@ -196,6 +200,12 @@ private:
 
 private:
     uint16_t m_connectionHandle;
+
+    /*
+     * Allow instantiation from nRF5xn when required.
+     */
+    friend class nRF5xn;
+
     nRF5xGap() {
         m_connectionHandle = BLE_CONN_HANDLE_INVALID;
     }
