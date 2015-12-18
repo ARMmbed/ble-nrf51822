@@ -234,18 +234,20 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
     }
 
     ble_gap_scan_params_t scanParams;
-    scanParams.selective   = 0;    /**< If 1, ignore unknown devices (non whitelisted). */
-    scanParams.p_whitelist = NULL; /**< Pointer to whitelist, NULL if none is given. */
     if (scanParamsIn != NULL) {
-        scanParams.active      = scanParamsIn->getActiveScanning();   /**< If 1, perform active scanning (scan requests). */
-        scanParams.interval    = scanParamsIn->getInterval();         /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
-        scanParams.window      = scanParamsIn->getWindow();           /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
-        scanParams.timeout     = scanParamsIn->getTimeout();          /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+        scanParams.active      = scanParamsIn->getActiveScanning();      /**< If 1, perform active scanning (scan requests). */
+        scanParams.interval    = scanParamsIn->getInterval();            /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        scanParams.window      = scanParamsIn->getWindow();              /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        scanParams.timeout     = scanParamsIn->getTimeout();             /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+        scanParams.selective   = scanParamsIn->getWhitelist() ? (uint8_t)1 : (uint8_t)0; /**< If 1, ignore unknown devices (non whitelisted). */
+        scanParams.p_whitelist = (ble_gap_whitelist_t*)scanParamsIn->getWhitelist(); /**< Pointer to whitelist, NULL if none is given. */
     } else {
-        scanParams.active      = _scanningParams.getActiveScanning(); /**< If 1, perform active scanning (scan requests). */
-        scanParams.interval    = _scanningParams.getInterval();       /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
-        scanParams.window      = _scanningParams.getWindow();         /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
-        scanParams.timeout     = _scanningParams.getTimeout();        /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+        scanParams.active      = _scanningParams.getActiveScanning();    /**< If 1, perform active scanning (scan requests). */
+        scanParams.interval    = _scanningParams.getInterval();          /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        scanParams.window      = _scanningParams.getWindow();            /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        scanParams.timeout     = _scanningParams.getTimeout();           /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+        scanParams.selective   = _scanningParams.getWhitelist() ? (uint8_t)1 : (uint8_t)0; /**< If 1, ignore unknown devices (non whitelisted). */
+        scanParams.p_whitelist = (ble_gap_whitelist_t*)_scanningParams.getWhitelist(); /**< Pointer to whitelist, NULL if none is given. */
     }
 
     uint32_t rc = sd_ble_gap_connect(&addr, &scanParams, &connParams);
