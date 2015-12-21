@@ -118,9 +118,7 @@ error_t btle_init(void)
     ASSERT_STATUS( softdevice_ble_evt_handler_set(btle_handler));
     ASSERT_STATUS( softdevice_sys_evt_handler_set(sys_evt_dispatch));
 
-    btle_gap_init();
-
-    return ERROR_NONE;
+    return btle_gap_init();
 }
 
 static void btle_handler(ble_evt_t *p_ble_evt)

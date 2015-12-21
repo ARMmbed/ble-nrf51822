@@ -95,6 +95,20 @@ const char *nRF5xn::getVersion(void)
     return versionString;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Initialize the BLE stack.
+
+    @returns    ble_error_t
+
+    @retval     BLE_ERROR_NONE if everything executed properly and
+                BLE_ERROR_ALREADY_INITIALIZED if the stack has already
+                been initialized (possibly through a call to nRF5xn::init()).
+                BLE_ERROR_INTERNAL_STACK_FAILURE is returned if initialization
+                of the internal stack (SoftDevice) failed.
+
+*/
+/**************************************************************************/
 ble_error_t nRF5xn::init(BLE::InstanceID_t instanceID, FunctionPointerWithContext<BLE::InitializationCompleteCallbackContext *> callback)
 {
     if (initialized) {
@@ -109,7 +123,9 @@ ble_error_t nRF5xn::init(BLE::InstanceID_t instanceID, FunctionPointerWithContex
     instanceID   = instanceID;
 
     /* ToDo: Clear memory contents, reset the SD, etc. */
-    btle_init();
+    if (btle_init() != ERROR_NONE) {
+        return BLE_ERROR_INTERNAL_STACK_FAILURE;
+    }
 
     initialized = true;
     BLE::InitializationCompleteCallbackContext context = {
