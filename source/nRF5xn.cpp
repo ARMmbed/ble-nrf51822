@@ -103,7 +103,7 @@ const char *nRF5xn::getVersion(void)
 
     @retval     BLE_ERROR_NONE if everything executed properly and
                 BLE_ERROR_ALREADY_INITIALIZED if the stack has already
-                been initialized (possibly through a call to nRF5xn::init().
+                been initialized (possibly through a call to nRF5xn::init()).
                 BLE_ERROR_INTERNAL_STACK_FAILURE is returned if initialization
                 of the internal stack (SoftDevice) failed.
 
