@@ -192,6 +192,7 @@ ble_error_t nRF5xn::shutdown(void)
     }
 #endif
 
+    /* Gap instance is always present */
     error = gapInstance.reset();
     if (error != BLE_ERROR_NONE) {
         return error;
