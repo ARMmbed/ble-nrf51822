@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-#include "nRF5xGap.h"
-#include "mbed.h"
+#include "nRF5xn.h"
+#ifdef YOTTA_CFG_MBED_OS
+    #include "mbed-drivers/mbed.h"
+#else
+    #include "mbed.h"
+#endif
+#include "ble/BLE.h"
 
 #include "common/common.h"
 #include "ble_advdata.h"
 #include "ble_hci.h"
 
-nRF5xGap &nRF5xGap::getInstance() {
-    static nRF5xGap m_instance;
-    return m_instance;
-}
-
 void radioNotificationStaticCallback(bool param) {
-    nRF5xGap::getInstance().processRadioNotificationEvent(param);
+    nRF5xGap &gap = (nRF5xGap &) nRF5xn::Instance(BLE::DEFAULT_INSTANCE).getGap();
+    gap.processRadioNotificationEvent(param);
 }
 
 /**************************************************************************/
@@ -210,10 +211,10 @@ ble_error_t nRF5xGap::stopAdvertising(void)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xGap::connect(const Address_t           peerAddr,
-                              Gap::AddressType_t        peerAddrType,
-                              const ConnectionParams_t *connectionParams,
-                              const GapScanningParams  *scanParamsIn)
+ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
+                              BLEProtocol::AddressType_t  peerAddrType,
+                              const ConnectionParams_t   *connectionParams,
+                              const GapScanningParams    *scanParamsIn)
 {
     ble_gap_addr_t addr;
     addr.addr_type = peerAddrType;
@@ -338,6 +339,29 @@ ble_error_t nRF5xGap::updateConnectionParams(Handle_t handle, const ConnectionPa
 
 /**************************************************************************/
 /*!
+    @brief  Clear nRF5xGap's state.
+
+    @returns    ble_error_t
+
+    @retval     BLE_ERROR_NONE
+                Everything executed properly
+*/
+/**************************************************************************/
+ble_error_t nRF5xGap::reset(void)
+{
+    /* Clear all state that is from the parent, including private members */
+    if (Gap::reset() != BLE_ERROR_NONE) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    /* Clear derived class members */
+    m_connectionHandle = BLE_CONN_HANDLE_INVALID;
+
+    return BLE_ERROR_NONE;
+}
+
+/**************************************************************************/
+/*!
     @brief  Sets the 16-bit connection handle
 */
 /**************************************************************************/
@@ -367,7 +391,7 @@ uint16_t nRF5xGap::getConnectionHandle(void)
     @code
 
     uint8_t device_address[6] = { 0xca, 0xfe, 0xf0, 0xf0, 0xf0, 0xf0 };
-    nrf.getGap().setAddress(Gap::ADDR_TYPE_RANDOM_STATIC, device_address);
+    nrf.getGap().setAddress(Gap::BLEProtocol::AddressType::RANDOM_STATIC, device_address);
 
     @endcode
 */
@@ -381,12 +405,12 @@ ble_error_t nRF5xGap::setAddress(AddressType_t type, const Address_t address)
        When using Random Private addresses, the cycle mode must be Auto.
        In auto mode, the given address is ignored.
     */
-    if ((type == ADDR_TYPE_PUBLIC) || (type == ADDR_TYPE_RANDOM_STATIC))
+    if ((type == BLEProtocol::AddressType::PUBLIC) || (type == BLEProtocol::AddressType::RANDOM_STATIC))
     {
         cycle_mode = BLE_GAP_ADDR_CYCLE_MODE_NONE;
         memcpy(dev_addr.addr, address, ADDR_LEN);
     }
-    else if ((type == ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE) || (type == ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE))
+    else if ((type == BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE) || (type == BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE))
     {
         cycle_mode = BLE_GAP_ADDR_CYCLE_MODE_AUTO;
         // address is ignored when in auto mode

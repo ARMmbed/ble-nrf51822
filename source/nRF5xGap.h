@@ -17,7 +17,11 @@
 #ifndef __NRF5x_GAP_H__
 #define __NRF5x_GAP_H__
 
-#include "mbed.h"
+#ifdef YOTTA_CFG_MBED_OS
+    #include "mbed-drivers/mbed.h"
+#else
+    #include "mbed.h"
+#endif
 #include "ble/blecommon.h"
 #include "ble.h"
 #include "ble/GapAdvertisingParams.h"
@@ -44,8 +48,6 @@ void radioNotificationStaticCallback(bool param);
 class nRF5xGap : public Gap
 {
 public:
-    static nRF5xGap &getInstance();
-
     /* Functions that must be implemented from Gap */
     virtual ble_error_t setAddress(AddressType_t  type,  const Address_t address);
     virtual ble_error_t getAddress(AddressType_t *typeP, Address_t address);
@@ -57,7 +59,7 @@ public:
 
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
     virtual ble_error_t stopAdvertising(void);
-    virtual ble_error_t connect(const Address_t, Gap::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
+    virtual ble_error_t connect(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
     virtual ble_error_t disconnect(Handle_t connectionHandle, DisconnectionReason_t reason);
     virtual ble_error_t disconnect(DisconnectionReason_t reason);
 
@@ -75,6 +77,8 @@ public:
     virtual ble_error_t getPreferredConnectionParams(ConnectionParams_t *params);
     virtual ble_error_t setPreferredConnectionParams(const ConnectionParams_t *params);
     virtual ble_error_t updateConnectionParams(Handle_t handle, const ConnectionParams_t *params);
+
+    virtual ble_error_t reset(void);
 
     virtual ble_error_t initRadioNotification(void) {
         if (ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, radioNotificationStaticCallback) == NRF_SUCCESS) {
@@ -196,6 +200,12 @@ private:
 
 private:
     uint16_t m_connectionHandle;
+
+    /*
+     * Allow instantiation from nRF5xn when required.
+     */
+    friend class nRF5xn;
+
     nRF5xGap() {
         m_connectionHandle = BLE_CONN_HANDLE_INVALID;
     }

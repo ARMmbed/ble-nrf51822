@@ -104,6 +104,33 @@ public:
         onTerminationCallback = callback;
     }
 
+    /**
+     * @brief  Clear nRF5xServiceDiscovery's state.
+     *
+     * @return
+     *           BLE_ERROR_NONE if successful.
+     */
+    virtual ble_error_t reset(void) {
+        /* Clear all state that is from the parent, including private members */
+        if (ServiceDiscovery::reset() != BLE_ERROR_NONE) {
+            return BLE_ERROR_INVALID_STATE;
+        }
+
+        /* Clear derived class members */
+        serviceIndex = 0;
+        numServices = 0;
+        numCharacteristics = 0;
+
+        state = INACTIVE;
+
+        serviceUUIDDiscoveryQueue.reset();
+        charUUIDDiscoveryQueue.reset();
+
+        onTerminationCallback = NULL;
+
+        return BLE_ERROR_NONE;
+    }
+
 private:
     ble_error_t launchCharacteristicDiscovery(Gap::Handle_t connectionHandle, Gap::Handle_t startHandle, Gap::Handle_t endHandle);
 

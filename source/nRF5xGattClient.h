@@ -24,8 +24,6 @@
 class nRF5xGattClient : public GattClient
 {
 public:
-    static nRF5xGattClient &getInstance();
-
     /**
      * When using S110, all Gatt client features will return
      * BLE_ERROR_NOT_IMPLEMENTED
@@ -107,8 +105,8 @@ public:
     }
 
     /**
-     * @brief Implementation of GattClient::discoverCharacteristicDescriptors 
-     * @see GattClient::discoverCharacteristicDescriptors 
+     * @brief Implementation of GattClient::discoverCharacteristicDescriptors
+     * @see GattClient::discoverCharacteristicDescriptors
      */
     virtual ble_error_t discoverCharacteristicDescriptors(
         const DiscoveredCharacteristic& characteristic,
@@ -117,14 +115,14 @@ public:
     );
 
     /**
-     * @brief Implementation of GattClient::isCharacteristicDiscoveryActive 
-     * @see GattClient::isCharacteristicDiscoveryActive 
+     * @brief Implementation of GattClient::isCharacteristicDiscoveryActive
+     * @see GattClient::isCharacteristicDiscoveryActive
      */
     virtual bool isCharacteristicDescriptorsDiscoveryActive(const DiscoveredCharacteristic& characteristic) const;
 
     /**
-     * @brief Implementation of GattClient::terminateCharacteristicDiscovery 
-     * @see GattClient::terminateCharacteristicDiscovery 
+     * @brief Implementation of GattClient::terminateCharacteristicDiscovery
+     * @see GattClient::terminateCharacteristicDiscovery
      */
     virtual void terminateCharacteristicDescriptorsDiscovery(const DiscoveredCharacteristic& characteristic);
 
@@ -170,16 +168,39 @@ public:
         }
     }
 
+    /**
+     * @brief  Clear nRF5xGattClient's state.
+     *
+     * @return
+     *           BLE_ERROR_NONE if successful.
+     */
+    virtual ble_error_t reset(void) {
+        /* Clear all state that is from the parent, including private members */
+        if (GattClient::reset() != BLE_ERROR_NONE) {
+            return BLE_ERROR_INVALID_STATE;
+        }
+
+        /* Clear derived class members */
+        _discovery.reset();
+
+        return BLE_ERROR_NONE;
+    }
+
 public:
+    /*
+     * Allow instantiation from nRF5xn when required.
+     */
+    friend class nRF5xn;
+
     nRF5xGattClient() : _discovery(this) {
         /* empty */
     }
 
-    nRF5xServiceDiscovery& discovery() { 
+    nRF5xServiceDiscovery& discovery() {
         return _discovery;
     }
 
-    nRF5xCharacteristicDescriptorDiscoverer& characteristicDescriptorDiscoverer() { 
+    nRF5xCharacteristicDescriptorDiscoverer& characteristicDescriptorDiscoverer() {
         return _characteristicDescriptorDiscoverer;
     }
 
