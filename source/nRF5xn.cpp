@@ -53,8 +53,7 @@ nRF5xn& nRF5xn::Instance(BLE::InstanceID_t instanceId)
 nRF5xn::nRF5xn(void) :
     initialized(false),
     instanceID(BLE::DEFAULT_INSTANCE),
-    _gapInstance(),
-    gapInstance(NULL),
+    gapInstance(),
     gattServerInstance(NULL),
     gattClientInstance(NULL),
     securityManagerInstance(NULL)
@@ -193,8 +192,7 @@ ble_error_t nRF5xn::shutdown(void)
     }
 #endif
 
-    /* Gap instance is always present */
-    error = gapInstance->reset();
+    error = gapInstance.reset();
     if (error != BLE_ERROR_NONE) {
         return error;
     }

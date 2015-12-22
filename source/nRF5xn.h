@@ -53,10 +53,7 @@ public:
      *        statically.
      */
     virtual Gap &getGap() {
-        if (gapInstance == NULL) {
-            gapInstance = &_gapInstance;
-        }
-        return *gapInstance;
+        return gapInstance;
     };
 
     /**
@@ -116,10 +113,7 @@ public:
      *        internal pointer has been declared mutable.
      */
     virtual const Gap &getGap() const  {
-        if (gapInstance == NULL) {
-            gapInstance = &_gapInstance;
-        }
-        return *gapInstance;
+        return gapInstance;
     };
 
     /**
@@ -166,15 +160,11 @@ private:
     BLE::InstanceID_t instanceID;
 
 private:
-    mutable nRF5xGap _gapInstance; /**< Gap instance whose reference is returned from a call to
-                                    * getGap(). Unlike the GattClient, GattServer and
-                                    * SecurityManager, Gap is always needed in a BLE application. */
+    mutable nRF5xGap gapInstance; /**< Gap instance whose reference is returned from a call to
+                                   * getGap(). Unlike the GattClient, GattServer and
+                                   * SecurityManager, Gap is always needed in a BLE application. */
 
 private:
-    mutable nRF5xGap             *gapInstance;             /**< Pointer to the Gap object instance.
-                                                            *   If NULL, then Gap has not been initialized.
-                                                            *   The pointer has been declared as 'mutable' so that
-                                                            *   it can be assigned inside a 'const' function. */
     mutable nRF5xGattServer      *gattServerInstance;      /**< Pointer to the GattServer object instance.
                                                             *   If NULL, then GattServer has not been initialized.
                                                             *   The pointer has been declared as 'mutable' so that
