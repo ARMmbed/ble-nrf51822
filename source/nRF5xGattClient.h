@@ -19,6 +19,7 @@
 
 #include "ble/GattClient.h"
 #include "nRF5xServiceDiscovery.h"
+#include "nRF5xCharacteristicDescriptorDiscoverer.h"
 
 class nRF5xGattClient : public GattClient
 {
@@ -85,14 +86,14 @@ public:
                                                const UUID                                 &matchingCharacteristicUUIDIn = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN));
 
     virtual void onServiceDiscoveryTermination(ServiceDiscovery::TerminationCallback_t callback) {
-        discovery.onTermination(callback);
+        _discovery.onTermination(callback);
     }
 
     /**
      * Is service-discovery currently active?
      */
     virtual bool isServiceDiscoveryActive(void) const {
-        return discovery.isActive();
+        return _discovery.isActive();
     }
 
     /**
@@ -100,8 +101,30 @@ public:
      * invocation of the TerminationCallback if service-discovery is active.
      */
     virtual void terminateServiceDiscovery(void) {
-        discovery.terminate();
+        _discovery.terminate();
     }
+
+    /**
+     * @brief Implementation of GattClient::discoverCharacteristicDescriptors
+     * @see GattClient::discoverCharacteristicDescriptors
+     */
+    virtual ble_error_t discoverCharacteristicDescriptors(
+        const DiscoveredCharacteristic& characteristic,
+        const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
+        const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback
+    );
+
+    /**
+     * @brief Implementation of GattClient::isCharacteristicDiscoveryActive
+     * @see GattClient::isCharacteristicDiscoveryActive
+     */
+    virtual bool isCharacteristicDescriptorsDiscoveryActive(const DiscoveredCharacteristic& characteristic) const;
+
+    /**
+     * @brief Implementation of GattClient::terminateCharacteristicDiscovery
+     * @see GattClient::terminateCharacteristicDiscovery
+     */
+    virtual void terminateCharacteristicDescriptorsDiscovery(const DiscoveredCharacteristic& characteristic);
 
     virtual ble_error_t read(Gap::Handle_t connHandle, GattAttribute::Handle_t attributeHandle, uint16_t offset) const {
         uint32_t rc = sd_ble_gattc_read(connHandle, attributeHandle, offset);
@@ -158,7 +181,7 @@ public:
         }
 
         /* Clear derived class members */
-        discovery.reset();
+        _discovery.reset();
 
         return BLE_ERROR_NONE;
     }
@@ -169,18 +192,25 @@ public:
      */
     friend class nRF5xn;
 
-    nRF5xGattClient() : discovery(this) {
+    nRF5xGattClient() : _discovery(this) {
         /* empty */
     }
 
-    friend void bleGattcEventHandler(const ble_evt_t *p_ble_evt);
+    nRF5xServiceDiscovery& discovery() {
+        return _discovery;
+    }
+
+    nRF5xCharacteristicDescriptorDiscoverer& characteristicDescriptorDiscoverer() {
+        return _characteristicDescriptorDiscoverer;
+    }
 
 private:
     nRF5xGattClient(const nRF5xGattClient &);
     const nRF5xGattClient& operator=(const nRF5xGattClient &);
 
 private:
-    nRF5xServiceDiscovery discovery;
+    nRF5xServiceDiscovery _discovery;
+    nRF5xCharacteristicDescriptorDiscoverer _characteristicDescriptorDiscoverer;
 
 #endif // if !S110
 };

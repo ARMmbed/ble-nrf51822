@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include "nRF5xServiceDiscovery.h"
+#include "nRF5xCharacteristicDescriptorDiscoverer.h"
+#include "nRF5xGattClient.h"
 #include "nRF5xn.h"
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
@@ -22,7 +25,9 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
     nRF5xn                &ble         = nRF5xn::Instance(BLE::DEFAULT_INSTANCE);
     nRF5xGap              &gap         = (nRF5xGap &) ble.getGap();
     nRF5xGattClient       &gattClient  = (nRF5xGattClient &) ble.getGattClient();
-    nRF5xServiceDiscovery &sdSingleton = gattClient.discovery;
+    nRF5xServiceDiscovery &sdSingleton = gattClient.discovery();
+    nRF5xCharacteristicDescriptorDiscoverer &characteristicDescriptorDiscoverer =
+        gattClient.characteristicDescriptorDiscoverer();
 
     switch (p_ble_evt->header.evt_id) {
         case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
@@ -46,7 +51,7 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
 
                 case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND:
                 default:
-                    sdSingleton.terminateCharacteristicDiscovery();
+                    sdSingleton.terminateCharacteristicDiscovery(BLE_ERROR_NONE);
                     break;
             }
             break;
@@ -93,6 +98,28 @@ void bleGattcEventHandler(const ble_evt_t *p_ble_evt)
                 gattClient.processHVXEvent(&params);
             }
             break;
+
+        case BLE_GATTC_EVT_DESC_DISC_RSP: {
+            uint16_t conn_handle = p_ble_evt->evt.gattc_evt.conn_handle;
+            uint16_t status = p_ble_evt->evt.gattc_evt.gatt_status;
+            const ble_gattc_evt_desc_disc_rsp_t& discovered_descriptors = p_ble_evt->evt.gattc_evt.params.desc_disc_rsp;
+
+            switch(status) {
+                case BLE_GATT_STATUS_SUCCESS:
+                    characteristicDescriptorDiscoverer.process(
+                        conn_handle,
+                        discovered_descriptors
+                    );
+                    break;
+                case BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND:
+                    // end of discovery
+                    characteristicDescriptorDiscoverer.terminate(conn_handle, BLE_ERROR_NONE);
+                    break;
+                default:
+                    characteristicDescriptorDiscoverer.terminate(conn_handle, BLE_ERROR_UNSPECIFIED);
+                    break;
+            }
+        }   break;
     }
 
     sdSingleton.progressCharacteristicDiscovery();

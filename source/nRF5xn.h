@@ -77,7 +77,7 @@ public:
      *
      * @return  A reference to GattClient.
      */
-    virtual GattClient &getGattClient() {
+    virtual nRF5xGattClient &getGattClient() {
         if (gattClientInstance == NULL) {
             gattClientInstance = new nRF5xGattClient();
         }
@@ -91,7 +91,7 @@ public:
      *
      * @return  A reference to GattServer.
      */
-    virtual SecurityManager &getSecurityManager() {
+    virtual nRF5xSecurityManager &getSecurityManager() {
         if (securityManagerInstance == NULL) {
             securityManagerInstance = new nRF5xSecurityManager();
         }
@@ -112,7 +112,7 @@ public:
      * @note  The accessor is able to modify the object's state because the
      *        internal pointer has been declared mutable.
      */
-    virtual const Gap &getGap() const  {
+    virtual const nRF5xGap &getGap() const  {
         return gapInstance;
     };
 
@@ -126,7 +126,7 @@ public:
      * @note  The accessor is able to modify the object's state because the
      *        internal pointer has been declared mutable.
      */
-    virtual const GattServer &getGattServer() const {
+    virtual const nRF5xGattServer &getGattServer() const {
         if (gattServerInstance == NULL) {
             gattServerInstance = new nRF5xGattServer();
         }
@@ -143,7 +143,7 @@ public:
      * @note  The accessor is able to modify the object's state because the
      *        internal pointer has been declared mutable.
      */
-    virtual const SecurityManager &getSecurityManager() const {
+    virtual const nRF5xSecurityManager &getSecurityManager() const {
         if (securityManagerInstance == NULL) {
             securityManagerInstance = new nRF5xSecurityManager();
         }
