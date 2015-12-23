@@ -22,6 +22,10 @@
 #include "ble/UUID.h"
 #include "ble/GattCharacteristic.h"
 
+extern "C" {
+#include "ble_srv_common.h"
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,20 +34,7 @@ uint8_t custom_add_uuid_base(uint8_t const *const p_uuid_base);
 error_t custom_decode_uuid(uint8_t const *const p_uuid_base,
                            ble_uuid_t          *p_uuid);
 ble_uuid_t custom_convert_to_nordic_uuid(const UUID &uuid);
-
-error_t custom_add_in_characteristic(uint16_t                  service_handle,
-                                     ble_uuid_t               *p_uuid,
-                                     uint8_t                   properties,
-                                     SecurityManager::SecurityMode_t requiredSecurity,
-                                     uint8_t                  *p_data,
-                                     uint16_t                  length,
-                                     uint16_t                  max_length,
-                                     bool                      has_variable_len,
-                                     const uint8_t            *userDescriptionDescriptorValuePtr,
-                                     uint16_t                  userDescriptionDescriptorValueLen,
-                                     bool                      readAuthorization,
-                                     bool                      writeAuthorization,
-                                     ble_gatts_char_handles_t *p_char_handle);
+security_req_t custom_convert_to_nordic_seq_req(SecurityManager::SecurityMode_t securityMode);
 
 error_t custom_add_in_descriptor(uint16_t                      char_handle,
                                      ble_uuid_t               *p_uuid,
