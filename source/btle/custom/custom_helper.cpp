@@ -178,7 +178,10 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
 
 /**************************************************************************/
 /*!
-
+    @brief      Convert a SecurityManager::SecurityMode_t enum to
+                a nordic security_req_t enum
+    @param[in]  securityMode The security mod in a SecurityManager::SecurityMode_t enum
+    @returns    the corresponding security mode in a security_req_t enum type
 */
 /**************************************************************************/
 security_req_t custom_convert_to_nordic_seq_req(SecurityManager::SecurityMode_t securityMode)
