@@ -36,14 +36,6 @@ error_t custom_decode_uuid(uint8_t const *const p_uuid_base,
 ble_uuid_t custom_convert_to_nordic_uuid(const UUID &uuid);
 security_req_t custom_convert_to_nordic_seq_req(SecurityManager::SecurityMode_t securityMode);
 
-error_t custom_add_in_descriptor(uint16_t                      char_handle,
-                                     ble_uuid_t               *p_uuid,
-                                     uint8_t                  *p_data,
-                                     uint16_t                  length,
-                                     uint16_t                  max_length,
-                                     bool                      has_variable_len,
-                                     uint16_t                 *p_desc_handle);
-
 #ifdef __cplusplus
 }
 #endif

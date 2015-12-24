@@ -142,17 +142,30 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
                 continue;
             }
 
-            nordicUUID = custom_convert_to_nordic_uuid(p_desc->getUUID());
+            ble_add_descr_params_t descr_props;
 
-            ASSERT(ERROR_NONE ==
-                   custom_add_in_descriptor(BLE_GATT_HANDLE_INVALID,
-                                            &nordicUUID,
-                                            p_desc->getValuePtr(),
-                                            p_desc->getLength(),
-                                            p_desc->getMaxLength(),
-                                            p_desc->hasVariableLength(),
-                                            &nrfDescriptorHandles[descriptorCount]),
-                BLE_ERROR_PARAM_OUT_OF_RANGE);
+            nordicUUID = custom_convert_to_nordic_uuid(p_desc->getUUID());
+            seqReq = custom_convert_to_nordic_seq_req(SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK);
+
+            memset(&descr_props, 0, sizeof(descr_props));
+
+            descr_props.uuid             = nordicUUID.uuid;             /*descriptor UUID (16 bits UUIDs).*/
+            descr_props.uuid_type        = nordicUUID.type;             /*Base UUID.*/
+            descr_props.is_defered_read  = false;                       /*Indicate if deferred read operations are supported.*/
+            descr_props.is_defered_write = false;                       /*Indicate if deferred write operations are supported.*/
+            descr_props.is_var_len       = p_desc->hasVariableLength(); /*Indicates if the descriptor value has variable length.*/
+            descr_props.read_access      = seqReq;                      /*Security requirement for reading the descriptor value.*/
+            descr_props.write_access     = seqReq;                      /*Security requirement for writing the descriptor value.*/
+            descr_props.is_value_user    = false;                       /*Indicate if the content of the characteristic is to be stored in the application (user) or in the stack.*/
+            descr_props.init_len         = p_desc->getLength();         /*Initial descriptor value length in bytes.*/
+            descr_props.init_offs        = 0;                           /*Initial descriptor value offset in bytes. If different from zero, the first init_offs bytes of the attribute value will be left uninitialized.*/
+            descr_props.max_len          = p_desc->getMaxLength();      /*Maximum descriptor value length in bytes, see BLE_GATTS_ATTR_LENS_MAX for maximum values.*/
+            descr_props.p_value          = p_desc->getValuePtr();       /*Pointer to the value of the descriptor*/
+
+            ASSERT(ERROR_NONE == descriptor_add(BLE_GATT_HANDLE_INVALID,
+                                                &descr_props,
+                                                &nrfDescriptorHandles[descriptorCount]),
+                   BLE_ERROR_PARAM_OUT_OF_RANGE);
 
             p_descriptors[descriptorCount++] = p_desc;
             p_desc->setHandle(nrfDescriptorHandles[descriptorCount]);
