@@ -173,8 +173,8 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 
     adv_para.type        = params.getAdvertisingType();
     adv_para.p_peer_addr = NULL;                           // Undirected advertisement
-    adv_para.fp          = BLE_GAP_ADV_FP_ANY;
-    adv_para.p_whitelist = NULL;
+    adv_para.fp          = advertisingPolicyMode;
+    adv_para.p_whitelist = &whitelist;
     adv_para.interval    = params.getIntervalInADVUnits(); // advertising interval (in units of 0.625 ms)
     adv_para.timeout     = params.getTimeout();
 
@@ -234,8 +234,8 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
     }
 
     ble_gap_scan_params_t scanParams;
-    scanParams.selective   = 0;    /**< If 1, ignore unknown devices (non whitelisted). */
-    scanParams.p_whitelist = NULL; /**< Pointer to whitelist, NULL if none is given. */
+    scanParams.selective   = scanningPolicyMode;    /**< If 1, ignore unknown devices (non whitelisted). */
+    scanParams.p_whitelist = &whitelist; /**< Pointer to whitelist, NULL if none is given. */
     if (scanParamsIn != NULL) {
         scanParams.active      = scanParamsIn->getActiveScanning();   /**< If 1, perform active scanning (scan requests). */
         scanParams.interval    = scanParamsIn->getInterval();         /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
@@ -507,3 +507,65 @@ void nRF5xGap::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *co
     *valueArrayPP = permittedTxValues;
     *countP = sizeof(permittedTxValues) / sizeof(int8_t);
 }
+
+/////////////////////////WHITELISTING
+int8_t nRF5xGap::getMaxWhitelistSize(void) const
+{
+    return YOTTA_CFG_WHITELIST_MAX_SIZE;
+}
+
+ble_error_t nRF5xGap::getWhitelist(std::set<BLEProtocol::Address_t> &whitelist) const
+{
+    for (uint8_t i = 0; i < whitelistAddressesSize; i++) {
+        BLEProtocol::Address_t addr;//((BLEProtocol::AddressType_t)whitelistAddrs[i].addr_type, (BLEProtocol::AddressBytes_t) whitelistAddrs[i].addr);
+        addr.type = (BLEProtocol::AddressType_t) whitelistAddrs[i].addr_type;
+        memcpy(addr.address, whitelistAddrs[i].addr, sizeof(BLEProtocol::AddressBytes_t));
+        whitelist.insert(addr);
+    }
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t nRF5xGap::setWhitelist(std::set<BLEProtocol::Address_t> whitelistIn)
+{
+    whitelistAddressesSize = 0;
+    for (std::set<BLEProtocol::Address_t>::iterator it = whitelistIn.begin(); it != whitelistIn.end(); it++) {
+        whitelistAddrs[whitelistAddressesSize].addr_type = it->type;
+        memcpy(whitelistAddrs[whitelistAddressesSize].addr, it->address, sizeof(BLEProtocol::AddressBytes_t));
+        whitelistAddressesSize++;
+    }
+    whitelist.addr_count = whitelistAddressesSize;
+    whitelist.irk_count  = whitelistIrksSize;
+    return BLE_ERROR_NONE;
+}
+
+// Accessors
+void nRF5xGap::setAdvertisingPolicyMode(Gap::AdvertisingPolicyMode_t mode)
+{
+    advertisingPolicyMode = mode;
+}
+
+void nRF5xGap::setScanningPolicyMode(Gap::ScanningPolicyMode_t mode)
+{
+    scanningPolicyMode = mode;
+}
+
+void nRF5xGap::setInitiatorPolicyMode(Gap::InitiatorPolicyMode_t mode)
+{
+    initiatorPolicyMode = mode;
+}
+
+Gap::AdvertisingPolicyMode_t nRF5xGap::getAdvertisingPolicyMode(void) const
+{
+    return advertisingPolicyMode;
+}
+
+Gap::ScanningPolicyMode_t nRF5xGap::getScanningPolicyMode(void) const
+{
+    return scanningPolicyMode;
+}
+
+Gap::InitiatorPolicyMode_t nRF5xGap::getInitiatorPolicyMode(void) const
+{
+    return initiatorPolicyMode;
+}
+/////////////////////////
