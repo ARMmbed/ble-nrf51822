@@ -43,6 +43,18 @@ static ble_gap_sec_params_t securityParameters = {
     },                             /**< Key distribution bitmap: keys that the peripheral device will distribute. */
 };
 
+ble_error_t btle_createWhitelistFromBonds(ble_gap_whitelist_t *p_whitelist)
+{
+    ret_code_t err = dm_whitelist_create(&applicationInstance, p_whitelist);
+    if (err == NRF_SUCCESS) {
+        return BLE_ERROR_NONE;
+    } else if (err == NRF_ERROR_NULL) {
+        return BLE_ERROR_PARAM_OUT_OF_RANGE;
+    } else {
+        return BLE_ERROR_INVALID_STATE;
+    }
+}
+
 ble_error_t
 btle_initializeSecurity(bool                                      enableBonding,
                         bool                                      requireMITM,

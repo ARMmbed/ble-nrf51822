@@ -40,6 +40,8 @@ ble_error_t btle_initializeSecurity(bool                                      en
                                     SecurityManager::SecurityIOCapabilities_t iocaps        = SecurityManager::IO_CAPS_NONE,
                                     const SecurityManager::Passkey_t          passkey       = NULL);
 
+ble_error_t btle_createWhitelistFromBonds(ble_gap_whitelist_t *p_whitelist);
+
 /**
  * Get the security status of a link.
  *
