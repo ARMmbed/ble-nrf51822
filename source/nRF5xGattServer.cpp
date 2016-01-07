@@ -24,6 +24,10 @@
 #include "common/common.h"
 #include "btle/custom/custom_helper.h"
 
+extern "C" {
+#include "ble_srv_common.h"
+}
+
 #include "nRF5xn.h"
 
 /**************************************************************************/
@@ -73,36 +77,53 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
             continue;
         }
 
-        nordicUUID = custom_convert_to_nordic_uuid(p_char->getValueAttribute().getUUID());
-
         /* The user-description descriptor is a special case which needs to be
          * handled at the time of adding the characteristic. The following block
          * is meant to discover its presence. */
+        ble_add_char_user_desc_t u_desc;
+        memset(&u_desc, 0, sizeof(u_desc));
+
         const uint8_t *userDescriptionDescriptorValuePtr = NULL;
         uint16_t userDescriptionDescriptorValueLen = 0;
         for (uint8_t j = 0; j < p_char->getDescriptorCount(); j++) {
             GattAttribute *p_desc = p_char->getDescriptor(j);
             if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC) {
-                userDescriptionDescriptorValuePtr = p_desc->getValuePtr();
-                userDescriptionDescriptorValueLen = p_desc->getLength();
+                u_desc.p_char_user_desc = (uint8_t *) p_desc->getValuePtr();
+                u_desc.max_size         = p_desc->getLength();
+                u_desc.size             = p_desc->getLength();
             }
         }
 
-        ASSERT ( ERROR_NONE ==
-                 custom_add_in_characteristic(BLE_GATT_HANDLE_INVALID,
-                                              &nordicUUID,
-                                              p_char->getProperties(),
-                                              p_char->getRequiredSecurity(),
-                                              p_char->getValueAttribute().getValuePtr(),
-                                              p_char->getValueAttribute().getLength(),
-                                              p_char->getValueAttribute().getMaxLength(),
-                                              p_char->getValueAttribute().hasVariableLength(),
-                                              userDescriptionDescriptorValuePtr,
-                                              userDescriptionDescriptorValueLen,
-                                              p_char->isReadAuthorizationEnabled(),
-                                              p_char->isWriteAuthorizationEnabled(),
-                                              &nrfCharacteristicHandles[characteristicCount]),
-                 BLE_ERROR_PARAM_OUT_OF_RANGE );
+        ble_gatt_char_props_t char_props;
+        uint8_t properties = p_char->getProperties();
+        memcpy(&char_props, &properties, 1);
+
+        security_req_t seqReq;
+        seqReq     = custom_convert_to_nordic_seq_req(p_char->getRequiredSecurity());
+        nordicUUID = custom_convert_to_nordic_uuid(p_char->getValueAttribute().getUUID());
+
+        ble_add_char_params_t char_params;
+        memset(&char_params, 0, sizeof(ble_add_char_params_t));
+
+        char_params.uuid              = nordicUUID.uuid;                            /*Characteristic UUID (16 bits UUIDs).*/
+        char_params.uuid_type         = nordicUUID.type;                            /*Base UUID.*/
+        char_params.max_len           = p_char->getValueAttribute().getMaxLength(); /*Maximum length of the characteristic value.*/
+        char_params.init_len          = p_char->getValueAttribute().getLength();    /*Initial length of the characteristic value.*/
+        char_params.p_init_value      = p_char->getValueAttribute().getValuePtr();  /*Initial encoded value of the characteristic.*/
+        char_params.is_var_len        = true; // always set variable length         /*Indicates if the characteristic value has variable length.*/
+        char_params.char_props        = char_props;                                 /*Characteristic properties.*/
+        char_params.is_defered_read   = p_char->isReadAuthorizationEnabled();       /*Indicate if deferred read operations are supported.*/
+        char_params.is_defered_write  = p_char->isWriteAuthorizationEnabled();      /*Indicate if deferred write operations are supported.*/
+        char_params.read_access       = seqReq;                                     /*Security requirement for reading the characteristic value.*/
+        char_params.write_access      = seqReq;                                     /*Security requirement for writing the characteristic value.*/
+        char_params.cccd_write_access = seqReq;                                     /*Security requirement for writing the characteristic's CCCD.*/
+        char_params.is_value_user     = false; // always set BLE_GATTS_VLOC_STACK   /*Indicate if the content of the characteristic is to be stored in the application (user) or in the stack.*/
+        char_params.p_user_descr      = &u_desc;                                    /*Pointer to user descriptor if needed*/
+
+        ASSERT (ERROR_NONE == characteristic_add(BLE_GATT_HANDLE_INVALID,
+                                                 &char_params,
+                                                 &nrfCharacteristicHandles[characteristicCount]),
+                BLE_ERROR_PARAM_OUT_OF_RANGE );
 
         /* Update the characteristic handle */
         p_characteristics[characteristicCount] = p_char;
@@ -121,17 +142,30 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
                 continue;
             }
 
-            nordicUUID = custom_convert_to_nordic_uuid(p_desc->getUUID());
+            ble_add_descr_params_t descr_props;
 
-            ASSERT(ERROR_NONE ==
-                   custom_add_in_descriptor(BLE_GATT_HANDLE_INVALID,
-                                            &nordicUUID,
-                                            p_desc->getValuePtr(),
-                                            p_desc->getLength(),
-                                            p_desc->getMaxLength(),
-                                            p_desc->hasVariableLength(),
-                                            &nrfDescriptorHandles[descriptorCount]),
-                BLE_ERROR_PARAM_OUT_OF_RANGE);
+            nordicUUID = custom_convert_to_nordic_uuid(p_desc->getUUID());
+            seqReq     = custom_convert_to_nordic_seq_req(SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK);
+
+            memset(&descr_props, 0, sizeof(descr_props));
+
+            descr_props.uuid             = nordicUUID.uuid;             /*descriptor UUID (16 bits UUIDs).*/
+            descr_props.uuid_type        = nordicUUID.type;             /*Base UUID.*/
+            descr_props.is_defered_read  = false;                       /*Indicate if deferred read operations are supported.*/
+            descr_props.is_defered_write = false;                       /*Indicate if deferred write operations are supported.*/
+            descr_props.is_var_len       = p_desc->hasVariableLength(); /*Indicates if the descriptor value has variable length.*/
+            descr_props.read_access      = seqReq;                      /*Security requirement for reading the descriptor value.*/
+            descr_props.write_access     = seqReq;                      /*Security requirement for writing the descriptor value.*/
+            descr_props.is_value_user    = false;                       /*Indicate if the content of the characteristic is to be stored in the application (user) or in the stack.*/
+            descr_props.init_len         = p_desc->getLength();         /*Initial descriptor value length in bytes.*/
+            descr_props.init_offs        = 0;                           /*Initial descriptor value offset in bytes. If different from zero, the first init_offs bytes of the attribute value will be left uninitialized.*/
+            descr_props.max_len          = p_desc->getMaxLength();      /*Maximum descriptor value length in bytes, see BLE_GATTS_ATTR_LENS_MAX for maximum values.*/
+            descr_props.p_value          = p_desc->getValuePtr();       /*Pointer to the value of the descriptor*/
+
+            ASSERT(ERROR_NONE == descriptor_add(BLE_GATT_HANDLE_INVALID,
+                                                &descr_props,
+                                                &nrfDescriptorHandles[descriptorCount]),
+                   BLE_ERROR_PARAM_OUT_OF_RANGE);
 
             p_descriptors[descriptorCount++] = p_desc;
             p_desc->setHandle(nrfDescriptorHandles[descriptorCount]);

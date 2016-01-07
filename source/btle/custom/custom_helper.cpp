@@ -178,184 +178,36 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
 
 /**************************************************************************/
 /*!
-    @brief      Adds a new characteristic to the custom service, assigning
-                properties, a UUID add-on value, etc.
-
-    @param[in]  service_handle
-    @param[in]  p_uuid            The 16-bit value to add to the base UUID
-                                  for this characteristic (normally >1
-                                  since 1 is typically used by the primary
-                                  service).
-    @param[in]  char_props        The characteristic properties, as
-                                  defined by ble_gatt_char_props_t
-    @param[in]  max_length        The maximum length of this characeristic
-    @param[in]  has_variable_len  Whether the characteristic data has
-                                  variable length.
-    @param[out] p_char_handle
-
-    @returns
-    @retval     ERROR_NONE        Everything executed normally
+    @brief      Convert a SecurityManager::SecurityMode_t enum to
+                a nordic security_req_t enum
+    @param[in]  securityMode The security mod in a SecurityManager::SecurityMode_t enum
+    @returns    the corresponding security mode in a security_req_t enum type
 */
 /**************************************************************************/
-error_t custom_add_in_characteristic(uint16_t                  service_handle,
-                                     ble_uuid_t               *p_uuid,
-                                     uint8_t                   properties,
-                                     SecurityManager::SecurityMode_t       requiredSecurity,
-                                     uint8_t                  *p_data,
-                                     uint16_t                  length,
-                                     uint16_t                  max_length,
-                                     bool                      has_variable_len,
-                                     const uint8_t            *userDescriptionDescriptorValuePtr,
-                                     uint16_t                  userDescriptionDescriptorValueLen,
-                                     bool                      readAuthorization,
-                                     bool                      writeAuthorization,
-                                     ble_gatts_char_handles_t *p_char_handle)
+security_req_t custom_convert_to_nordic_seq_req(SecurityManager::SecurityMode_t securityMode)
 {
-    /* Characteristic metadata */
-    ble_gatts_attr_md_t   cccd_md;
-    ble_gatt_char_props_t char_props;
+    security_req_t seqReq = SEC_NO_ACCESS;
 
-    memcpy(&char_props, &properties, 1);
-
-    if (char_props.notify || char_props.indicate) {
-        /* Notification requires cccd */
-        memclr_( &cccd_md, sizeof(ble_gatts_attr_md_t));
-        cccd_md.vloc = BLE_GATTS_VLOC_STACK;
-        BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
-        BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
+    switch (securityMode) {
+        case SecurityManager::SECURITY_MODE_NO_ACCESS:
+            seqReq = SEC_NO_ACCESS;
+            break;
+        case SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK:
+            seqReq = SEC_OPEN;
+            break;
+        case SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM:
+            seqReq = SEC_JUST_WORKS;
+            break;
+        case SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM:
+            seqReq = SEC_MITM;
+            break;
+        case SecurityManager::SECURITY_MODE_SIGNED_NO_MITM:
+            seqReq = SEC_SIGNED;
+            break;
+        case SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM:
+            seqReq = SEC_SIGNED_MITM;
+            break;
     }
 
-    ble_gatts_char_md_t char_md = {0};
-
-    char_md.char_props = char_props;
-    char_md.p_cccd_md  =
-        (char_props.notify || char_props.indicate) ? &cccd_md : NULL;
-    if ((userDescriptionDescriptorValueLen > 0) && (userDescriptionDescriptorValuePtr != NULL)) {
-        char_md.p_char_user_desc        = const_cast<uint8_t *>(userDescriptionDescriptorValuePtr);
-        char_md.char_user_desc_max_size = userDescriptionDescriptorValueLen;
-        char_md.char_user_desc_size     = userDescriptionDescriptorValueLen;
-    }
-
-    /* Attribute declaration */
-    ble_gatts_attr_md_t attr_md = {0};
-
-    attr_md.rd_auth = readAuthorization;
-    attr_md.wr_auth = writeAuthorization;
-
-    attr_md.vloc = BLE_GATTS_VLOC_STACK;
-    /* Always set variable size */
-    attr_md.vlen = has_variable_len;
-
-    if (char_props.read || char_props.notify || char_props.indicate) {
-        switch (requiredSecurity) {
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK :
-                BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&attr_md.read_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_ENC_WITH_MITM(&attr_md.read_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_SIGNED_NO_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_SIGNED_NO_MITM(&attr_md.read_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_SIGNED_WITH_MITM(&attr_md.read_perm);
-                break;
-            default:
-                break;
-        };
-    }
-
-    if (char_props.write || char_props.write_wo_resp) {
-        switch (requiredSecurity) {
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK :
-                BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&attr_md.write_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_ENC_WITH_MITM(&attr_md.write_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_SIGNED_NO_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_SIGNED_NO_MITM(&attr_md.write_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_SIGNED_WITH_MITM(&attr_md.write_perm);
-                break;
-            default:
-                break;
-        };
-    }
-
-    ble_gatts_attr_t attr_char_value = {0};
-
-    attr_char_value.p_uuid    = p_uuid;
-    attr_char_value.p_attr_md = &attr_md;
-    attr_char_value.init_len  = length;
-    attr_char_value.max_len   = max_length;
-    attr_char_value.p_value   = p_data;
-
-    ASSERT_STATUS ( sd_ble_gatts_characteristic_add(service_handle,
-                                                    &char_md,
-                                                    &attr_char_value,
-                                                    p_char_handle));
-
-    return ERROR_NONE;
-}
-
-
-
-/**************************************************************************/
-/*!
-    @brief      Adds a new descriptor to the custom service, assigning
-                value, a UUID add-on value, etc.
-
-    @param[in]  char_handle
-    @param[in]  p_uuid            The 16-bit value to add to the base UUID
-                                  for this descriptor (normally >1
-                                  since 1 is typically used by the primary
-                                  service).
-    @param[in]  max_length        The maximum length of this descriptor
-    @param[in]  has_variable_len  Whether the characteristic data has
-                                  variable length.
-
-    @returns
-    @retval     ERROR_NONE        Everything executed normally
-*/
-/**************************************************************************/
-error_t custom_add_in_descriptor(uint16_t    char_handle,
-                                 ble_uuid_t *p_uuid,
-                                 uint8_t    *p_data,
-                                 uint16_t    length,
-                                 uint16_t    max_length,
-                                 bool        has_variable_len,
-                                 uint16_t   *p_desc_handle)
-{
-    /* Descriptor metadata */
-    ble_gatts_attr_md_t   desc_md = {0};
-
-    desc_md.vloc = BLE_GATTS_VLOC_STACK;
-    /* Always set variable size */
-    desc_md.vlen = has_variable_len;
-
-    /* Make it readable and writable */
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&desc_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&desc_md.write_perm);
-
-    ble_gatts_attr_t attr_desc = {0};
-
-    attr_desc.p_uuid    = p_uuid;
-    attr_desc.p_attr_md = &desc_md;
-    attr_desc.init_len  = length;
-    attr_desc.max_len   = max_length;
-    attr_desc.p_value   = p_data;
-
-    ASSERT_STATUS ( sd_ble_gatts_descriptor_add(char_handle,
-                                                &attr_desc,
-                                                p_desc_handle));
-
-    return ERROR_NONE;
+    return seqReq;
 }
