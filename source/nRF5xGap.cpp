@@ -573,11 +573,45 @@ void nRF5xGap::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *co
     *countP = sizeof(permittedTxValues) / sizeof(int8_t);
 }
 
+/**************************************************************************/
+/*!
+    @brief  Get the capacity of the internal whitelist maintained by this
+            implementation.
+
+    @returns    The capacity of the internal whitelist.
+
+    @section EXAMPLE
+
+    @code
+
+    @endcode
+*/
+/**************************************************************************/
 uint8_t nRF5xGap::getMaxWhitelistSize(void) const
 {
     return YOTTA_CFG_WHITELIST_MAX_SIZE;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Get a copy of the implementation's internal whitelist.
+
+    @param[out] whitelistOut
+                A \ref Gap::Whitelist_t structure containing a copy of the
+                addresses in the implemenetation's internal whitelist.
+
+    @returns    \ref ble_errror_t
+
+    @retval     BLE_ERROR_NONE
+                Everything executed properly.
+
+    @section EXAMPLE
+
+    @code
+
+    @endcode
+*/
+/**************************************************************************/
 ble_error_t nRF5xGap::getWhitelist(Gap::Whitelist_t &whitelistOut) const
 {
     uint8_t i;
@@ -589,6 +623,36 @@ ble_error_t nRF5xGap::getWhitelist(Gap::Whitelist_t &whitelistOut) const
     return BLE_ERROR_NONE;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Set the whitelist that will be used in the next call to
+            startAdvertising().
+
+    @param[in]  whitelistIn
+                A reference to a \ref Gap::Whitelist_t structure
+                representing a whitelist containing all the white listed
+                BLE addresses.
+
+    @returns    \ref ble_errror_t
+
+    @retval     BLE_ERROR_NONE
+                Everything executed properly.
+
+                BLE_ERROR_INVALID_PARAM
+                The supplied whitelist contains a private non-resolvable
+                address
+
+                BLE_ERROR_PARAM_OUT_OF_RANGE
+                The size of the supplied whitelist exceeds the maximum
+                capacity of the implementation's internal whitelist.
+
+    @section EXAMPLE
+
+    @code
+
+    @endcode
+*/
+/**************************************************************************/
 ble_error_t nRF5xGap::setWhitelist(const Gap::Whitelist_t &whitelistIn)
 {
     if (whitelistIn.size > getMaxWhitelistSize()) {
@@ -608,6 +672,26 @@ ble_error_t nRF5xGap::setWhitelist(const Gap::Whitelist_t &whitelistIn)
     return BLE_ERROR_NONE;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Set the advertising policy filter mode that will be used in
+            the next call to startAdvertising().
+
+    @returns    \ref ble_errror_t
+
+    @retval     BLE_ERROR_NONE
+                Everything executed properly.
+
+                BLE_ERROR_NOT_IMPLEMENTED
+                This feature is currently note implemented.
+
+    @section EXAMPLE
+
+    @code
+
+    @endcode
+*/
+/**************************************************************************/
 ble_error_t nRF5xGap::setAdvertisingPolicyMode(Gap::AdvertisingPolicyMode_t mode)
 {
     advertisingPolicyMode = mode;
@@ -615,6 +699,26 @@ ble_error_t nRF5xGap::setAdvertisingPolicyMode(Gap::AdvertisingPolicyMode_t mode
     return BLE_ERROR_NONE;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Set the scanning policy filter mode that will be used in
+            the next call to startAdvertising().
+
+    @returns    \ref ble_errror_t
+
+    @retval     BLE_ERROR_NONE
+                Everything executed properly.
+
+                BLE_ERROR_NOT_IMPLEMENTED
+                This feature is currently note implemented.
+
+    @section EXAMPLE
+
+    @code
+
+    @endcode
+*/
+/**************************************************************************/
 ble_error_t nRF5xGap::setScanningPolicyMode(Gap::ScanningPolicyMode_t mode)
 {
     scanningPolicyMode = mode;
@@ -622,21 +726,83 @@ ble_error_t nRF5xGap::setScanningPolicyMode(Gap::ScanningPolicyMode_t mode)
     return BLE_ERROR_NONE;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Set the initiator policy filter mode that will be used in
+            the next call to startAdvertising()
+
+    @returns    \ref ble_errror_t
+
+    @retval     BLE_ERROR_NONE
+                Everything executed properly.
+
+                BLE_ERROR_NOT_IMPLEMENTED
+                This feature is currently note implemented.
+
+    @section EXAMPLE
+
+    @code
+
+    @endcode
+*/
+/**************************************************************************/
 ble_error_t nRF5xGap::setInitiatorPolicyMode(Gap::InitiatorPolicyMode_t mode)
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Get the current advertising policy filter mode.
+
+    @returns    The advertising policy filter mode.
+
+    @section EXAMPLE
+
+    @code
+
+    @endcode
+*/
+/**************************************************************************/
 Gap::AdvertisingPolicyMode_t nRF5xGap::getAdvertisingPolicyMode(void) const
 {
     return advertisingPolicyMode;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Get the current scanning policy filter mode.
+
+    @returns    The scanning policy filter mode.
+
+    @section EXAMPLE
+
+    @code
+
+    @endcode
+*/
+/**************************************************************************/
 Gap::ScanningPolicyMode_t nRF5xGap::getScanningPolicyMode(void) const
 {
     return scanningPolicyMode;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Get the current initiator policy filter mode.
+
+    @returns    The initiator policy filter mode.
+
+    @note   Currently initiator filtering using the whitelist is not
+            implemented in this module.
+
+    @section EXAMPLE
+
+    @code
+
+    @endcode
+*/
+/**************************************************************************/
 Gap::InitiatorPolicyMode_t nRF5xGap::getInitiatorPolicyMode(void) const
 {
     return Gap::INIT_POLICY_IGNORE_WHITELIST;
@@ -647,31 +813,16 @@ Gap::InitiatorPolicyMode_t nRF5xGap::getInitiatorPolicyMode(void) const
     @brief  Helper function used to populate the ble_gap_whitelist_t that
             will be used by the SoftDevice for filtering requests.
 
-    @param[in]  params
-                Basic advertising details, including the advertising
-                delay, timeout and how the device should be advertised
-    @params[in] advData
-                The primary advertising data payload
-    @params[in] scanResponse
-                The optional Scan Response payload if the advertising
-                type is set to \ref GapAdvertisingParams::ADV_SCANNABLE_UNDIRECTED
-                in \ref GapAdveritinngParams
-
     @returns    \ref ble_error_t
 
     @retval     BLE_ERROR_NONE
                 Everything executed properly
 
-    @retval     BLE_ERROR_BUFFER_OVERFLOW
-                The proposed action would cause a buffer overflow.  All
-                advertising payloads must be <= 31 bytes, for example.
+    @retval     BLE_ERROR_INVALID_STATE
+                The internal stack was not initialized correctly.
 
-    @retval     BLE_ERROR_NOT_IMPLEMENTED
-                A feature was requested that is not yet supported in the
-                nRF51 firmware or hardware.
-
-    @retval     BLE_ERROR_PARAM_OUT_OF_RANGE
-                One of the proposed values is outside the valid range.
+    @note  Both the SecurityManager and Gap must initialize correctly for
+           this function to succeed.
 
     @note  This function is needed because for the BLE API the whitelist
            is just a collection of keys, but for the stack it also includes
