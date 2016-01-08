@@ -642,6 +642,48 @@ Gap::InitiatorPolicyMode_t nRF5xGap::getInitiatorPolicyMode(void) const
     return Gap::INIT_POLICY_IGNORE_WHITELIST;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Helper function used to populate the ble_gap_whitelist_t that
+            will be used by the SoftDevice for filtering requests.
+
+    @param[in]  params
+                Basic advertising details, including the advertising
+                delay, timeout and how the device should be advertised
+    @params[in] advData
+                The primary advertising data payload
+    @params[in] scanResponse
+                The optional Scan Response payload if the advertising
+                type is set to \ref GapAdvertisingParams::ADV_SCANNABLE_UNDIRECTED
+                in \ref GapAdveritinngParams
+
+    @returns    \ref ble_error_t
+
+    @retval     BLE_ERROR_NONE
+                Everything executed properly
+
+    @retval     BLE_ERROR_BUFFER_OVERFLOW
+                The proposed action would cause a buffer overflow.  All
+                advertising payloads must be <= 31 bytes, for example.
+
+    @retval     BLE_ERROR_NOT_IMPLEMENTED
+                A feature was requested that is not yet supported in the
+                nRF51 firmware or hardware.
+
+    @retval     BLE_ERROR_PARAM_OUT_OF_RANGE
+                One of the proposed values is outside the valid range.
+
+    @note  This function is needed because for the BLE API the whitelist
+           is just a collection of keys, but for the stack it also includes
+           the IRK table.
+
+    @section EXAMPLE
+
+    @code
+
+    @endcode
+*/
+/**************************************************************************/
 ble_error_t nRF5xGap::generateStackWhitelist(void)
 {
     ble_gap_whitelist_t  whitelistFromBondTable;

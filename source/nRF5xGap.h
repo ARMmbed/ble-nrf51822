@@ -92,6 +92,10 @@ public:
 
     virtual ble_error_t reset(void);
 
+    /*
+     * The following functions are part of the whitelisting experimental API.
+     * Therefore, this functionality can change in the near future.
+     */
     virtual uint8_t getMaxWhitelistSize(void) const;
     virtual ble_error_t getWhitelist(Gap::Whitelist_t &whitelistOut) const;
     virtual ble_error_t setWhitelist(const Gap::Whitelist_t &whitelistIn);
@@ -118,6 +122,10 @@ public:
 #endif
 
 private:
+    /*
+     * Whitelisting API related structures and helper functions.
+     */
+
     /* Policy modes set by the user. By default these are set to ignore the whitelist */
     Gap::AdvertisingPolicyMode_t advertisingPolicyMode;
     Gap::ScanningPolicyMode_t    scanningPolicyMode;
@@ -139,6 +147,7 @@ private:
      */
     ble_error_t generateStackWhitelist(void);
 
+private:
     bool    radioNotificationCallbackParam; /* parameter to be passed into the Timeout-generated radio notification callback. */
     Timeout radioNotificationTimeout;
 

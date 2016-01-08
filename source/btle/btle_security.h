@@ -21,6 +21,15 @@
 #include "ble/SecurityManager.h"
 
 /**
+ * Function to test whether the SecurityManager has been initialized.
+ * Possible by a call to @ref btle_initializeSecurity().
+ *
+ * @return True if the SecurityManager was previously initialized, false
+ *         otherwise.
+ */
+bool btle_hasInitializedSecurity(void);
+
+/**
  * Enable Nordic's Device Manager, which brings in functionality from the
  * stack's Security Manager. The Security Manager implements the actual
  * cryptographic algorithms and protocol exchanges that allow two devices to
@@ -39,8 +48,6 @@ ble_error_t btle_initializeSecurity(bool                                      en
                                     bool                                      requireMITM   = true,
                                     SecurityManager::SecurityIOCapabilities_t iocaps        = SecurityManager::IO_CAPS_NONE,
                                     const SecurityManager::Passkey_t          passkey       = NULL);
-
-ble_error_t btle_createWhitelistFromBondTable(ble_gap_whitelist_t *p_whitelist);
 
 /**
  * Get the security status of a link.
@@ -78,13 +85,19 @@ ble_error_t btle_setLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager
 ble_error_t btle_purgeAllBondingState(void);
 
 /**
- * Function to test whether the SecurityManager has been initialized.
- * Possible by a call to @ref btle_initializeSecurity().
+ * Query the SoftDevice bond table to extract a whitelist containing the BLE
+ * addresses and IRKs of bonded devices.
  *
- * @return True if the SecurityManager was previously initialized, false
- *         otherwise.
+ * @param[in/out]  p_whitelist
+ *                  (on input) p_whitelist->addr_count and
+ *                  p_whitelist->irk_count specify the maximum number of
+ *                  addresses and IRKs added to the whitelist structure.
+ *                  (on output) *p_whitelist is a whitelist containing the
+ *                  addresses and IRKs of the bonded devices.
+ *
+ * @return BLE_ERROR_NONE Or appropriate error code indicating reason for failure.
  */
-bool btle_hasInitializedSecurity(void);
+ble_error_t btle_createWhitelistFromBondTable(ble_gap_whitelist_t *p_whitelist);
 
 /**
  * Function to test whether a BLE address is generated using an IRK.
