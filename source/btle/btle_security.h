@@ -40,7 +40,7 @@ ble_error_t btle_initializeSecurity(bool                                      en
                                     SecurityManager::SecurityIOCapabilities_t iocaps        = SecurityManager::IO_CAPS_NONE,
                                     const SecurityManager::Passkey_t          passkey       = NULL);
 
-ble_error_t btle_createWhitelistFromBonds(ble_gap_whitelist_t *p_whitelist);
+ble_error_t btle_createWhitelistFromBondTable(ble_gap_whitelist_t *p_whitelist);
 
 /**
  * Get the security status of a link.
@@ -76,5 +76,9 @@ ble_error_t btle_setLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager
  *                                    application registration.
  */
 ble_error_t btle_purgeAllBondingState(void);
+
+bool btle_hasInitializedSecurity(void);
+
+bool btle_matchAddressAndIrk(ble_gap_addr_t const * p_addr, ble_gap_irk_t const * p_irk);
 
 #endif /* _BTLE_SECURITY_H_ */

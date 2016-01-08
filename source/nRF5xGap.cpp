@@ -168,6 +168,18 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
+    /* Add missing IRKs to whitelist from the bond table held by the SoftDevice */
+    if (advertisingPolicyMode != Gap::ADV_POLICY_IGNORE_WHITELIST) {
+        ble_error_t error = generateStackWhitelist();
+        if (error != BLE_ERROR_NONE) {
+            return error;
+        }
+    } else {
+        /* Reset the whitelist table to avoid any errors */
+        whitelist.addr_count = 0;
+        whitelist.irk_count  = 0;
+    }
+
     /* Start Advertising */
     ble_gap_adv_params_t adv_para = {0};
 
@@ -184,6 +196,47 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 
     return BLE_ERROR_NONE;
 }
+
+/* Observer role is not supported by S110, return BLE_ERROR_NOT_IMPLEMENTED */
+#if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
+ble_error_t nRF5xGap::startRadioScan(const GapScanningParams &scanningParams) {
+
+    /* Add missing IRKs to whitelist from the bond table held by the SoftDevice */
+    if (scanningPolicyMode != Gap::SCAN_POLICY_IGNORE_WHITELIST) {
+        ble_error_t error = generateStackWhitelist();
+        if (error != BLE_ERROR_NONE) {
+            return error;
+        }
+    } else {
+        /* Reset the whitelist table to avoid any errors */
+        whitelist.addr_count = 0;
+        whitelist.irk_count  = 0;
+    }
+
+    ble_gap_scan_params_t scanParams = {
+        .active      = scanningParams.getActiveScanning(), /**< If 1, perform active scanning (scan requests). */
+        .selective   = scanningPolicyMode,    /**< If 1, ignore unknown devices (non whitelisted). */
+        .p_whitelist = &whitelist, /**< Pointer to whitelist, NULL if none is given. */
+        .interval    = scanningParams.getInterval(),  /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        .window      = scanningParams.getWindow(),    /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+        .timeout     = scanningParams.getTimeout(),   /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+    };
+
+    if (sd_ble_gap_scan_start(&scanParams) != NRF_SUCCESS) {
+        return BLE_ERROR_PARAM_OUT_OF_RANGE;
+    }
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t nRF5xGap::stopScan(void) {
+    if (sd_ble_gap_scan_stop() == NRF_SUCCESS) {
+        return BLE_ERROR_NONE;
+    }
+
+    return BLE_STACK_BUSY;
+}
+#endif
 
 /**************************************************************************/
 /*!
@@ -231,6 +284,18 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
         connParams.max_conn_interval = 100;
         connParams.slave_latency     = 0;
         connParams.conn_sup_timeout  = 600;
+    }
+
+    /* Add missing IRKs to whitelist from the bond table held by the SoftDevice */
+    if (scanningPolicyMode != Gap::SCAN_POLICY_IGNORE_WHITELIST) {
+        ble_error_t error = generateStackWhitelist();
+        if (error != BLE_ERROR_NONE) {
+            return error;
+        }
+    } else {
+        /* Reset the whitelist table to avoid any errors */
+        whitelist.addr_count = 0;
+        whitelist.irk_count  = 0;
     }
 
     ble_gap_scan_params_t scanParams;
@@ -508,50 +573,58 @@ void nRF5xGap::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *co
     *countP = sizeof(permittedTxValues) / sizeof(int8_t);
 }
 
-/////////////////////////WHITELISTING
-int8_t nRF5xGap::getMaxWhitelistSize(void) const
+uint8_t nRF5xGap::getMaxWhitelistSize(void) const
 {
     return YOTTA_CFG_WHITELIST_MAX_SIZE;
 }
 
-ble_error_t nRF5xGap::getWhitelist(std::set<BLEProtocol::Address_t> &whitelist) const
+ble_error_t nRF5xGap::getWhitelist(Gap::Whitelist_t &whitelistOut) const
 {
-    for (uint8_t i = 0; i < whitelistAddressesSize; i++) {
-        BLEProtocol::Address_t addr;//((BLEProtocol::AddressType_t)whitelistAddrs[i].addr_type, (BLEProtocol::AddressBytes_t) whitelistAddrs[i].addr);
-        addr.type = (BLEProtocol::AddressType_t) whitelistAddrs[i].addr_type;
-        memcpy(addr.address, whitelistAddrs[i].addr, sizeof(BLEProtocol::AddressBytes_t));
-        whitelist.insert(addr);
+    uint8_t i;
+    for (i = 0; i < whitelistAddressesSize && i < whitelistOut.capacity; ++i) {
+        memcpy(&whitelistOut.addresses[i], &whitelistAddresses[i], sizeof(BLEProtocol::Address_t));
     }
+    whitelistOut.size = i;
+
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xGap::setWhitelist(std::set<BLEProtocol::Address_t> whitelistIn)
+ble_error_t nRF5xGap::setWhitelist(const Gap::Whitelist_t &whitelistIn)
 {
+    if (whitelistIn.size > getMaxWhitelistSize()) {
+        return BLE_ERROR_PARAM_OUT_OF_RANGE;
+    }
+
     whitelistAddressesSize = 0;
-    for (std::set<BLEProtocol::Address_t>::iterator it = whitelistIn.begin(); it != whitelistIn.end(); it++) {
-        whitelistAddrs[whitelistAddressesSize].addr_type = it->type;
-        memcpy(whitelistAddrs[whitelistAddressesSize].addr, it->address, sizeof(BLEProtocol::AddressBytes_t));
+    for (uint8_t i = 0; i < whitelistIn.size; ++i) {
+        if (whitelistIn.addresses[i].type == BLEProtocol::AddressType_t::RANDOM_PRIVATE_NON_RESOLVABLE) {
+            /* This is not allowed because it is completely meaningless */
+            return BLE_ERROR_INVALID_PARAM;
+        }
+        memcpy(&whitelistAddresses[whitelistAddressesSize], &whitelistIn.addresses[i], sizeof(BLEProtocol::Address_t));
         whitelistAddressesSize++;
     }
-    whitelist.addr_count = whitelistAddressesSize;
-    whitelist.irk_count  = whitelistIrksSize;
+
     return BLE_ERROR_NONE;
 }
 
-// Accessors
-void nRF5xGap::setAdvertisingPolicyMode(Gap::AdvertisingPolicyMode_t mode)
+ble_error_t nRF5xGap::setAdvertisingPolicyMode(Gap::AdvertisingPolicyMode_t mode)
 {
     advertisingPolicyMode = mode;
+
+    return BLE_ERROR_NONE;
 }
 
-void nRF5xGap::setScanningPolicyMode(Gap::ScanningPolicyMode_t mode)
+ble_error_t nRF5xGap::setScanningPolicyMode(Gap::ScanningPolicyMode_t mode)
 {
     scanningPolicyMode = mode;
+
+    return BLE_ERROR_NONE;
 }
 
-void nRF5xGap::setInitiatorPolicyMode(Gap::InitiatorPolicyMode_t mode)
+ble_error_t nRF5xGap::setInitiatorPolicyMode(Gap::InitiatorPolicyMode_t mode)
 {
-    initiatorPolicyMode = mode;
+    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 Gap::AdvertisingPolicyMode_t nRF5xGap::getAdvertisingPolicyMode(void) const
@@ -566,6 +639,78 @@ Gap::ScanningPolicyMode_t nRF5xGap::getScanningPolicyMode(void) const
 
 Gap::InitiatorPolicyMode_t nRF5xGap::getInitiatorPolicyMode(void) const
 {
-    return initiatorPolicyMode;
+    return Gap::INIT_POLICY_IGNORE_WHITELIST;
 }
-/////////////////////////
+
+ble_error_t nRF5xGap::generateStackWhitelist(void)
+{
+    ble_gap_whitelist_t  whitelistFromBondTable;
+    ble_gap_addr_t      *addressPtr[1];
+    ble_gap_irk_t       *irkPtr[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
+
+    nRF5xSecurityManager& securityManager = (nRF5xSecurityManager&) nRF5xn::Instance(0).getSecurityManager();
+
+    if (securityManager.hasInitialized()) {
+        /* We do not care about the addresses, set the count to 0 */
+        whitelistFromBondTable.addr_count = 0;
+        /* The Nordic SDK will return a failure if we set pp_addr to NULL */
+        whitelistFromBondTable.pp_addrs   = addressPtr;
+        /* We want all the IRKs we can get because we do not know which ones match the addresses */
+        whitelistFromBondTable.irk_count  = YOTTA_CFG_IRK_TABLE_MAX_SIZE;
+        whitelistFromBondTable.pp_irks    = irkPtr;
+
+        /* Use the security manager to get the IRKs from the bond table */
+        ble_error_t error = securityManager.createWhitelistFromBondTable(whitelistFromBondTable);
+        if (error != BLE_ERROR_NONE) {
+            return error;
+        }
+    } else  {
+        /**
+         * If there is no security manager then we cannot access the bond table,
+         * so disable IRK matching
+         */
+        whitelistFromBondTable.addr_count = 0;
+        whitelistFromBondTable.irk_count  = 0;
+    }
+
+    /**
+     * For every private resolvable address in the local whitelist check if
+     * there is an IRK for said address in the bond table and add it to the
+     * local IRK list.
+     */
+    whitelist.irk_count  = 0;
+    whitelist.addr_count = 0;
+    for (uint8_t i = 0; i < whitelistAddressesSize; ++i) {
+        if (whitelistAddresses[i].addr_type == BLEProtocol::AddressType_t::RANDOM_PRIVATE_RESOLVABLE) {
+            /* Test if there is a matching IRK for this private resolvable address */
+            for (uint8_t j = 0; j < whitelistFromBondTable.irk_count; ++j) {
+                if (securityManager.matchAddressAndIrk(&whitelistAddresses[i], whitelistFromBondTable.pp_irks[j])) {
+                    /* Found the corresponding IRK, add it to our local whitelist */
+                    whitelist.pp_irks[whitelist.irk_count] = whitelistFromBondTable.pp_irks[j];
+                    whitelist.irk_count++;
+                    /* Make sure we do not look at this IRK again */
+                    if (j != whitelistFromBondTable.irk_count - 1) {
+                        /**
+                         * This is not the last IRK, so replace the pointer
+                         * with the last pointer in the array
+                         */
+                        whitelistFromBondTable.pp_irks[j] =
+                            whitelistFromBondTable.pp_irks[whitelistFromBondTable.irk_count - 1];
+                    }
+                    /**
+                     * If the IRK is the last pointer in the array simply
+                     * decrement the total IRK count
+                     */
+                    whitelistFromBondTable.irk_count--;
+                    break;
+                }
+            }
+        } else {
+            /* Include the address into the whitelist */
+            whitelist.pp_addrs[whitelist.addr_count] = &whitelistAddresses[i];
+            whitelist.addr_count++;
+        }
+    }
+
+    return BLE_ERROR_NONE;
+}

@@ -28,6 +28,12 @@
     #undef YOTTA_CFG_WHITELIST_MAX_SIZE
     #define YOTTA_CFG_WHITELIST_MAX_SIZE BLE_GAP_WHITELIST_ADDR_MAX_COUNT
 #endif
+#ifndef YOTTA_CFG_IRK_TABLE_MAX_SIZE
+    #define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_WHITELIST_IRK_MAX_COUNT
+#elif YOTTA_CFG_IRK_TABLE_MAX_SIZE > BLE_GAP_WHITELIST_IRK_MAX_COUNT
+    #undef YOTTA_CFG_IRK_TABLE_MAX_SIZE
+    #define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_WHITELIST_IRK_MAX_COUNT
+#endif
 #include "ble/blecommon.h"
 #include "ble.h"
 #include "ble/GapAdvertisingParams.h"
@@ -42,8 +48,6 @@ extern "C" {
 }
 
 #include "btle_security.h"
-
-#include <set>
 
 void radioNotificationStaticCallback(bool param);
 
@@ -88,19 +92,16 @@ public:
 
     virtual ble_error_t reset(void);
 
-    /////////////////// WHITELISTING
-    virtual int8_t getMaxWhitelistSize(void) const;
-    virtual ble_error_t getWhitelist(std::set<BLEProtocol::Address_t> &whitelist) const;
-    virtual ble_error_t setWhitelist(std::set<BLEProtocol::Address_t> whitelist);
+    virtual uint8_t getMaxWhitelistSize(void) const;
+    virtual ble_error_t getWhitelist(Gap::Whitelist_t &whitelistOut) const;
+    virtual ble_error_t setWhitelist(const Gap::Whitelist_t &whitelistIn);
 
-    // Accessors
-    virtual void setAdvertisingPolicyMode(AdvertisingPolicyMode_t mode);
-    virtual void setScanningPolicyMode(ScanningPolicyMode_t mode);
-    virtual void setInitiatorPolicyMode(InitiatorPolicyMode_t mode);
+    virtual ble_error_t setAdvertisingPolicyMode(AdvertisingPolicyMode_t mode);
+    virtual ble_error_t setScanningPolicyMode(ScanningPolicyMode_t mode);
+    virtual ble_error_t setInitiatorPolicyMode(InitiatorPolicyMode_t mode);
     virtual Gap::AdvertisingPolicyMode_t getAdvertisingPolicyMode(void) const;
     virtual Gap::ScanningPolicyMode_t getScanningPolicyMode(void) const;
     virtual Gap::InitiatorPolicyMode_t getInitiatorPolicyMode(void) const;
-    ///////////////////
 
     virtual ble_error_t initRadioNotification(void) {
         if (ble_radio_notification_init(NRF_APP_PRIORITY_HIGH, NRF_RADIO_NOTIFICATION_DISTANCE_800US, radioNotificationStaticCallback) == NRF_SUCCESS) {
@@ -112,47 +113,31 @@ public:
 
 /* Observer role is not supported by S110, return BLE_ERROR_NOT_IMPLEMENTED */
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
-    virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams) {
-        ble_gap_scan_params_t scanParams = {
-            .active      = scanningParams.getActiveScanning(), /**< If 1, perform active scanning (scan requests). */
-            .selective   = scanningPolicyMode,    /**< If 1, ignore unknown devices (non whitelisted). */
-            .p_whitelist = &whitelist, /**< Pointer to whitelist, NULL if none is given. */
-            .interval    = scanningParams.getInterval(),  /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
-            .window      = scanningParams.getWindow(),    /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
-            .timeout     = scanningParams.getTimeout(),   /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
-        };
-
-        if (sd_ble_gap_scan_start(&scanParams) != NRF_SUCCESS) {
-            return BLE_ERROR_PARAM_OUT_OF_RANGE;
-        }
-
-        return BLE_ERROR_NONE;
-    }
-
-    virtual ble_error_t stopScan(void) {
-        if (sd_ble_gap_scan_stop() == NRF_SUCCESS) {
-            return BLE_ERROR_NONE;
-        }
-
-        return BLE_STACK_BUSY;
-    }
+    virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams);
+    virtual ble_error_t stopScan(void);
 #endif
 
 private:
-    /////////////////WHITELISTING
+    /* Policy modes set by the user. By default these are set to ignore the whitelist */
     Gap::AdvertisingPolicyMode_t advertisingPolicyMode;
     Gap::ScanningPolicyMode_t    scanningPolicyMode;
-    Gap::InitiatorPolicyMode_t   initiatorPolicyMode; /* Unused */
 
-    ble_gap_addr_t whitelistAddrs[YOTTA_CFG_WHITELIST_MAX_SIZE];
-    ble_gap_addr_t *whitelistAddresses[YOTTA_CFG_WHITELIST_MAX_SIZE];
-    uint8_t        whitelistAddressesSize;
-    ble_gap_irk_t *whitelistIrks[YOTTA_CFG_WHITELIST_MAX_SIZE];
-    uint8_t        whitelistIrksSize;
+    /* Internal representation of a whitelist */
+    uint8_t         whitelistAddressesSize;
+    ble_gap_addr_t  whitelistAddresses[YOTTA_CFG_WHITELIST_MAX_SIZE];
+    ble_gap_addr_t *whitelistAddressPtrs[YOTTA_CFG_WHITELIST_MAX_SIZE];
+    ble_gap_irk_t  *whitelistIrkPtrs[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
 
+    /* Structure used by the SoftDevice to represent a whitelist together with IRK table */
     ble_gap_whitelist_t whitelist;
 
-    /////////////////
+    /*
+     * An internal function used to populate the ble_gap_whitelist_t that will be used by
+     * the SoftDevice for filtering requests. This function is needed because for the BLE
+     * API the whitelist is just a collection of keys, but for the stack it also includes
+     * the IRK table.
+     */
+    ble_error_t generateStackWhitelist(void);
 
     bool    radioNotificationCallbackParam; /* parameter to be passed into the Timeout-generated radio notification callback. */
     Timeout radioNotificationTimeout;
@@ -245,17 +230,15 @@ private:
 
     nRF5xGap() :
         advertisingPolicyMode(Gap::ADV_POLICY_IGNORE_WHITELIST),
-        scanningPolicyMode(Gap::SCAN_POLICY_IGNORE_WHITELIST),
-        initiatorPolicyMode(Gap::INIT_POLICY_IGNORE_WHITELIST),
-        whitelistAddressesSize(0),
-        whitelistIrksSize(0) {
+        scanningPolicyMode(Gap::SCAN_POLICY_IGNORE_WHITELIST) {
         m_connectionHandle = BLE_CONN_HANDLE_INVALID;
 
-        whitelist.pp_addrs = whitelistAddresses;
-        for (int i = 0; i < YOTTA_CFG_WHITELIST_MAX_SIZE; i++) {
-            whitelistAddresses[i] = &(whitelistAddrs[i]);
-        }
-        whitelist.pp_irks  = whitelistIrks;
+        /* Reset the whitelist */
+        whitelist.addr_count   = 0;
+        whitelist.irk_count    = 0;
+        whitelist.pp_irks      = whitelistIrkPtrs;
+        whitelist.pp_addrs     = whitelistAddressPtrs;
+        whitelistAddressesSize = 0;
     }
 
     nRF5xGap(nRF5xGap const &);
