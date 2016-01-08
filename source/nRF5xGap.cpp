@@ -168,16 +168,22 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
+    /* Allocate the stack's whitelist statically */
+    ble_gap_whitelist_t  whitelist;
+    ble_gap_addr_t      *whitelistAddressPtrs[YOTTA_CFG_WHITELIST_MAX_SIZE];
+    ble_gap_irk_t       *whitelistIrkPtrs[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
+    /* Initialize the whitelist */
+    whitelist.pp_addrs   = whitelistAddressPtrs;
+    whitelist.pp_irks    = whitelistIrkPtrs;
+    whitelist.addr_count = 0;
+    whitelist.irk_count  = 0;
+
     /* Add missing IRKs to whitelist from the bond table held by the SoftDevice */
     if (advertisingPolicyMode != Gap::ADV_POLICY_IGNORE_WHITELIST) {
-        ble_error_t error = generateStackWhitelist();
+        ble_error_t error = generateStackWhitelist(whitelist);
         if (error != BLE_ERROR_NONE) {
             return error;
         }
-    } else {
-        /* Reset the whitelist table to avoid any errors */
-        whitelist.addr_count = 0;
-        whitelist.irk_count  = 0;
     }
 
     /* Start Advertising */
@@ -199,18 +205,24 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 
 /* Observer role is not supported by S110, return BLE_ERROR_NOT_IMPLEMENTED */
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
-ble_error_t nRF5xGap::startRadioScan(const GapScanningParams &scanningParams) {
+ble_error_t nRF5xGap::startRadioScan(const GapScanningParams &scanningParams)
+{
+    /* Allocate the stack's whitelist statically */
+    ble_gap_whitelist_t  whitelist;
+    ble_gap_addr_t      *whitelistAddressPtrs[YOTTA_CFG_WHITELIST_MAX_SIZE];
+    ble_gap_irk_t       *whitelistIrkPtrs[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
+    /* Initialize the whitelist */
+    whitelist.pp_addrs   = whitelistAddressPtrs;
+    whitelist.pp_irks    = whitelistIrkPtrs;
+    whitelist.addr_count = 0;
+    whitelist.irk_count  = 0;
 
     /* Add missing IRKs to whitelist from the bond table held by the SoftDevice */
     if (scanningPolicyMode != Gap::SCAN_POLICY_IGNORE_WHITELIST) {
-        ble_error_t error = generateStackWhitelist();
+        ble_error_t error = generateStackWhitelist(whitelist);
         if (error != BLE_ERROR_NONE) {
             return error;
         }
-    } else {
-        /* Reset the whitelist table to avoid any errors */
-        whitelist.addr_count = 0;
-        whitelist.irk_count  = 0;
     }
 
     ble_gap_scan_params_t scanParams = {
@@ -286,16 +298,22 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
         connParams.conn_sup_timeout  = 600;
     }
 
+    /* Allocate the stack's whitelist statically */
+    ble_gap_whitelist_t  whitelist;
+    ble_gap_addr_t      *whitelistAddressPtrs[YOTTA_CFG_WHITELIST_MAX_SIZE];
+    ble_gap_irk_t       *whitelistIrkPtrs[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
+    /* Initialize the whitelist */
+    whitelist.pp_addrs   = whitelistAddressPtrs;
+    whitelist.pp_irks    = whitelistIrkPtrs;
+    whitelist.addr_count = 0;
+    whitelist.irk_count  = 0;
+
     /* Add missing IRKs to whitelist from the bond table held by the SoftDevice */
     if (scanningPolicyMode != Gap::SCAN_POLICY_IGNORE_WHITELIST) {
-        ble_error_t error = generateStackWhitelist();
+        ble_error_t error = generateStackWhitelist(whitelist);
         if (error != BLE_ERROR_NONE) {
             return error;
         }
-    } else {
-        /* Reset the whitelist table to avoid any errors */
-        whitelist.addr_count = 0;
-        whitelist.irk_count  = 0;
     }
 
     ble_gap_scan_params_t scanParams;
@@ -839,7 +857,7 @@ Gap::InitiatorPolicyMode_t nRF5xGap::getInitiatorPolicyMode(void) const
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF5xGap::generateStackWhitelist(void)
+ble_error_t nRF5xGap::generateStackWhitelist(ble_gap_whitelist_t &whitelist)
 {
     ble_gap_whitelist_t  whitelistFromBondTable;
     ble_gap_addr_t      *addressPtr[1];

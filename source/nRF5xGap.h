@@ -133,11 +133,6 @@ private:
     /* Internal representation of a whitelist */
     uint8_t         whitelistAddressesSize;
     ble_gap_addr_t  whitelistAddresses[YOTTA_CFG_WHITELIST_MAX_SIZE];
-    ble_gap_addr_t *whitelistAddressPtrs[YOTTA_CFG_WHITELIST_MAX_SIZE];
-    ble_gap_irk_t  *whitelistIrkPtrs[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
-
-    /* Structure used by the SoftDevice to represent a whitelist together with IRK table */
-    ble_gap_whitelist_t whitelist;
 
     /*
      * An internal function used to populate the ble_gap_whitelist_t that will be used by
@@ -145,7 +140,7 @@ private:
      * API the whitelist is just a collection of keys, but for the stack it also includes
      * the IRK table.
      */
-    ble_error_t generateStackWhitelist(void);
+    ble_error_t generateStackWhitelist(ble_gap_whitelist_t &whitelist);
 
 private:
     bool    radioNotificationCallbackParam; /* parameter to be passed into the Timeout-generated radio notification callback. */
@@ -239,15 +234,9 @@ private:
 
     nRF5xGap() :
         advertisingPolicyMode(Gap::ADV_POLICY_IGNORE_WHITELIST),
-        scanningPolicyMode(Gap::SCAN_POLICY_IGNORE_WHITELIST) {
+        scanningPolicyMode(Gap::SCAN_POLICY_IGNORE_WHITELIST),
+        whitelistAddressesSize(0) {
         m_connectionHandle = BLE_CONN_HANDLE_INVALID;
-
-        /* Reset the whitelist */
-        whitelist.addr_count   = 0;
-        whitelist.irk_count    = 0;
-        whitelist.pp_irks      = whitelistIrkPtrs;
-        whitelist.pp_addrs     = whitelistAddressPtrs;
-        whitelistAddressesSize = 0;
     }
 
     nRF5xGap(nRF5xGap const &);
