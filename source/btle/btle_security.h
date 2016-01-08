@@ -77,8 +77,25 @@ ble_error_t btle_setLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager
  */
 ble_error_t btle_purgeAllBondingState(void);
 
+/**
+ * Function to test whether the SecurityManager has been initialized.
+ * Possible by a call to @ref btle_initializeSecurity().
+ *
+ * @return True if the SecurityManager was previously initialized, false
+ *         otherwise.
+ */
 bool btle_hasInitializedSecurity(void);
 
+/**
+ * Function to test whether a BLE address is generated using an IRK.
+ *
+ * @param[in]   p_addr
+ *                  Pointer to a BLE address.
+ * @param[in]   p_irk
+ *                  Pointer to an IRK.
+ *
+ * @return True if p_addr can be generated using p_irk, false otherwise.
+ */
 bool btle_matchAddressAndIrk(ble_gap_addr_t const * p_addr, ble_gap_irk_t const * p_irk);
 
 #endif /* _BTLE_SECURITY_H_ */
