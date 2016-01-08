@@ -440,6 +440,13 @@ ble_error_t nRF5xGap::reset(void)
     /* Clear derived class members */
     m_connectionHandle = BLE_CONN_HANDLE_INVALID;
 
+    /* Set the whitelist policy filter modes to IGNORE_WHITELIST */
+    advertisingPolicyMode = Gap::ADV_POLICY_IGNORE_WHITELIST;
+    scanningPolicyMode    = Gap::SCAN_POLICY_IGNORE_WHITELIST;
+
+    /* Clear the internal whitelist */
+    whitelistAddressesSize = 0;
+
     return BLE_ERROR_NONE;
 }
 
