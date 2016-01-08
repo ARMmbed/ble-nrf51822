@@ -659,12 +659,16 @@ ble_error_t nRF5xGap::setWhitelist(const Gap::Whitelist_t &whitelistIn)
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
-    whitelistAddressesSize = 0;
+    /* Test for invalid parameters before we change the internal state */
     for (uint8_t i = 0; i < whitelistIn.size; ++i) {
         if (whitelistIn.addresses[i].type == BLEProtocol::AddressType_t::RANDOM_PRIVATE_NON_RESOLVABLE) {
             /* This is not allowed because it is completely meaningless */
             return BLE_ERROR_INVALID_PARAM;
         }
+    }
+
+    whitelistAddressesSize = 0;
+    for (uint8_t i = 0; i < whitelistIn.size; ++i) {
         memcpy(&whitelistAddresses[whitelistAddressesSize], &whitelistIn.addresses[i], sizeof(BLEProtocol::Address_t));
         whitelistAddressesSize++;
     }
