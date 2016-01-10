@@ -19,6 +19,7 @@
 
 #include <stddef.h>
 
+#include "nRF5xGap.h"
 #include "ble/SecurityManager.h"
 #include "btle_security.h"
 
@@ -60,6 +61,10 @@ public:
         return BLE_ERROR_NONE;
     }
 
+    bool hasInitialized(void) const {
+        return btle_hasInitializedSecurity();
+    }
+
 public:
     /*
      * Allow instantiation from nRF5xn when required.
@@ -73,6 +78,30 @@ public:
 private:
     nRF5xSecurityManager(const nRF5xSecurityManager &);
     const nRF5xSecurityManager& operator=(const nRF5xSecurityManager &);
+
+    /*
+     * Expose an interface that allows us to query the SoftDevice bond table
+     * and extract a whitelist.
+     */
+    ble_error_t createWhitelistFromBondTable(ble_gap_whitelist_t &whitelistFromBondTable) const {
+        return btle_createWhitelistFromBondTable(&whitelistFromBondTable);
+    }
+
+    /*
+     * Given a BLE address and a IRK this function check whether the address
+     * can be generated from the IRK. To do so, this function uses the hash
+     * function and algorithm described in the Bluetooth low Energy
+     * Specification. Internally, Nordic SDK functions are used.
+     */
+    bool matchAddressAndIrk(ble_gap_addr_t *address, ble_gap_irk_t *irk) const {
+        return btle_matchAddressAndIrk(address, irk);
+    }
+
+    /*
+     * Give nRF5xGap access to createWhitelistFromBondTable() and
+     * matchAddressAndIrk()
+     */
+    friend class nRF5xGap;
 };
 
 #endif // ifndef __NRF51822_SECURITY_MANAGER_H__

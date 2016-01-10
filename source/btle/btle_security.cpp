@@ -21,11 +21,13 @@
 extern "C" {
 #include "pstorage.h"
 #include "device_manager.h"
+#include "id_manager.h"
 }
 
 #include "btle_security.h"
 
 static dm_application_instance_t applicationInstance;
+static bool                      initialized = false;
 static ret_code_t dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t event_result);
 
 // default security parameters
@@ -43,6 +45,12 @@ static ble_gap_sec_params_t securityParameters = {
     },                             /**< Key distribution bitmap: keys that the peripheral device will distribute. */
 };
 
+bool
+btle_hasInitializedSecurity(void)
+{
+    return initialized;
+}
+
 ble_error_t
 btle_initializeSecurity(bool                                      enableBonding,
                         bool                                      requireMITM,
@@ -50,7 +58,6 @@ btle_initializeSecurity(bool                                      enableBonding,
                         const SecurityManager::Passkey_t          passkey)
 {
     /* guard against multiple initializations */
-    static bool initialized = false;
     if (initialized) {
         return BLE_ERROR_NONE;
     }
@@ -261,4 +268,28 @@ dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t ev
     }
 
     return NRF_SUCCESS;
+}
+
+ble_error_t
+btle_createWhitelistFromBondTable(ble_gap_whitelist_t *p_whitelist)
+{
+    ret_code_t err = dm_whitelist_create(&applicationInstance, p_whitelist);
+    if (err == NRF_SUCCESS) {
+        return BLE_ERROR_NONE;
+    } else if (err == NRF_ERROR_NULL) {
+        return BLE_ERROR_PARAM_OUT_OF_RANGE;
+    } else {
+        return BLE_ERROR_INVALID_STATE;
+    }
+}
+
+
+bool
+btle_matchAddressAndIrk(ble_gap_addr_t const * p_addr, ble_gap_irk_t const * p_irk)
+{
+    /*
+     * Use a helper function from the Nordic SDK to test whether the BLE
+     * address can be generated using the IRK.
+     */
+    return im_address_resolve(p_addr, p_irk);
 }
