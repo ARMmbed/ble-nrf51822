@@ -50,8 +50,10 @@ public:
      * @brief  Returns a list of addresses from peers in the stacks bond table.
      *
      * @param[in/out]   addresses
-     *                  (on input)
-     *                  (on output)
+     *                  (on input) @ref Gap::Whitelist_t structure where at
+     *                  most addresses.capacity addresses from bonded peers will
+     *                  be stored.
+     *                  (on output) A copy of the addresses from bonded peers.
      *
      * @return
      *           BLE_ERROR_NONE if successful.
