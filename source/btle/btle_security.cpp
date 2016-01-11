@@ -293,3 +293,21 @@ btle_matchAddressAndIrk(ble_gap_addr_t const * p_addr, ble_gap_irk_t const * p_i
      */
     return im_address_resolve(p_addr, p_irk);
 }
+
+void
+btle_generateResolvableAddress(const ble_gap_irk_t &irk, ble_gap_addr_t &address)
+{
+    /* Set type to resolvable */
+    address.addr_type = BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE;
+
+    /*
+     * Assign a random number to the most significant 3 bytes
+     * of the address.
+     */
+    address.addr[BLE_GAP_ADDR_LEN - 3] = 0x8E;
+    address.addr[BLE_GAP_ADDR_LEN - 2] = 0x4F;
+    address.addr[BLE_GAP_ADDR_LEN - 1] = 0x7C;
+
+    /* Calculate the hash and store it in the top half of the address */
+    ah(irk.irk, &address.addr[BLE_GAP_ADDR_LEN - 3], address.addr);
+}
