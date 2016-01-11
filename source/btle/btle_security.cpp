@@ -273,6 +273,9 @@ dm_handler(dm_handle_t const *p_handle, dm_event_t const *p_event, ret_code_t ev
 ble_error_t
 btle_createWhitelistFromBondTable(ble_gap_whitelist_t *p_whitelist)
 {
+    if (!btle_hasInitializedSecurity()) {
+        return BLE_ERROR_INITIALIZATION_INCOMPLETE;
+    }
     ret_code_t err = dm_whitelist_create(&applicationInstance, p_whitelist);
     if (err == NRF_SUCCESS) {
         return BLE_ERROR_NONE;
