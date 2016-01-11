@@ -73,6 +73,7 @@ public:
 
         ble_error_t error = createWhitelistFromBondTable(whitelistFromBondTable);
         if (error != BLE_ERROR_NONE) {
+            addresses.size = 0;
             return error;
         }
 
