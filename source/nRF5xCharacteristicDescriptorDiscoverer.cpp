@@ -15,7 +15,6 @@
  */
 #include "nRF5xCharacteristicDescriptorDiscoverer.h"
 #include "ble_err.h"
-#include "mbed-drivers/mbed_error.h"
 #include "ble/DiscoveredCharacteristicDescriptor.h"
 
 nRF5xCharacteristicDescriptorDiscoverer::nRF5xCharacteristicDescriptorDiscoverer() :
