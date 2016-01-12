@@ -686,7 +686,7 @@ ble_error_t nRF5xGap::setWhitelist(const Gap::Whitelist_t &whitelistIn)
 
     /* Test for invalid parameters before we change the internal state */
     for (uint8_t i = 0; i < whitelistIn.size; ++i) {
-        if (whitelistIn.addresses[i].type == BLEProtocol::AddressType_t::RANDOM_PRIVATE_NON_RESOLVABLE) {
+        if (whitelistIn.addresses[i].type == BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE) {
             /* This is not allowed because it is completely meaningless */
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -903,7 +903,7 @@ ble_error_t nRF5xGap::generateStackWhitelist(ble_gap_whitelist_t &whitelist)
     whitelist.irk_count  = 0;
     whitelist.addr_count = 0;
     for (uint8_t i = 0; i < whitelistAddressesSize; ++i) {
-        if (whitelistAddresses[i].addr_type == BLEProtocol::AddressType_t::RANDOM_PRIVATE_RESOLVABLE) {
+        if (whitelistAddresses[i].addr_type == BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE) {
             /* Test if there is a matching IRK for this private resolvable address */
             for (uint8_t j = 0; j < whitelistFromBondTable.irk_count; ++j) {
                 if (securityManager.matchAddressAndIrk(&whitelistAddresses[i], whitelistFromBondTable.pp_irks[j])) {
