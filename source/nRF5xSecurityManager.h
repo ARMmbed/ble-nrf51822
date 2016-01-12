@@ -47,6 +47,73 @@ public:
     }
 
     /**
+     * @brief  Returns a list of addresses from peers in the stacks bond table.
+     *
+     * @param[in/out]   addresses
+     *                  (on input) @ref Gap::Whitelist_t structure where at
+     *                  most addresses.capacity addresses from bonded peers will
+     *                  be stored.
+     *                  (on output) A copy of the addresses from bonded peers.
+     *
+     * @return
+     *           BLE_ERROR_NONE if successful.
+     */
+    virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
+        uint8_t i;
+
+        ble_gap_whitelist_t  whitelistFromBondTable;
+        ble_gap_addr_t      *addressPtr[YOTTA_CFG_WHITELIST_MAX_SIZE];
+        ble_gap_irk_t       *irkPtr[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
+
+        /* Initialize the structure so that we get as many addreses as the whitelist can hold */
+        whitelistFromBondTable.addr_count = YOTTA_CFG_IRK_TABLE_MAX_SIZE;
+        whitelistFromBondTable.pp_addrs   = addressPtr;
+        whitelistFromBondTable.irk_count  = YOTTA_CFG_IRK_TABLE_MAX_SIZE;
+        whitelistFromBondTable.pp_irks    = irkPtr;
+
+        ble_error_t error = createWhitelistFromBondTable(whitelistFromBondTable);
+        if (error != BLE_ERROR_NONE) {
+            addresses.size = 0;
+            return error;
+        }
+
+        /* Put all the addresses in the structure */
+        for (i = 0; i < whitelistFromBondTable.addr_count; ++i) {
+            if (i >= addresses.capacity) {
+                /* Ran out of space in the output Gap::Whitelist_t */
+                addresses.size = i;
+                return BLE_ERROR_NONE;
+            }
+            memcpy(&addresses.addresses[i], whitelistFromBondTable.pp_addrs[i], sizeof(BLEProtocol::Address_t));
+        }
+
+        /* Update the current address count */
+        addresses.size = i;
+
+        /* The assumption here is that the underlying implementation of
+         * createWhitelistFromBondTable()  will not return the private resolvable
+         * addresses (which is the case in the SoftDevice). Rather it returns the
+         * IRKs, so we need to generate the private resolvable address by ourselves.
+         */
+        for (i = 0; i < whitelistFromBondTable.irk_count; ++i) {
+            if (i + addresses.size >= addresses.capacity) {
+                /* Ran out of space in the output Gap::Whitelist_t */
+                addresses.size += i;
+                return BLE_ERROR_NONE;
+            }
+            btle_generateResolvableAddress(
+                *whitelistFromBondTable.pp_irks[i],
+                (ble_gap_addr_t &) addresses.addresses[i + addresses.size]
+            );
+        }
+
+        /* Update the current address count */
+        addresses.size += i;
+
+        return BLE_ERROR_NONE;
+    }
+
+    /**
      * @brief  Clear nRF5xSecurityManager's state.
      *
      * @return
