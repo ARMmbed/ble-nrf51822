@@ -198,8 +198,6 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 
     ASSERT(ERROR_NONE == sd_ble_gap_adv_start(&adv_para), BLE_ERROR_PARAM_OUT_OF_RANGE);
 
-    state.advertising = 1;
-
     return BLE_ERROR_NONE;
 }
 
@@ -356,9 +354,6 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
 
 ble_error_t nRF5xGap::disconnect(Handle_t connectionHandle, DisconnectionReason_t reason)
 {
-    state.advertising = 0;
-    state.connected   = 0;
-
     uint8_t code = BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION;
     switch (reason) {
         case REMOTE_USER_TERMINATED_CONNECTION:
