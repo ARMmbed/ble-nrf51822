@@ -189,10 +189,9 @@ static void btle_handler(ble_evt_t *p_ble_evt)
                     break;
             }
 
+#if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
             // Close all pending discoveries for this connection
             nRF5xGattClient& gattClient = ble.getGattClient();
-#if  defined(TARGET_MCU_NRF51_16K_S110) || defined(TARGET_MCU_NRF51_32K_S110)
-#else
             gattClient.characteristicDescriptorDiscoverer().terminate(handle, BLE_ERROR_INVALID_STATE);
             gattClient.discovery().terminate(handle);
 #endif
