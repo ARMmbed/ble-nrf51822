@@ -1,5 +1,12 @@
 # Change Log
 
+## [v2.5.3](https://github.com/ARMmbed/ble-nrf51822/tree/v2.5.3) (2016-02-16)
+[Full Changelog](https://github.com/ARMmbed/ble-nrf51822/compare/v2.5.2...v2.5.3)
+
+**Merged pull requests:**
+
+- Fix for compilation errors with S110 softdevice in btle.cpp [\#109](https://github.com/ARMmbed/ble-nrf51822/pull/109) ([ddavidebor](https://github.com/ddavidebor))
+
 ## [v2.5.2](https://github.com/ARMmbed/ble-nrf51822/tree/v2.5.2) (2016-02-16)
 [Full Changelog](https://github.com/ARMmbed/ble-nrf51822/compare/v2.5.1...v2.5.2)
 
