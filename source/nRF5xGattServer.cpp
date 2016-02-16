@@ -133,8 +133,9 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
                                             &nrfDescriptorHandles[descriptorCount]),
                 BLE_ERROR_PARAM_OUT_OF_RANGE);
 
-            p_descriptors[descriptorCount++] = p_desc;
+            p_descriptors[descriptorCount] = p_desc;
             p_desc->setHandle(nrfDescriptorHandles[descriptorCount]);
+            descriptorCount++;
         }
     }
 
