@@ -1,5 +1,13 @@
 # Change Log
 
+## [v2.5.2](https://github.com/ARMmbed/ble-nrf51822/tree/v2.5.2) (2016-02-16)
+[Full Changelog](https://github.com/ARMmbed/ble-nrf51822/compare/v2.5.1...v2.5.2)
+
+**Merged pull requests:**
+
+- Sync develop against master [\#113](https://github.com/ARMmbed/ble-nrf51822/pull/113) ([pan-](https://github.com/pan-))
+- Fix incorrect handles of characteristics descriptors. [\#112](https://github.com/ARMmbed/ble-nrf51822/pull/112) ([pan-](https://github.com/pan-))
+
 ## [v2.5.1](https://github.com/ARMmbed/ble-nrf51822/tree/v2.5.1) (2016-01-27)
 [Full Changelog](https://github.com/ARMmbed/ble-nrf51822/compare/v2.5.0...v2.5.1)
 
@@ -225,7 +233,7 @@
 - Introduced changes for memory savings [\#55](https://github.com/ARMmbed/ble-nrf51822/pull/55) ([andresag01](https://github.com/andresag01))
 
 ## [v1.1.0](https://github.com/ARMmbed/ble-nrf51822/tree/v1.1.0) (2015-10-28)
-[Full Changelog](https://github.com/ARMmbed/ble-nrf51822/compare/mbedos-techcon-oob2...v1.1.0)
+[Full Changelog](https://github.com/ARMmbed/ble-nrf51822/compare/v1.0.0...v1.1.0)
 
 **Closed issues:**
 
@@ -235,11 +243,11 @@
 
 - When connecting, if no scanning parameters are passed, use values from Gap parent. [\#53](https://github.com/ARMmbed/ble-nrf51822/pull/53) ([marcuschangarm](https://github.com/marcuschangarm))
 
-## [mbedos-techcon-oob2](https://github.com/ARMmbed/ble-nrf51822/tree/mbedos-techcon-oob2) (2015-10-19)
-[Full Changelog](https://github.com/ARMmbed/ble-nrf51822/compare/v1.0.0...mbedos-techcon-oob2)
-
 ## [v1.0.0](https://github.com/ARMmbed/ble-nrf51822/tree/v1.0.0) (2015-10-19)
-[Full Changelog](https://github.com/ARMmbed/ble-nrf51822/compare/v0.4.8...v1.0.0)
+[Full Changelog](https://github.com/ARMmbed/ble-nrf51822/compare/mbedos-techcon-oob2...v1.0.0)
+
+## [mbedos-techcon-oob2](https://github.com/ARMmbed/ble-nrf51822/tree/mbedos-techcon-oob2) (2015-10-19)
+[Full Changelog](https://github.com/ARMmbed/ble-nrf51822/compare/v0.4.8...mbedos-techcon-oob2)
 
 **Closed issues:**
 
