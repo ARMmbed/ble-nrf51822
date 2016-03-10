@@ -269,10 +269,28 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
             }
         }
     } else {
-        returnValue = BLE_ERROR_INVALID_STATE; // if assert is not used
-        ASSERT_INT( ERROR_NONE,
-                    sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value),
-                    BLE_ERROR_PARAM_OUT_OF_RANGE );
+        uint32_t err = sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value);
+        switch(err) {
+            case NRF_SUCCESS:
+                returnValue = BLE_ERROR_NONE;
+                break;
+            case NRF_ERROR_INVALID_ADDR:
+            case NRF_ERROR_INVALID_PARAM:
+                returnValue = BLE_ERROR_INVALID_PARAM;
+                break;
+            case NRF_ERROR_NOT_FOUND:
+            case NRF_ERROR_DATA_SIZE:
+            case BLE_ERROR_INVALID_CONN_HANDLE:
+            case BLE_ERROR_GATTS_INVALID_ATTR_TYPE:
+                returnValue = BLE_ERROR_PARAM_OUT_OF_RANGE;
+                break;
+            case NRF_ERROR_FORBIDDEN:
+                returnValue = BLE_ERROR_OPERATION_NOT_PERMITTED;
+                break;
+            default:
+                returnValue = BLE_ERROR_UNSPECIFIED;
+                break;
+        }
     }
 
     return returnValue;
