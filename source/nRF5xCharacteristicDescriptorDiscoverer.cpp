@@ -38,15 +38,10 @@ ble_error_t nRF5xCharacteristicDescriptorDiscoverer::launch(
     Gap::Handle_t descriptorStartHandle = characteristic.getDeclHandle() + 2;
     Gap::Handle_t descriptorEndHandle = characteristic.getLastHandle();
 
-    // check if there is any descriptor to discover
-    if (descriptorEndHandle < descriptorStartHandle) {
-        CharacteristicDescriptorDiscovery::TerminationCallbackParams_t termParams = {
-            characteristic,
-            BLE_ERROR_NONE
-        };
-        terminationCallback.call(&termParams);
-        return BLE_ERROR_NONE;
-    }
+    // check if range is valid
+   if (descriptorEndHandle < descriptorStartHandle) {
+       return BLE_ERROR_PARAM_OUT_OF_RANGE;
+   }
 
     // check if we can run this discovery
     if (isConnectionInUse(connHandle)) {
