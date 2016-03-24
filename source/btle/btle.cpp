@@ -218,6 +218,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
         case BLE_GAP_EVT_ADV_REPORT: {
             const ble_gap_evt_adv_report_t *advReport = &p_ble_evt->evt.gap_evt.params.adv_report;
             gap.processAdvertisementReport(advReport->peer_addr.addr,
+                                           static_cast<BLEProtocol::AddressType_t>(advReport->peer_addr.addr_type),
                                            advReport->rssi,
                                            advReport->scan_rsp,
                                            static_cast<GapAdvertisingParams::AdvertisingType_t>(advReport->type),
