@@ -61,19 +61,12 @@ static void sys_evt_dispatch(uint32_t sys_evt)
  *
  * The event processing loop is implemented in intern_softdevice_events_execute().
  *
- * In mbed OS, a callback for intern_softdevice_events_execute() is posted
- * to the scheduler, which then executes in thread mode. In mbed-classic,
- * event processing happens right-away in interrupt context (which is more
- * risk-prone). In either case, the logic of event processing is identical.
+ * This function will signal to the user code by calling signalEventsToProcess
+ * that their is events to process and BLE::processEvents should be called. 
  */
-static uint32_t eventHandler()
+static uint32_t signalEvent()
 {
-#ifdef YOTTA_CFG_MBED_OS
-    minar::Scheduler::postCallback(intern_softdevice_events_execute);
-#else
-    intern_softdevice_events_execute();
-#endif
-
+    nRF5xn::Instance(BLE::DEFAULT_INSTANCE).signalEventsToProcess(BLE::DEFAULT_INSTANCE);
     return NRF_SUCCESS;
 }
 
@@ -85,7 +78,7 @@ error_t btle_init(void)
     } else {
         clockSource = NRF_CLOCK_LFCLKSRC_RC_250_PPM_4000MS_CALIBRATION;
     }
-    SOFTDEVICE_HANDLER_INIT(clockSource, eventHandler);
+    SOFTDEVICE_HANDLER_INIT(clockSource, signalEvent);
 
     // Enable BLE stack
     /**
