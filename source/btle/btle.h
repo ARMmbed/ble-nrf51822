@@ -28,6 +28,12 @@ extern "C" {
 
 error_t     btle_init(void);
 
+// flag indicating if events have been signaled or not
+// It is used by processEvents and signalEventsToProcess
+// signalEventsToProcess raise the flag and processEvents
+// clears it.
+extern bool isEventsSignaled;
+
 #ifdef __cplusplus
 }
 #endif

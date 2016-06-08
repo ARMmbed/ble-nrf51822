@@ -210,5 +210,8 @@ nRF5xn::waitForEvent(void)
 }
 
 void nRF5xn::processEvents() {
-    intern_softdevice_events_execute();
+    if (isEventsSignaled) {
+        isEventsSignaled = false;
+        intern_softdevice_events_execute();
+    }
 }

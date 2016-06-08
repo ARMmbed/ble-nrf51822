@@ -43,6 +43,8 @@ extern "C" {
 #include "nRF5xServiceDiscovery.h"
 #include "nRF5xCharacteristicDescriptorDiscoverer.h"
 
+bool isEventsSignaled = false;
+
 extern "C" void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name);
 void            app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t *p_file_name);
 
@@ -62,11 +64,14 @@ static void sys_evt_dispatch(uint32_t sys_evt)
  * The event processing loop is implemented in intern_softdevice_events_execute().
  *
  * This function will signal to the user code by calling signalEventsToProcess
- * that their is events to process and BLE::processEvents should be called. 
+ * that their is events to process and BLE::processEvents should be called.
  */
 static uint32_t signalEvent()
 {
-    nRF5xn::Instance(BLE::DEFAULT_INSTANCE).signalEventsToProcess(BLE::DEFAULT_INSTANCE);
+    if(isEventsSignaled == false) {
+        isEventsSignaled = true;
+        nRF5xn::Instance(BLE::DEFAULT_INSTANCE).signalEventsToProcess(BLE::DEFAULT_INSTANCE);
+    }
     return NRF_SUCCESS;
 }
 
