@@ -205,5 +205,13 @@ ble_error_t nRF5xn::shutdown(void)
 void
 nRF5xn::waitForEvent(void)
 {
+    processEvents();
     sd_app_evt_wait();
+}
+
+void nRF5xn::processEvents() {
+    if (isEventsSignaled) {
+        isEventsSignaled = false;
+        intern_softdevice_events_execute();
+    }
 }
