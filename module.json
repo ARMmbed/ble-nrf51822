@@ -24,7 +24,7 @@
     }
   ],
   "dependencies": {
-    "ble": "^2.6.0",
+    "ble": "^2.7.0",
     "nrf51-sdk": "^2.4.0"
   },
   "extraIncludes": [
