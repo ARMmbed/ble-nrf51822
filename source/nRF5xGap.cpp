@@ -135,30 +135,30 @@ ble_error_t nRF5xGap::setAdvertisingData(const GapAdvertisingData &advData, cons
 /**************************************************************************/
 ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 {
-    /* Make sure we support the advertising type */
-    if (params.getAdvertisingType() == GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) {
-        /* ToDo: This requires a propery security implementation, etc. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    /* This is set to true if we're doing high duty directed advertisements,
+     * in which case the advertising interval and timeout must be 0. */
+    bool high_duty_directed = params.getAdvertisingType() == GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED &&
+                              params.getInterval() == 0;
+
 
     /* Check interval range */
-    if (params.getAdvertisingType() == GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED) {
-        /* Min delay is slightly longer for unconnectable devices */
+    if (params.getAdvertisingType() == GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED ||
+        params.getAdvertisingType() == GapAdvertisingParams::ADV_SCANNABLE_UNDIRECTED) {
+        /* Min delay is slightly longer for scannable and unconnectable devices */
         if ((params.getIntervalInADVUnits() < GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN_NONCON) ||
             (params.getIntervalInADVUnits() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
-    } else {
+    } else if (!high_duty_directed) {
+        /* Standard advertising limit for other modes (except high duty directed) */
         if ((params.getIntervalInADVUnits() < GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN) ||
             (params.getIntervalInADVUnits() > GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MAX)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
     }
 
-    /* Check timeout is zero for Connectable Directed */
-    if ((params.getAdvertisingType() == GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) && (params.getTimeout() != 0)) {
-        /* Timeout must be 0 with this type, although we'll never get here */
-        /* since this isn't implemented yet anyway */
+    /* Check timeout is zero for high duty Connectable Directed */
+    if (high_duty_directed && params.getTimeout() != 0) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
@@ -195,6 +195,17 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
     adv_para.p_whitelist = &whitelist;
     adv_para.interval    = params.getIntervalInADVUnits(); // advertising interval (in units of 0.625 ms)
     adv_para.timeout     = params.getTimeout();
+
+    ble_gap_addr_t peer_address;
+
+    if (params.getAdvertisingType() == GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) {
+        /* Set peer address and type for directed advertisements */
+        BLEProtocol::Address_t a = params.getDirectAddress();
+        std::copy(a.address, a.address + BLEProtocol::ADDR_LEN, peer_address.addr);
+        peer_address.addr_type = a.type;
+
+        adv_para.p_peer_addr = &peer_address;
+    }
 
     ASSERT(ERROR_NONE == sd_ble_gap_adv_start(&adv_para), BLE_ERROR_PARAM_OUT_OF_RANGE);
 
