@@ -176,6 +176,7 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
     return ERROR_NONE;
 }
 
+
 /**************************************************************************/
 /*!
     @brief      Adds a new characteristic to the custom service, assigning
@@ -186,11 +187,7 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
                                   for this characteristic (normally >1
                                   since 1 is typically used by the primary
                                   service).
-    @param[in]  char_props        The characteristic properties, as
-                                  defined by ble_gatt_char_props_t
-    @param[in]  max_length        The maximum length of this characeristic
-    @param[in]  has_variable_len  Whether the characteristic data has
-                                  variable length.
+    @param[in]  p_char            Pointer to the characterstic to add
     @param[out] p_char_handle
 
     @returns
@@ -198,19 +195,19 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
 */
 /**************************************************************************/
 error_t custom_add_in_characteristic(uint16_t                  service_handle,
-                                     ble_uuid_t               *p_uuid,
-                                     uint8_t                   properties,
-                                     SecurityManager::SecurityMode_t       requiredSecurity,
-                                     uint8_t                  *p_data,
-                                     uint16_t                  length,
-                                     uint16_t                  max_length,
-                                     bool                      has_variable_len,
-                                     const uint8_t            *userDescriptionDescriptorValuePtr,
-                                     uint16_t                  userDescriptionDescriptorValueLen,
-                                     bool                      readAuthorization,
-                                     bool                      writeAuthorization,
-                                     ble_gatts_char_handles_t *p_char_handle)
-{
+                                         ble_uuid_t               *p_uuid,
+                                         GattCharacteristic *p_char,
+                                         ble_gatts_char_handles_t *p_char_handle) {
+    uint8_t                   properties = p_char->getProperties();
+    SecurityManager::SecurityMode_t       requiredSecurity = p_char->getRequiredSecurity();
+    uint8_t                  *p_data = p_char->getValueAttribute().getValuePtr();
+    uint16_t                  length = p_char->getValueAttribute().getLength();
+    uint16_t                  max_length = p_char->getValueAttribute().getMaxLength();
+    bool                      has_variable_len = p_char->getValueAttribute().hasVariableLength();
+    bool                      readAuthorization = p_char->isReadAuthorizationEnabled();
+    bool                      writeAuthorization = p_char->isWriteAuthorizationEnabled();
+
+    // Handle user_desc, cccd, sccd, pf, ext_propr, and all other descriptors
     /* Characteristic metadata */
     ble_gatts_attr_md_t   cccd_md;
     ble_gatt_char_props_t char_props;
@@ -222,19 +219,32 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
         memclr_( &cccd_md, sizeof(ble_gatts_attr_md_t));
         cccd_md.vloc = BLE_GATTS_VLOC_STACK;
         BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
-        BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
-    }
+		switch (requiredSecurity) {
+			case SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK :
+				BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
+				break;
+			case SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM :
+				BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&cccd_md.write_perm);
+				break;
+			case SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM :
+				BLE_GAP_CONN_SEC_MODE_SET_ENC_WITH_MITM(&cccd_md.write_perm);
+				break;
+			case SecurityManager::SECURITY_MODE_SIGNED_NO_MITM :
+				BLE_GAP_CONN_SEC_MODE_SET_SIGNED_NO_MITM(&cccd_md.write_perm);
+				break;
+			case SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM :
+				BLE_GAP_CONN_SEC_MODE_SET_SIGNED_WITH_MITM(&cccd_md.write_perm);
+				break;
+			default:
+				BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
+				break;
+		}
+	}
 
     ble_gatts_char_md_t char_md = {0};
-
     char_md.char_props = char_props;
     char_md.p_cccd_md  =
         (char_props.notify || char_props.indicate) ? &cccd_md : NULL;
-    if ((userDescriptionDescriptorValueLen > 0) && (userDescriptionDescriptorValuePtr != NULL)) {
-        char_md.p_char_user_desc        = const_cast<uint8_t *>(userDescriptionDescriptorValuePtr);
-        char_md.char_user_desc_max_size = userDescriptionDescriptorValueLen;
-        char_md.char_user_desc_size     = userDescriptionDescriptorValueLen;
-    }
 
     /* Attribute declaration */
     ble_gatts_attr_md_t attr_md = {0};
@@ -298,15 +308,61 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
     attr_char_value.max_len   = max_length;
     attr_char_value.p_value   = p_data;
 
+
+    // Deal with all the special Descriptors that aren't already handled
+    ble_gatts_attr_md_t sccd_md = {0};  // If needed
+    ble_gatts_attr_md_t user_desc_md = {0}; // If needed
+    for (uint8_t j = 0; j < p_char->getDescriptorCount(); j++) {
+        GattAttribute *p_desc = p_char->getDescriptor(j);
+        if(p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC) {
+            if(p_desc->getLength() > 0 && p_desc->getValuePtr()!=NULL) {
+                char_md.char_user_desc_max_size = p_desc->getLength();
+                char_md.char_user_desc_size     = p_desc->getLength();
+                char_md.p_char_user_desc        = const_cast<uint8_t *>(p_desc->getValuePtr());
+            }
+        } else if(p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_PRESENTATION_FORMAT) {
+            // Check size
+            if(p_desc->getLength()==sizeof(ble_gatts_char_pf_t) && p_desc->getValuePtr()!=NULL) {
+                char_md.p_char_pf = (ble_gatts_char_pf_t*)p_desc->getValuePtr();
+            }            
+        } else if(p_desc->getUUID() == BLE_UUID_DESCRIPTOR_SERVER_CHAR_CONFIG) {
+            // Check size
+            // Requires Server Config requires Broadcast permission on attribute (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_BROADCAST)
+            if(p_desc->getLength()==2 && p_desc->getValuePtr()!=NULL) {
+                // TODO:  Currently no security or authentication at all.  This should be configurable!
+                BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sccd_md.read_perm);
+                BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sccd_md.write_perm);
+                sccd_md.vloc = BLE_GATTS_VLOC_STACK;
+                sccd_md.vlen = 0;
+                char_md.p_sccd_md = &sccd_md;
+            }            
+        } else if(p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_EXT_PROP) {
+            if(p_desc->getLength()==2 && p_desc->getValuePtr()!=NULL) {
+                uint16_t *data = (uint16_t*)p_desc->getValuePtr();
+                char_md.char_ext_props.wr_aux = (*data)&0x02 ? 1 : 0;
+                if(char_md.char_ext_props.wr_aux) {
+                    // TODO:  Currently no security or authentication at all.  This should be configurable!
+                    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&user_desc_md.read_perm);
+                    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&user_desc_md.write_perm);
+                    user_desc_md.vloc = BLE_GATTS_VLOC_STACK;
+                    user_desc_md.vlen = p_desc->getMaxLength() != p_desc->getLength();
+                    char_md.p_user_desc_md = &user_desc_md;
+                }
+                char_md.char_ext_props.reliable_wr = (*data)&0x01 ? 1 : 0;                
+            }         
+        }
+    }
+
     ASSERT_STATUS ( sd_ble_gatts_characteristic_add(service_handle,
                                                     &char_md,
                                                     &attr_char_value,
                                                     p_char_handle));
 
+
+
+
     return ERROR_NONE;
 }
-
-
 
 /**************************************************************************/
 /*!

@@ -74,34 +74,12 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
         }
 
         nordicUUID = custom_convert_to_nordic_uuid(p_char->getValueAttribute().getUUID());
-
-        /* The user-description descriptor is a special case which needs to be
-         * handled at the time of adding the characteristic. The following block
-         * is meant to discover its presence. */
-        const uint8_t *userDescriptionDescriptorValuePtr = NULL;
-        uint16_t userDescriptionDescriptorValueLen = 0;
-        for (uint8_t j = 0; j < p_char->getDescriptorCount(); j++) {
-            GattAttribute *p_desc = p_char->getDescriptor(j);
-            if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC) {
-                userDescriptionDescriptorValuePtr = p_desc->getValuePtr();
-                userDescriptionDescriptorValueLen = p_desc->getLength();
-            }
-        }
-
+       
         ASSERT ( ERROR_NONE ==
-                 custom_add_in_characteristic(BLE_GATT_HANDLE_INVALID,
-                                              &nordicUUID,
-                                              p_char->getProperties(),
-                                              p_char->getRequiredSecurity(),
-                                              p_char->getValueAttribute().getValuePtr(),
-                                              p_char->getValueAttribute().getLength(),
-                                              p_char->getValueAttribute().getMaxLength(),
-                                              p_char->getValueAttribute().hasVariableLength(),
-                                              userDescriptionDescriptorValuePtr,
-                                              userDescriptionDescriptorValueLen,
-                                              p_char->isReadAuthorizationEnabled(),
-                                              p_char->isWriteAuthorizationEnabled(),
-                                              &nrfCharacteristicHandles[characteristicCount]),
+                custom_add_in_characteristic(   BLE_GATT_HANDLE_INVALID, 
+                                                &nordicUUID, 
+                                                p_char,  
+                                                &nrfCharacteristicHandles[characteristicCount]),
                  BLE_ERROR_PARAM_OUT_OF_RANGE );
 
         /* Update the characteristic handle */
@@ -116,26 +94,29 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
             }
 
             GattAttribute *p_desc = p_char->getDescriptor(j);
-            /* skip the user-description-descriptor here; this has already been handled when adding the characteristic (above). */
-            if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC) {
-                continue;
+            /* skip the special cases already handled by the characteristic */
+            if (p_desc->getUUID() != BLE_UUID_DESCRIPTOR_CHAR_USER_DESC &&
+                p_desc->getUUID() != BLE_UUID_DESCRIPTOR_CHAR_EXT_PROP &&
+                p_desc->getUUID() != BLE_UUID_DESCRIPTOR_SERVER_CHAR_CONFIG &&
+                p_desc->getUUID() != BLE_UUID_DESCRIPTOR_CHAR_PRESENTATION_FORMAT            
+                // TODO:  What about aggregate PF???
+            ) {
+                nordicUUID = custom_convert_to_nordic_uuid(p_desc->getUUID());
+
+                ASSERT(ERROR_NONE ==
+                    custom_add_in_descriptor(nrfCharacteristicHandles[characteristicCount].value_handle,
+                                                &nordicUUID,
+                                                p_desc->getValuePtr(),
+                                                p_desc->getLength(),
+                                                p_desc->getMaxLength(),
+                                                p_desc->hasVariableLength(),
+                                                &nrfDescriptorHandles[descriptorCount]),
+                    BLE_ERROR_PARAM_OUT_OF_RANGE);
+
+                p_descriptors[descriptorCount++] = p_desc;
+                p_desc->setHandle(nrfDescriptorHandles[descriptorCount]);
             }
 
-            nordicUUID = custom_convert_to_nordic_uuid(p_desc->getUUID());
-
-            ASSERT(ERROR_NONE ==
-                   custom_add_in_descriptor(BLE_GATT_HANDLE_INVALID,
-                                            &nordicUUID,
-                                            p_desc->getValuePtr(),
-                                            p_desc->getLength(),
-                                            p_desc->getMaxLength(),
-                                            p_desc->hasVariableLength(),
-                                            &nrfDescriptorHandles[descriptorCount]),
-                BLE_ERROR_PARAM_OUT_OF_RANGE);
-
-            p_descriptors[descriptorCount] = p_desc;
-            p_desc->setHandle(nrfDescriptorHandles[descriptorCount]);
-            descriptorCount++;
         }
     }
 
@@ -269,32 +250,46 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
             }
         }
     } else {
-        uint32_t err = sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value);
-        switch(err) {
-            case NRF_SUCCESS:
-                returnValue = BLE_ERROR_NONE;
-                break;
-            case NRF_ERROR_INVALID_ADDR:
-            case NRF_ERROR_INVALID_PARAM:
-                returnValue = BLE_ERROR_INVALID_PARAM;
-                break;
-            case NRF_ERROR_NOT_FOUND:
-            case NRF_ERROR_DATA_SIZE:
-            case BLE_ERROR_INVALID_CONN_HANDLE:
-            case BLE_ERROR_GATTS_INVALID_ATTR_TYPE:
-                returnValue = BLE_ERROR_PARAM_OUT_OF_RANGE;
-                break;
-            case NRF_ERROR_FORBIDDEN:
-                returnValue = BLE_ERROR_OPERATION_NOT_PERMITTED;
-                break;
-            default:
-                returnValue = BLE_ERROR_UNSPECIFIED;
-                break;
-        }
+        returnValue = BLE_ERROR_INVALID_STATE; // if assert is not used
+        ASSERT_INT( ERROR_NONE,
+                    sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value),
+                    BLE_ERROR_PARAM_OUT_OF_RANGE );
     }
 
     return returnValue;
 }
+
+/**
+ * Perform an explicit BLE notification of a given attribute.
+ *
+ * @param[in] attributeHandle
+ *              Handle for the value attribute of the Characteristic.
+ * @param[in] value
+ *              A pointer to a buffer holding the new value
+ * @param[in] size
+ *              Size of the new value (in bytes).
+ *
+ * @return BLE_ERROR_NONE if we have successfully set the value of the attribute.
+ */
+ble_error_t nRF5xGattServer::notify(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len)
+{
+    uint16_t gapConnectionHandle = ((nRF5xGap &)nRF5xn::Instance(BLE::DEFAULT_INSTANCE).getGap()).getConnectionHandle();
+    ble_gatts_hvx_params_t hvx_params;
+
+    hvx_params.handle = attributeHandle;
+    hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
+    hvx_params.offset = 0;
+    hvx_params.p_data = const_cast<uint8_t *>(buffer);
+    hvx_params.p_len  = &len;
+
+    error_t error = (error_t) sd_ble_gatts_hvx(gapConnectionHandle, &hvx_params);
+
+    if (error == ERROR_NONE)  
+	    return BLE_ERROR_NONE;
+    else
+	    return BLE_STACK_BUSY;
+}
+
 
 ble_error_t nRF5xGattServer::areUpdatesEnabled(const GattCharacteristic &characteristic, bool *enabledP)
 {
@@ -408,9 +403,13 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
             return;
         }
 
-        case BLE_GATTS_EVT_SYS_ATTR_MISSING:
-            sd_ble_gatts_sys_attr_set(gattsEventP->conn_handle, NULL, 0, 0);
+        case BLE_GATTS_EVT_SYS_ATTR_MISSING: 
+        case BLE_GAP_EVT_CONN_SEC_UPDATE:
+        {
+            GattSysAttrMissingCallbackParams cbParams = {gattsEventP->conn_handle};
+            handleSysAttrMissingEvent(&cbParams);
             return;
+        }
 
         case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
             switch (gattsEventP->params.authorize_request.type) {
